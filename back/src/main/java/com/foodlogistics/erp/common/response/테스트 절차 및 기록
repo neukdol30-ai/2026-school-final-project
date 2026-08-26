@@ -1,0 +1,46 @@
+kousei@kousei-MacBookPro back % curl -i \
+  -X POST http://localhost:8080/api/test/exceptions/validation \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"사과","quantity":10}'
+HTTP/1.1 200
+Content-Type: application/json
+Content-Length: 55
+Date: Wed, 26 Aug 2026 04:58:22 GMT
+
+{"data":{"name":"사과","quantity":10},"success":true}%
+kousei@kousei-MacBookPro back % curl -i \
+  -X POST http://localhost:8080/api/test/exceptions/validation \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"","quantity":0}'
+HTTP/1.1 400
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Wed, 26 Aug 2026 04:58:37 GMT
+Connection: close
+
+{"error":{"code":"VALIDATION_ERROR","fields":[{"field":"name","message":"이름은 필수입니다."},{"field":"quantity","message":"수량은 0보다 커야 합니다."}],"message":"입력값을 확인해 주십시오."},"success":false}%                                                                                    kousei@kousei-MacBookPro back % curl -i http://localhost:8080/api/test/exceptions/business
+HTTP/1.1 404
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Wed, 26 Aug 2026 04:59:14 GMT
+
+{"error":{"code":"RESOURCE_NOT_FOUND","message":"요청한 데이터를 찾을 수 없습니다."},"success":false}%
+kousei@kousei-MacBookPro back % curl -i \
+  -X POST http://localhost:8080/api/test/exceptions/validation \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"사과","quantity":"문자열"}'
+HTTP/1.1 400
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Wed, 26 Aug 2026 04:59:20 GMT
+Connection: close
+
+{"error":{"code":"INVALID_REQUEST","message":"잘못된 요청입니다."},"success":false}%
+kousei@kousei-MacBookPro back % curl -i \
+  -X POST http://localhost:8080/api/test/exceptions/business
+HTTP/1.1 405
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Wed, 26 Aug 2026 04:59:25 GMT
+
+{"error":{"code":"METHOD_NOT_ALLOWED","message":"지원하지 않는 HTTP 메서드입니다."},"success":false}%
