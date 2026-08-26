@@ -18,7 +18,7 @@
 
     <property
         name="LOG_PATTERN"
-        value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level　[%thread] [%property{APP_NAME}] %logger{36} - %msg%n"
+        value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%property{APP_NAME}] %logger{36} - %msg%n"
         />
 
 <!--    인텔리제이 콘솔 출력-->
