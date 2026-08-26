@@ -1,3 +1,10 @@
 spring:
   application:
-    name: demo1
+    name: food-logistics-erp
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+
+  flyway:
+    enabled: false
