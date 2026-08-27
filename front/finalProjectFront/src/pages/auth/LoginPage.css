@@ -1,0 +1,128 @@
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    background-color: #f4f6f8;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    background-color: #ffffff;
+    border: 1px solid #e2e6ea;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(32, 40, 48, 0.08);
+}
+
+.login-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.login-brand {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1769aa;
+}
+
+.login-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #202830;
+}
+
+.login-header p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #818b95;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.login-field label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #323b45;
+}
+
+.login-field input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    color: #202830;
+    background-color: #ffffff;
+    border: 1px solid #d7dce1;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.login-field input::placeholder {
+    color: #a2abb4;
+}
+
+.login-field input:focus {
+    border-color: #1769aa;
+    box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.login-error {
+    margin: -4px 0 0;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #c62828;
+    background-color: #fff3f3;
+    border: 1px solid #f2caca;
+    border-radius: 6px;
+}
+
+.login-button {
+    height: 48px;
+    margin-top: 4px;
+    color: #ffffff;
+    font-weight: 700;
+    background-color: #1769aa;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.login-button:hover {
+    background-color: #12578e;
+}
+
+.login-button:focus-visible {
+    outline: 3px solid rgba(23, 105, 170, 0.25);
+    outline-offset: 2px;
+}
+
+.login-button:disabled {
+    background-color: #9eb9ce;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        padding: 16px;
+    }
+
+    .login-card {
+        padding: 30px 22px;
+    }
+}
