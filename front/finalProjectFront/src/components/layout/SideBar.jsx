@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 
 
-function Sidemenu({
+function SideBar({
                       isOpen,
                       onClose,
                       currentPage,
@@ -611,4 +611,4 @@ function SubMenu({
 }
 
 
-export default Sidemenu
+export default SideBar

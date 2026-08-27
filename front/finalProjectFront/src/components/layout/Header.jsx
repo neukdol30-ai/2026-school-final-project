@@ -3,17 +3,24 @@ import {
     Bell,
     UserCircle,
     LogOut,
-} from 'lucide-react'
+    Headphones,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-function Topbar({ onToggleSidebar }) {
+function Header({ onToggleSidebar }) {
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        console.log('로그아웃')
-    }
+        console.log('로그아웃');
+    };
 
     const handleNotification = () => {
-        console.log('알림')
-    }
+        console.log('알림');
+    };
+
+    const handleCustomerService = () => {
+        navigate('/cs'); // 고객센터 경로 (필요시 수정 가능)
+    };
 
     return (
         <header className="topbar">
@@ -42,16 +49,34 @@ function Topbar({ onToggleSidebar }) {
 
                 {/* 회사 */}
                 <div className="company-info">
-
-          <span className="company-label">
-            회사
-          </span>
-
+                    <span className="company-label">
+                        회사
+                    </span>
                     <strong>
                         우리식자재
                     </strong>
-
                 </div>
+
+
+                {/* 고객센터 버튼 추가 */}
+                <button
+                    type="button"
+                    className="customer-service-button"
+                    onClick={handleCustomerService}
+                    aria-label="고객센터"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'inherit'
+                    }}
+                >
+                    <Headphones size={20} />
+                    <span>고객센터</span>
+                </button>
 
 
                 {/* 알림 */}
@@ -62,31 +87,23 @@ function Topbar({ onToggleSidebar }) {
                     aria-label="알림"
                 >
                     <Bell size={20} />
-
                     <span className="notification-badge">
-            3
-          </span>
-
+                        3
+                    </span>
                 </button>
 
 
                 {/* 사용자 */}
                 <div className="user-info">
-
                     <UserCircle size={24} />
-
                     <div className="user-detail">
-
                         <strong>
                             홍길동
                         </strong>
-
                         <span>
-              관리자
-            </span>
-
+                            관리자
+                        </span>
                     </div>
-
                 </div>
 
 
@@ -97,17 +114,15 @@ function Topbar({ onToggleSidebar }) {
                     onClick={handleLogout}
                 >
                     <LogOut size={18} />
-
                     <span>
-            로그아웃
-          </span>
-
+                        로그아웃
+                    </span>
                 </button>
 
             </div>
 
         </header>
-    )
+    );
 }
 
-export default Topbar
+export default Header;

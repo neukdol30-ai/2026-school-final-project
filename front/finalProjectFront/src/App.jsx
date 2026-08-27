@@ -1,122 +1,129 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {
+  Menu,
+  Bell,
+  UserCircle,
+  LogOut,
+  Headphones,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+function Header({ onToggleSidebar }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    console.log('로그아웃');
+  };
+
+  const handleNotification = () => {
+    console.log('알림');
+  };
+
+  // 고객센터 버튼 클릭 시 '/cs' 경로로 페이지 이동
+  const handleCustomerService = () => {
+    navigate('/cs');
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <header className="topbar">
 
-      <div className="ticks"></div>
+        {/* 왼쪽 */}
+        <div className="topbar-left">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <button
+              type="button"
+              className="menu-button"
+              onClick={onToggleSidebar}
+              aria-label="메뉴 열기"
+          >
+            <Menu size={22} />
+          </button>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          <div className="topbar-logo">
+            식자재 ERP
+          </div>
+
+        </div>
+
+
+        {/* 오른쪽 */}
+        <div className="topbar-right">
+
+          {/* 회사 */}
+          <div className="company-info">
+                    <span className="company-label">
+                        회사
+                    </span>
+            <strong>
+              우리식자재
+            </strong>
+          </div>
+
+
+          {/* [추가] 고객센터 버튼 */}
+          <button
+              type="button"
+              className="customer-service-button"
+              onClick={handleCustomerService}
+              aria-label="고객센터"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'inherit'
+              }}
+          >
+            <Headphones size={20} />
+            <span>고객센터</span>
+          </button>
+
+
+          {/* 알림 */}
+          <button
+              type="button"
+              className="notification-button"
+              onClick={handleNotification}
+              aria-label="알림"
+          >
+            <Bell size={20} />
+            <span className="notification-badge">
+                        3
+                    </span>
+          </button>
+
+
+          {/* 사용자 */}
+          <div className="user-info">
+            <UserCircle size={24} />
+            <div className="user-detail">
+              <strong>
+                홍길동
+              </strong>
+              <span>
+                            관리자
+                        </span>
+            </div>
+          </div>
+
+
+          {/* 로그아웃 */}
+          <button
+              type="button"
+              className="logout-button"
+              onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            <span>
+                        로그아웃
+                    </span>
+          </button>
+
+        </div>
+
+      </header>
+  );
 }
 
-export default App
+export default Header;

@@ -23,7 +23,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    // Oracle / MyBatis
+    // Oracle / MyBatis / JDBC
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 
