@@ -6,9 +6,6 @@ spring:
     exclude:
       - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 
-  flyway:
-    enabled: false
-
 logging:
   file:
     path: ${LOG_PATH:logs}
