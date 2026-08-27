@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
+import LoginPage from "./pages/auth/LoginPage.jsx";
 
 function App() {
 
@@ -9,6 +10,8 @@ function App() {
     <Routes>
       <Route element={<MainLayout />}>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/products" element={<EmptyPage title="상품관리" />} />
       <Route path="/partners" element={<EmptyPage title="거래처관리" />} />
