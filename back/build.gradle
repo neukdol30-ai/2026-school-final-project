@@ -28,7 +28,7 @@ dependencies {
     runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 
     // DB Migration
-    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
     implementation 'org.flywaydb:flyway-database-oracle'
 
     // Lombok

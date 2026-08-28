@@ -72,3 +72,72 @@ Consider renaming one of the beans or enabling overriding by setting spring.main
 2026-08-28 10:15:00.091 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 1.457 seconds (process running for 1.819)
 2026-08-28 10:20:50.404 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
 2026-08-28 10:20:50.410 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-28 10:35:17.583 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 26414 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-08-28 10:35:17.590 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-08-28 10:35:17.678 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-08-28 10:35:17.678 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-28 10:35:17.678 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-28 10:35:17.728 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-08-28 10:35:18.128 WARN  [restartedMain] [food-logistics-erp] o.m.s.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.foodlogistics.erp]' package. Please check your configuration.
+2026-08-28 10:35:18.350 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-28 10:35:18.357 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:35:18.358 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-28 10:35:18.358 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-08-28 10:35:18.372 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 693 ms
+2026-08-28 10:35:18.597 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-08-28 10:35:18.987 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-28 10:35:19.245 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@1a915613
+2026-08-28 10:35:19.246 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-28 10:35:19.254 INFO  [restartedMain] [food-logistics-erp] org.flywaydb.core.FlywayExecutor - Database: jdbc:oracle:thin:@//localhost:1521/FREEPDB1 (Oracle 23.26)
+2026-08-28 10:35:19.482 INFO  [restartedMain] [food-logistics-erp] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "FOOD_ERP_LOCAL"."flyway_schema_history" does not exist yet
+2026-08-28 10:35:19.484 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbValidate - Successfully validated 13 migrations (execution time 00:00.074s)
+2026-08-28 10:35:19.835 INFO  [restartedMain] [food-logistics-erp] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "FOOD_ERP_LOCAL"."flyway_schema_history" ...
+2026-08-28 10:35:19.971 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Current version of schema "FOOD_ERP_LOCAL": << Empty Schema >>
+2026-08-28 10:35:19.975 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "1 - create company"
+2026-08-28 10:35:20.052 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "2 - create app user"
+2026-08-28 10:35:20.092 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "3 - create app role"
+2026-08-28 10:35:20.122 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "4 - create app permission"
+2026-08-28 10:35:20.143 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "5 - create app user role"
+2026-08-28 10:35:20.166 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "6 - create app role permission"
+2026-08-28 10:35:20.194 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "7 - create role permission history"
+2026-08-28 10:35:20.224 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "8 - add security audit foreign keys"
+2026-08-28 10:35:20.298 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "9 - create unit"
+2026-08-28 10:35:20.343 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "10 - create business partner"
+2026-08-28 10:35:20.384 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "11 - create product"
+2026-08-28 10:35:20.413 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "12 - create product unit"
+2026-08-28 10:35:20.443 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Migrating schema "FOOD_ERP_LOCAL" to version "13 - create warehouse"
+2026-08-28 10:35:20.470 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Successfully applied 13 migrations to schema "FOOD_ERP_LOCAL", now at version v13 (execution time 00:00.324s)
+2026-08-28 10:35:20.588 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:35:20.595 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-28 10:35:20.599 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 3.258 seconds (process running for 3.646)
+2026-08-28 10:39:13.119 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
+2026-08-28 10:39:13.131 INFO  [Thread-1] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-28 10:39:13.133 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:39:13.141 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-28 10:39:13.142 INFO  [Thread-1] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:39:13.150 INFO  [Thread-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-28 10:39:13.209 INFO  [Thread-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-28 10:39:13.277 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 26414 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-08-28 10:39:13.278 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-08-28 10:39:13.368 WARN  [restartedMain] [food-logistics-erp] o.m.s.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.foodlogistics.erp]' package. Please check your configuration.
+2026-08-28 10:39:13.428 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-28 10:39:13.429 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:39:13.429 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-28 10:39:13.429 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-08-28 10:39:13.434 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 155 ms
+2026-08-28 10:39:13.590 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-08-28 10:39:13.722 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2026-08-28 10:39:13.767 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection oracle.jdbc.driver.T4CConnection@34d9ca8f
+2026-08-28 10:39:13.767 INFO  [restartedMain] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+2026-08-28 10:39:13.768 INFO  [restartedMain] [food-logistics-erp] org.flywaydb.core.FlywayExecutor - Database: jdbc:oracle:thin:@//localhost:1521/FREEPDB1 (Oracle 23.26)
+2026-08-28 10:39:13.783 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbValidate - Successfully validated 13 migrations (execution time 00:00.011s)
+2026-08-28 10:39:13.824 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Current version of schema "FOOD_ERP_LOCAL": 13
+2026-08-28 10:39:13.825 INFO  [restartedMain] [food-logistics-erp] o.f.core.internal.command.DbMigrate - Schema "FOOD_ERP_LOCAL" is up to date. No migration necessary.
+2026-08-28 10:39:13.868 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-08-28 10:39:13.871 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-28 10:39:13.872 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.612 seconds (process running for 236.919)
+2026-08-28 10:39:13.873 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-08-28 10:39:18.768 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-28 10:39:18.769 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-28 10:39:18.770 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown initiated...
+2026-08-28 10:39:18.789 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown completed.

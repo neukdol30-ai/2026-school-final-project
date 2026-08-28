@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
-@Profile("security-test")
+@Profile("in-memory-security-test")
 public class SecurityTestUserConfig {
 
     @Bean
