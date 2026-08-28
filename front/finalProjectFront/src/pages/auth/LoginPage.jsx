@@ -11,7 +11,7 @@ function LoginPage(){
         event.preventDefault();
         setErrorMessage("");
 
-        if (!loginId.trim() || !Password) {
+        if (!loginId.trim() || !password) {
             setErrorMessage("아이디와 비밀번호를 모두 입력해주세요.");
             return;
         }
@@ -20,7 +20,7 @@ function LoginPage(){
     };
 
     return (
-        <main clsssName="login-page">
+        <main className="login-page">
             <section className="login-card">
                 <header className="login-header">
                     <span className="login-brand">
