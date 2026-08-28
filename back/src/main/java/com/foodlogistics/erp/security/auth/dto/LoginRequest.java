@@ -21,7 +21,7 @@ public class LoginRequest {
     @NotBlank(message = "비밀번호를 입력해 주십시오.")
     @Size(
             max = 100,
-            message = "비밀벅호는 100자 이하여야 합니다."
+            message = "비밀번호는 100자 이하여야 합니다."
     )
     private String password;
 }

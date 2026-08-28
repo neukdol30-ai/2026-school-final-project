@@ -45,7 +45,7 @@ public class JwtTokenProvider {
                 .expiresAt(expiresAt)
                 .claim("appUserId", userDetails.getAppUserId())
                 .claim("companyId", userDetails.getCompanyId())
-                .claim("userName", userDetails.getUserName())
+                .claim("userName", userDetails.getDisplayName())
                 .build();
 
         return jwtEncoder
