@@ -21,6 +21,12 @@ public enum ErrorCode {
             "잘못된 요청입니다."
     ),
 
+    AUTHENTICATION_FAILED(
+            HttpStatus.UNAUTHORIZED,
+            "AUTHENTICATION_FAILED",
+            "아이디 또는 비밀번호가 올바르지 않습니다."
+    ),
+
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",
