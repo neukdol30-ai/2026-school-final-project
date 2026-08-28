@@ -1,5 +1,10 @@
-import {useState} from "react";
-import "./LoginPage.css"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { requestLogin } from "../../api/authApi.js";
+import {
+    saveAuthSession
+} from "../../store/authStorage.js";
+import "./LoginPage.css";
 
 function LoginPage(){
 
@@ -7,17 +12,46 @@ function LoginPage(){
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         setErrorMessage("");
 
         if (!loginId.trim() || !password) {
-            setErrorMessage("아이디와 비밀번호를 모두 입력해주세요.");
+            setErrorMessage(
+                "아이디와 비밀번호를 모두 입력해주세요."
+            );
             return;
         }
 
-        // 로그인 API연결할 부분
+        setIsSubmitting(true);
+
+        try {
+            const loginData = await requestLogin(
+                loginId.trim(),
+                password
+            );
+
+            saveAuthSession(loginData);
+
+            navigate(
+                "/dashboard",
+                { replace: true }
+            );
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "로그인에 실패했습니다.";
+
+            setErrorMessage(message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+    const navigate = useNavigate();
+
+    const [isSubmitting, setIsSubmitting] =
+        useState(false);
 
     return (
         <main className="login-page">
@@ -39,10 +73,13 @@ function LoginPage(){
                             type="text"
                             value={loginId}
                             onChange={(event) =>
-                        setLoginId(event.target.value)}
+                                setLoginId(event.target.value)
+                            }
                             placeholder="아이디를 입력하세요"
                             autoComplete="username"
-                            autoFocus/>
+                            autoFocus
+                            disabled={isSubmitting}
+                        />
                     </div>
 
                     <div className="login-field">
@@ -53,9 +90,12 @@ function LoginPage(){
                             type="password"
                             value={password}
                             onChange={(event) =>
-                        setPassword(event.target.value)}
+                                setPassword(event.target.value)
+                            }
                             placeholder="비밀번호를 입력하세요"
-                            autoComplete="current-password"/>
+                            autoComplete="current-password"
+                            disabled={isSubmitting}
+                        />
                     </div>
 
                     {errorMessage && (
@@ -64,7 +104,15 @@ function LoginPage(){
                         </p>
                     )}
 
-                    <button className="login-button" type="submit">로그인</button>
+                    <button
+                        className="login-button"
+                        type="submit"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting
+                            ? "로그인 중..."
+                            : "로그인"}
+                    </button>
                 </form>
             </section>
         </main>
