@@ -14,7 +14,7 @@ public class ErpUserDetails implements UserDetails {
     private final Long companyId;
     private final String loginId;
     private final String password;
-    private final String userName;
+    private final String displayName;
     private final boolean enabled;
 
     public ErpUserDetails(AuthUser authUser) {
@@ -22,7 +22,7 @@ public class ErpUserDetails implements UserDetails {
         this.companyId = authUser.getCompanyId();
         this.loginId = authUser.getLoginId();
         this.password = authUser.getPassword();
-        this.userName = authUser.getUserName();
+        this.displayName = authUser.getUserName();
         this.enabled = "Y".equalsIgnoreCase(authUser.getUseYn());
     }
 
@@ -32,7 +32,7 @@ public class ErpUserDetails implements UserDetails {
     }
 
     @Override
-    public String getUserName() {
+    public String getUsername() {
         return loginId;
     }
 

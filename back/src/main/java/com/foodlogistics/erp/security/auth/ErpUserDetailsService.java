@@ -1,7 +1,6 @@
 package com.foodlogistics.erp.security.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.constraintvalidators.hv.NormalizedValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,7 +13,6 @@ import java.util.Locale;
 public class ErpUserDetailsService implements UserDetailsService {
 
     private final AuthUserMapper authUserMapper;
-    private final NormalizedValidator normalizedValidator;
 
     @Override
     public UserDetails loadUserByUsername(String loginId)

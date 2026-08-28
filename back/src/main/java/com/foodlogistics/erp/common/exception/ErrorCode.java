@@ -27,6 +27,18 @@ public enum ErrorCode {
             "아이디 또는 비밀번호가 올바르지 않습니다."
     ),
 
+    AUTHENTICATION_REQUIRED(
+            HttpStatus.UNAUTHORIZED,
+            "AUTHENTICATION_REQUIRED",
+            "인증이 필요합니다."
+    ),
+
+    ACCESS_DENIED(
+            HttpStatus.FORBIDDEN,
+            "ACCESS_DENIED",
+            "접근 권한이 없습니다."
+    ),
+
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",
