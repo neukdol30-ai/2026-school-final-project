@@ -3,7 +3,7 @@ import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
-import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 
 function App() {
 

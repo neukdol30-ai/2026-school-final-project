@@ -12,7 +12,7 @@ export async function requestLogin(
             headers: {
                 "Content-Type": "application/json",
             },
-            body: Json.stringify({
+            body: JSON.stringify({
                 loginId,
                 password
             }),

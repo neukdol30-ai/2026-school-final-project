@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { requestLogin } from "../../api/authApi.js";
 import {
     saveAuthSession
-} from "../../store/authStorage.js";
+} from "../../storage/authStorage.js";
 import "./LoginPage.css";
 
 function LoginPage(){
