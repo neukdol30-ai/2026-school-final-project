@@ -1,5 +1,7 @@
 package com.foodlogistics.erp.salesorder.service;
 
+import com.foodlogistics.erp.common.exception.BusinessException;
+import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderCreateRequestDto;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto;
 import org.springframework.stereotype.Service;
@@ -60,4 +62,33 @@ public class SalesOrderService {
 
         return salesOrder;
 }
+
+    public SalesOrderResponseDto confirmSalesOrder(Long salesOrderId) {
+
+        for(int index = 0; index < salesOrders.size(); index++) {
+            SalesOrderResponseDto salesOrder = salesOrders.get(index);
+
+            if(salesOrder.salesOrderId().equals(salesOrderId)) {
+
+                if("CONFIRMED".equals(salesOrder.orderStatus())) {
+                    return  salesOrder;
+                }
+
+                SalesOrderResponseDto confirmedSalesOrder =
+                        new SalesOrderResponseDto(
+                                salesOrder.salesOrderId(),
+                                salesOrder.orderNo(),
+                                salesOrder.customerName(),
+                                "CONFIRMED",
+                                salesOrder.shipmentStatus()
+                        );
+
+                salesOrders.set(index , confirmedSalesOrder);
+
+                return confirmedSalesOrder;
+            }
+        }
+        throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
+    }
+
 }

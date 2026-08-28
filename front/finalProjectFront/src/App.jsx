@@ -3,6 +3,7 @@ import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
 import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
+import OutboundListPage from "./pages/outbound/OutboundListPage";
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
         <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
         <Route path="/stocktakes" element={<EmptyPage title="재고실사" />} />
         <Route path="/sales-orders" element={<SalesOrderListPage />} />
-        <Route path="/outbounds" element={<EmptyPage title="출고관리" />} />
+        <Route path="/outbounds" element={<OutboundListPage />} />
         <Route
           path="/settings"
           element={<EmptyPage title="사용자 / 권한 설정" />}

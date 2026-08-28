@@ -19,13 +19,14 @@ public class SalesOrderController {
 
     private final SalesOrderService salesOrderService;
 
+    // 판매주문 목록 조회
     @GetMapping
     public ApiResponse<List<SalesOrderResponseDto>> getSalesOrders() {
         return  ApiResponse.ok(
                 salesOrderService.getSalesOrders()
         );
     }
-
+    // 판매주문 등록
     @PostMapping
     public ApiResponse<SalesOrderResponseDto> createSalesOrder(
             @RequestBody
@@ -34,6 +35,15 @@ public class SalesOrderController {
     ) {
         return ApiResponse.ok(
                 salesOrderService.createSalesOrder(request)
+        );
+    }
+    //판매주문 확정
+    @PostMapping("/{salesOrderId}/confirm")
+    public ApiResponse<SalesOrderResponseDto> confirmSalesOrder(
+            @PathVariable("salesOrderId") Long salesOrderId
+    ) {
+        return ApiResponse.ok(
+                salesOrderService.confirmSalesOrder(salesOrderId)
         );
     }
 }
