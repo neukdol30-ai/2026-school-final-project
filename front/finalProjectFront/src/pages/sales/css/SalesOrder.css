@@ -1,0 +1,149 @@
+.sales-order-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sales-order-page .content-panel {
+  box-sizing: border-box;
+}
+
+.sales-order-page form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.sales-order-page form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.sales-order-page label {
+  font-size: 13px;
+  color: #4e5965;
+}
+
+.sales-order-page input {
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid #cfd6dd;
+  border-radius: 5px;
+}
+
+.sales-order-page button {
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 5px;
+  background-color: #1769aa;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.sales-order-page button:disabled {
+  cursor: not-allowed;
+  background-color: #aab4bd;
+}
+
+.sales-order-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-order-page th,
+.sales-order-page td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e4e8ec;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sales-order-page th {
+  background-color: #f8fafc;
+  color: #4e5965;
+}
+
+.field-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #d32f2f;
+}
+
+.sales-order-page .content-panel form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.sales-order-page .content-panel form > div:first-of-type {
+  flex-basis: 100%;
+}
+
+.sales-order-page .content-panel form > div:first-of-type label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sales-order-page .content-panel form > div:first-of-type input {
+  width: 260px;
+}
+
+.sales-order-item-row {
+  flex: 1 1 360px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+
+.sales-order-item-row h3 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.sales-order-item-row label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sales-order-item-row input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-order-item-row > button {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: auto;
+}
+
+.sales-order-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.sales-order-filter label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sales-order-filter input {
+  width: 280px;
+}
+
+.success-message {
+  margin: 0;
+  font-size: 13px;
+  color: #197a3a;
+}

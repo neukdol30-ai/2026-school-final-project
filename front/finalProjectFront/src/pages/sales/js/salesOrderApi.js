@@ -6,7 +6,11 @@ async function requestApi(url, options, defaultErrorMessage) {
   const result = await response.json();
 
   if (!response.ok || !result.success) {
-    throw new Error(result.error?.message || defaultErrorMessage);
+    const error = new Error(result.error?.message || defaultErrorMessage);
+
+    error.validationErrors = result.error?.fields || [];
+
+    throw error;
   }
 
   return result.data;

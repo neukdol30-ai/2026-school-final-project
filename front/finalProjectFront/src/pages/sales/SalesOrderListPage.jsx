@@ -5,13 +5,22 @@ import {
   confirmSalesOrder,
   createSalesOrder,
   getSalesOrders,
-} from "./salesOrderApi";
+} from "./js/salesOrderApi";
+import "./css/SalesOrder.css";
+import SalesOrderSearchFilter from "./components/SalesOrderSearchFilter";
 
 function SalesOrderListPage() {
   const [saleOrders, setSalesOrders] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [keyword, setKeyword] = useState("");
+  const [orderStatus, setOrderStatus] = useState("");
+
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const [createValidationErrors, setCreateValidationErrors] = useState([]);
 
   const [createLoading, setCreateLoading] = useState(false);
 
@@ -35,6 +44,8 @@ function SalesOrderListPage() {
 
   async function handleCreateSalesOrder(requestData) {
     setError("");
+    setSuccessMessage("");
+    setCreateValidationErrors([]);
     setCreateLoading(true);
 
     try {
@@ -45,9 +56,17 @@ function SalesOrderListPage() {
         createdSalesOrder,
       ]);
 
+      setSuccessMessage("판매주문이 등록되었습니다.");
+
       return true;
     } catch (error) {
-      setError(error.message);
+      const validationErrors = error.validationErrors || [];
+
+      setCreateValidationErrors(validationErrors);
+
+      if (validationErrors.length === 0) {
+        setError(error.message);
+      }
 
       return false;
     } finally {
@@ -57,6 +76,7 @@ function SalesOrderListPage() {
 
   async function handleConfirmSalesOrder(salesOrderId) {
     setError("");
+    setSuccessMessage("");
     setConfirmingSalesOrderId(salesOrderId);
 
     try {
@@ -69,6 +89,8 @@ function SalesOrderListPage() {
             : salesOrder,
         ),
       );
+
+      setSuccessMessage("판매주문이 확정되었습니다.");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -76,8 +98,24 @@ function SalesOrderListPage() {
     }
   }
 
+  const filteredSalesOrders = saleOrders.filter((salesOrder) => {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+
+    const matchesKeyword =
+      normalizedKeyword === "" ||
+      salesOrder.orderNo.toLowerCase().includes(normalizedKeyword) ||
+      salesOrder.customerName.toLowerCase().includes(normalizedKeyword);
+
+    const matchesOrderStatus =
+      orderStatus === "" || salesOrder.orderStatus === orderStatus;
+
+    return matchesKeyword && matchesOrderStatus;
+  });
+
+  const hasSearchCondition = keyword.trim() !== "" || orderStatus == "";
+
   return (
-    <section className="page">
+    <section className="page sales-order-page">
       <div className="page-header">
         <div>
           <h1>판매주문</h1>
@@ -85,9 +123,19 @@ function SalesOrderListPage() {
         </div>
       </div>
 
+      {successMessage && <p className="success-message">{successMessage}</p>}
+
       <SalesOrderCreateForm
         onCreate={handleCreateSalesOrder}
         createLoading={createLoading}
+        validationErrors={createValidationErrors}
+      />
+
+      <SalesOrderSearchFilter
+        keyword={keyword}
+        onKeywordChange={setKeyword}
+        orderStatus={orderStatus}
+        onOrderStatusChange={setOrderStatus}
       />
 
       {loading && (
@@ -96,11 +144,12 @@ function SalesOrderListPage() {
 
       {error && <p className="empty-message">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <SalesOrderTable
-          saleOrders={saleOrders}
+          saleOrders={filteredSalesOrders}
           onConfirm={handleConfirmSalesOrder}
           confirmingSalesOrderId={confirmingSalesOrderId}
+          hasSearchCondition={hasSearchCondition}
         />
       )}
     </section>
