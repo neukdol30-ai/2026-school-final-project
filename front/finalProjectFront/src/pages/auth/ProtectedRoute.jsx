@@ -6,7 +6,7 @@ import {
 
 import {
     hasValidAuthSession
-} from "../../store/authStorage.js";
+} from "../../storage/authStorage.js";
 
 function ProtectedRoute() {
     const location = useLocation();
