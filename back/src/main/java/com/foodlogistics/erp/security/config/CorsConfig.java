@@ -32,7 +32,7 @@ public class CorsConfig {
                         "GET",
                         "POST",
                         "PUT",
-                        "PATH",
+                        "PATCH",
                         "DELETE",
                         "OPTIONS"
                 )
