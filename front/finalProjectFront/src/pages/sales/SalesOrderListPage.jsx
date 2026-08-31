@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import SalesOrderCreateForm from "./components/SalesOrderCreateForm";
 import SalesOrderTable from "./components/SalesOrderTable";
+import SalesOrderDetail from "./components/SalesOrderDetail";
 import {
   confirmSalesOrder,
   createSalesOrder,
+  getSalesOrderDetail,
   getSalesOrders,
 } from "./js/salesOrderApi";
 import "./css/SalesOrder.css";
@@ -25,6 +27,8 @@ function SalesOrderListPage() {
   const [createLoading, setCreateLoading] = useState(false);
 
   const [confirmingSalesOrderId, setConfirmingSalesOrderId] = useState(null);
+
+  const [salesOrderDetail, setSalesOrderDetail] = useState(null);
 
   useEffect(() => {
     async function fetchSalesOrders() {
@@ -98,6 +102,18 @@ function SalesOrderListPage() {
     }
   }
 
+  async function handleSelectSalesOrder(salesOrderId) {
+    setError("");
+
+    try {
+      const selectedSalesOrderDetail = await getSalesOrderDetail(salesOrderId);
+
+      setSalesOrderDetail(selectedSalesOrderDetail);
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
   const filteredSalesOrders = saleOrders.filter((salesOrder) => {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
@@ -112,7 +128,7 @@ function SalesOrderListPage() {
     return matchesKeyword && matchesOrderStatus;
   });
 
-  const hasSearchCondition = keyword.trim() !== "" || orderStatus == "";
+  const hasSearchCondition = keyword.trim() !== "" || orderStatus !== "";
 
   return (
     <section className="page sales-order-page">
@@ -124,6 +140,13 @@ function SalesOrderListPage() {
       </div>
 
       {successMessage && <p className="success-message">{successMessage}</p>}
+
+      {salesOrderDetail && (
+        <SalesOrderDetail
+          salesOrderDetail={salesOrderDetail}
+          onClose={() => setSalesOrderDetail(null)}
+        />
+      )}
 
       <SalesOrderCreateForm
         onCreate={handleCreateSalesOrder}
@@ -148,6 +171,7 @@ function SalesOrderListPage() {
         <SalesOrderTable
           saleOrders={filteredSalesOrders}
           onConfirm={handleConfirmSalesOrder}
+          onSelect={handleSelectSalesOrder}
           confirmingSalesOrderId={confirmingSalesOrderId}
           hasSearchCondition={hasSearchCondition}
         />

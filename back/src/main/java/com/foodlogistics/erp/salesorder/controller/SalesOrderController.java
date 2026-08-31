@@ -3,6 +3,7 @@ package com.foodlogistics.erp.salesorder.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderCreateRequestDto;
+import com.foodlogistics.erp.salesorder.dto.SalesOrderDetailResponseDto;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto;
 import com.foodlogistics.erp.salesorder.service.SalesOrderService;
 import jakarta.validation.Valid;
@@ -24,6 +25,15 @@ public class SalesOrderController {
     public ApiResponse<List<SalesOrderResponseDto>> getSalesOrders() {
         return  ApiResponse.ok(
                 salesOrderService.getSalesOrders()
+        );
+    }
+    // 주문번호 선택 시 주문 헤더와 품목 목록 함께 조회
+    @GetMapping("/{salesOrderId}")
+    public ApiResponse<SalesOrderDetailResponseDto> getSalesOrderDetail(
+            @PathVariable("salesOrderId") Long salesOrderId
+    )  {
+        return ApiResponse.ok(
+                salesOrderService.getSalesOrderDetail(salesOrderId)
         );
     }
     // 판매주문 등록

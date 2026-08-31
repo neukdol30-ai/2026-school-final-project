@@ -23,6 +23,14 @@ export async function getSalesOrders() {
     "판매주문 목록을 불러오지 못했습니다.",
   );
 }
+//판매주문 한 건의 헤더와 주문 품목 목록 함께 조회
+export async function getSalesOrderDetail(salesOrderId) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}`,
+    {},
+    "판매주문 상세 정보를 불러오지 못했습니다.",
+  );
+}
 //판매주문 등록
 export async function createSalesOrder(requestData) {
   return requestApi(

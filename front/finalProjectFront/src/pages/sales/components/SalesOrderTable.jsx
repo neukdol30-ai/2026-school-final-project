@@ -22,6 +22,7 @@ function getShipmentStatusLabel(shipmentStatus) {
 function SalesOrderTable({
   saleOrders,
   onConfirm,
+  onSelect,
   confirmingSalesOrderId,
   hasSearchCondition,
 }) {
@@ -52,7 +53,14 @@ function SalesOrderTable({
           ) : (
             saleOrders.map((salesOrder) => (
               <tr key={salesOrder.salesOrderId}>
-                <td>{salesOrder.orderNo}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(salesOrder.salesOrderId)}
+                  >
+                    {salesOrder.orderNo}
+                  </button>
+                </td>
                 <td>{salesOrder.customerName}</td>
                 <td>{getOrderStatusLabel(salesOrder.orderStatus)}</td>
                 <td>{getShipmentStatusLabel(salesOrder.shipmentStatus)}</td>
