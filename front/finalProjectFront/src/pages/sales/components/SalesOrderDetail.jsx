@@ -1,5 +1,10 @@
+import {
+  getOrderStatusLabel,
+  getShipmentStatusLabel,
+} from "../js/salesOrderStatus";
+
 function SalesOrderDetail({ salesOrderDetail, onClose }) {
-  if (!SalesOrderDetail) {
+  if (!salesOrderDetail) {
     return null;
   }
   return (
@@ -15,8 +20,10 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
       <div>
         <p>주문번호: {salesOrderDetail.orderNo}</p>
         <p>거래처: {salesOrderDetail.customerName}</p>
-        <p>주문상태: {salesOrderDetail.orderStatus}</p>
-        <p>출고상태: {salesOrderDetail.shipmentStatus}</p>
+        <p>주문상태: {getOrderStatusLabel(salesOrderDetail.orderStatus)}</p>
+        <p>
+          출고상태: {getShipmentStatusLabel(salesOrderDetail.shipmentStatus)}
+        </p>
       </div>
 
       <h3>주문 품목</h3>

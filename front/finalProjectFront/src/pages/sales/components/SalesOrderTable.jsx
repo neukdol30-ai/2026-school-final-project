@@ -1,23 +1,7 @@
-function getOrderStatusLabel(orderStatus) {
-  const getOrderStatusLabels = {
-    DRAFT: "작성중",
-    CONFIRMED: "주문확정",
-    CANCELLED: "취소",
-  };
-
-  return getOrderStatusLabels[orderStatus] || orderStatus;
-}
-
-function getShipmentStatusLabel(shipmentStatus) {
-  const shipmentStatusLabels = {
-    NOT_SHIPPED: "미출고",
-    PARTIAL: "부분출고",
-    SHIPPED: "출고완료",
-    CLOSED: "출고종료",
-  };
-
-  return shipmentStatusLabels[shipmentStatus] || shipmentStatus;
-}
+import {
+  getOrderStatusLabel,
+  getShipmentStatusLabel,
+} from "../js/salesOrderStatus";
 
 function SalesOrderTable({
   saleOrders,
@@ -78,8 +62,10 @@ function SalesOrderTable({
                         ? "확정 중..."
                         : "확정"}
                     </button>
-                  ) : (
+                  ) : salesOrder.orderStatus === "CONFIRMED" ? (
                     <span>확정 완료</span>
+                  ) : (
+                    <span>취소됨</span>
                   )}
                 </td>
               </tr>
