@@ -9,9 +9,6 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
 
-  flyway:
-    enabled: true
-
 security:
   jwt:
     secret: ${JWT_SECRET:security-test-only-secret-key-2026-erp-project}
