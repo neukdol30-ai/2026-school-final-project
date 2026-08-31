@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.salesorder.mapper.SalesOrderMapper">
+
+    <select id="findAll"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto">
+
+        SELECT
+        so.sales_order_id AS "salesOrderId",
+        so.order_no AS "orderNo",
+        bp.partner_name AS "customerName",
+        so.order_status AS "orderStatus",
+        so.shipment_status AS "shipmentStatus"
+        FROM sales_order so
+        JOIN business_partner bp
+        ON bp.partner_id = so.customer_id
+        ORDER BY so.sales_order_id DESC
+    </select>
+
+
+    <select id="findById"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto">
+
+        SELECT
+        so.sales_order_id AS "salesOrderId",
+        so.order_no AS "orderNo",
+        bp.partner_name AS "customerName",
+        so.order_status AS "orderStatus",
+        so.shipment_status AS "shipmentStatus"
+        FROM sales_order so
+        JOIN business_partner bp
+        ON bp.partner_id = so.customer_id
+        WHERE so.sales_order_id = #{salesOrderId}
+
+    </select>
+
+
+    <select id="findItemsBySalesOrderId"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderItemResponseDto">
+
+        SELECT
+        soi.product_unit_id AS "productUnitId",
+        soi.ordered_qty AS "orderedQty"
+        FROM sales_order_item soi
+        WHERE soi.sales_order_id = #{salesOrderId}
+        ORDER BY soi.line_no
+
+    </select>
+</mapper>

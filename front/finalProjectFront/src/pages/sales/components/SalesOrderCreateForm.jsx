@@ -7,6 +7,8 @@ function SalesOrderCreateForm({
 }) {
   const [customerId, setCustomerId] = useState("");
 
+  const [warehouseId, setWarehouseId] = useState("");
+
   const [items, setItems] = useState([
     {
       productUnitId: "",
@@ -51,6 +53,7 @@ function SalesOrderCreateForm({
 
     const created = await onCreate({
       customerId: Number(customerId),
+      warehouseId: Number(warehouseId),
       items: items.map((item) => ({
         productUnitId: Number(item.productUnitId),
         orderedQty: Number(item.orderedQty),
@@ -59,6 +62,7 @@ function SalesOrderCreateForm({
 
     if (created) {
       setCustomerId("");
+      setWarehouseId("");
 
       setItems([
         {
@@ -70,6 +74,7 @@ function SalesOrderCreateForm({
   }
 
   const customerIdError = getValidationErrorMessage("customerId");
+  const warehouseIdError = getValidationErrorMessage("warehouseId");
 
   return (
     <div className="content-panel">
@@ -88,6 +93,22 @@ function SalesOrderCreateForm({
           />
 
           {customerIdError && <p className="field-error">{customerIdError}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="warehouseId">출고 창고 ID</label>
+          <input
+            id="warehouseId"
+            type="number"
+            min="1"
+            required
+            value={warehouseId}
+            onChange={(event) => setWarehouseId(event.target.value)}
+          />
+
+          {warehouseIdError && (
+            <p className="field-error">{warehouseIdError}</p>
+          )}
         </div>
 
         {items.map((item, index) => {

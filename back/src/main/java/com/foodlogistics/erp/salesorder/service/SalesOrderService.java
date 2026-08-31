@@ -6,6 +6,8 @@ import com.foodlogistics.erp.salesorder.dto.SalesOrderCreateRequestDto;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderDetailResponseDto;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderItemResponseDto;
 import com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto;
+import com.foodlogistics.erp.salesorder.mapper.SalesOrderMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,14 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SalesOrderService {
+
+    private final SalesOrderMapper salesOrderMapper;
+
+    private static final Long TEMPORARY_COMPANY_ID =1L;
+
+    private static final Long TEMPORARY_APP_USER_ID = 1L;
 
     private final List<SalesOrderResponseDto> salesOrders = new ArrayList<>(
 
@@ -62,26 +71,28 @@ public class SalesOrderService {
 
     public List<SalesOrderResponseDto> getSalesOrders() {
 
-        return salesOrders;
+        return salesOrderMapper.findAll();
     }
 
     public SalesOrderDetailResponseDto getSalesOrderDetail(Long salesOrderId) {
-        for(SalesOrderResponseDto salesOrder : salesOrders) {
-            if(salesOrder.salesOrderId().equals(salesOrderId)) {
+        SalesOrderResponseDto salesOrder =
+                salesOrderMapper.findById(salesOrderId);
+
+        if(salesOrder == null) {
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+        List<SalesOrderItemResponseDto> items =
+                salesOrderMapper.findItemsBySalesOrderId(salesOrderId);
+
                 return new SalesOrderDetailResponseDto(
                         salesOrder.salesOrderId(),
                         salesOrder.orderNo(),
                         salesOrder.customerName(),
                         salesOrder.orderStatus(),
                         salesOrder.shipmentStatus(),
-
-                        salesOrderItems.getOrDefault(salesOrderId,List.of())
-
+                        items
                 );
             }
-        }
-        throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
-    }
 
     public SalesOrderResponseDto createSalesOrder(
             SalesOrderCreateRequestDto request
