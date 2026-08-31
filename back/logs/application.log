@@ -1,0 +1,4 @@
+2026-08-27 14:27:28.623 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - Starting FoodLogisticsErpApplicationTests using Java 25.0.1 with PID 13326 (started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project/back)
+2026-08-27 14:27:28.626 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2026-08-27 14:27:28.740 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-08-27 14:27:29.220 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - Started FoodLogisticsErpApplicationTests in 0.85 seconds (process running for 1.434)

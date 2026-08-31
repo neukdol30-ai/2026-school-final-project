@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/finalProject.iml" filepath="$PROJECT_DIR$/.idea/finalProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/food-logistics-erp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/food-logistics-erp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/food-logistics-erp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/food-logistics-erp.test.iml" />
     </modules>
   </component>
 </project>

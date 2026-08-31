@@ -7,3 +7,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
+logging:
+  file:
+    path: ${LOG_PATH:logs}
