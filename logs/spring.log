@@ -89,3 +89,7 @@
 2026-08-31T10:02:29.709+09:00  INFO 17208 --- [food-logistics-erp] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-08-31T10:02:31.436+09:00  INFO 17208 --- [food-logistics-erp] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@12a94209
 2026-08-31T10:02:31.437+09:00  INFO 17208 --- [food-logistics-erp] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-31T10:15:38.313+09:00  INFO 17208 --- [food-logistics-erp] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-31T10:15:38.317+09:00  INFO 17208 --- [food-logistics-erp] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-31T10:15:38.320+09:00  INFO 17208 --- [food-logistics-erp] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-08-31T10:15:39.674+09:00  INFO 17208 --- [food-logistics-erp] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

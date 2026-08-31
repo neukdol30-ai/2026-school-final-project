@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiHeadphones } from 'react-icons/fi'; // 아이콘을 위해 추가
+import { FiHeadphones } from 'react-icons/fi';
 
 function Header() {
     return (
@@ -10,7 +9,6 @@ function Header() {
             </div>
 
             <div className="header-right flex items-center gap-4">
-                {/* 고객센터 링크 추가 */}
                 <Link
                     to="/support"
                     className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 transition-colors"

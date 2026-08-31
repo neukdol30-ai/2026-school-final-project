@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function SupportPage() {
     const [activeTab, setActiveTab] = useState('notice');
@@ -15,10 +15,10 @@ export default function SupportPage() {
         { q: '세금계산서는 언제 발행되나요?', a: '월 마감 후 익월 10일 이전에 전월 거래 내역을 통합하여 일괄 발행됩니다.' },
     ];
 
-    const [qnas, setQnas] = useState([
+    const qnas = [
         { id: 1, title: '냉동 돈까스 품목 단가 문의드립니다.', writer: '푸드마켓 구로점', date: '2026-08-27', status: '답변완료' },
         { id: 2, title: '납품 시간 조정 요청 건', writer: '맛있는 한끼 식당', date: '2026-08-25', status: '답변대기' },
-    ]);
+    ];
 
     return (
         <div className="support-container">
