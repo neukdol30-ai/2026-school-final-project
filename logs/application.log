@@ -547,3 +547,7 @@ Caused by: org.springframework.util.PlaceholderResolutionException: Could not re
 2026-08-31 13:00:55.029 INFO  [http-nio-8080-exec-2] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
 2026-08-31 13:00:56.951 INFO  [http-nio-8080-exec-2] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@7b56ddaa
 2026-08-31 13:00:56.955 INFO  [http-nio-8080-exec-2] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-31 13:07:12.905 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-31 13:07:12.909 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-31 13:07:12.916 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-31 13:07:14.412 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
