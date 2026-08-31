@@ -2,7 +2,9 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
-import SupportPage from "./pages/support/SupportPage"; // 1. SupportPage 임포트 추가
+import SupportPage from "./pages/support/SupportPage";
+import SupportWritePage from "./pages/support/SupportWritePage";
+import SettingsPage from "./pages/settings/SettingsPage"; // 1. 임포트 추가
 
 function App() {
 
@@ -21,10 +23,12 @@ function App() {
                 <Route path="/stocktakes" element={<EmptyPage title="재고실사" />} />
                 <Route path="/sales-orders" element={<EmptyPage title="판매주문" />} />
                 <Route path="/outbounds" element={<EmptyPage title="출고관리" />} />
-                <Route path="/settings" element={<EmptyPage title="사용자 / 권한 설정" />} />
 
-                {/* 2. EmptyPage 대신 SupportPage 컴포넌트 연결 */}
+                {/* 2. EmptyPage 대신 SettingsPage 연결 */}
+                <Route path="/settings" element={<SettingsPage />} />
+
                 <Route path="/support" element={<SupportPage />} />
+                <Route path="/support/write" element={<SupportWritePage />} />
             </Route>
         </Routes>
     )
