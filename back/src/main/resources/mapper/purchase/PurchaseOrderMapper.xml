@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper">
+
+    <resultMap id="purchaseOrderItemReferenceMap"
+               type="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference">
+        <id column="product_id" property="productId"/>
+        <result column="product_unit_id" property="productUnitId" />
+        <result column="conversion_qty" property="conversionQty" />
+        <result column="tax_type" property="taxType" />
+    </resultMap>
+
+    <select id="countAvailableSupplier" resultType="int">
+        SELECT COUNT(*)
+        FROM business_partner
+        WHERE partner_id = #{supplierId}
+          AND company_id = #{companyId}
+          AND supplier_yn = 'Y'
+          AND use_yn = 'Y'
+    </select>
+
+    <select id="countAvailableWarehouse" resultType="int">
+        SELECT COUNT(*)
+        FROM warehouse
+        WHERE warehouse_id = #{warehouseId}
+          AND company_id = #{companyId}
+          AND use_yn = 'Y'
+    </select>
+
+    <select id="findItemReference"
+            resultMap="purchaseOrderItemReferenceMap">
+        SELECT
+            p.product_id,
+            pu.product_unit_id,
+            pu.conversion_qty,
+            p.tax_type
+        FROM product p
+        INNER JOIN product_unit pu
+            ON pu.product_id = p.product_id
+        WHERE p.product_id = #{productId}
+          AND p.company_id = #{companyId}
+          AND p.use_yn = 'Y'
+          AND pu.product_unit_id = #{productUnitId}
+          AND pu.use_yn = 'Y'
+    </select>
+
+    <insert id="insertPurchaseOrder"
+            parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam"
+            useGeneratedKeys="true"
+            keyProperty="purchaseOrderId"
+            keyColumn="PURCHASE_ORDER_ID">
+        INSERT INTO purchase_order
+        (
+            company_id,
+            order_no,
+            supplier_id,
+            warehouse_id,
+            order_date,
+            expected_delivery_date,
+            request_note,
+            internal_memo,
+            total_supply_amount,
+            total_tax_amount,
+            total_amount,
+            created_by
+        )
+        VALUES
+        (
+            #{companyId},
+            #{orderNo},
+            #{supplierId},
+            #{warehouseId},
+            #{orderDate, jdbcType=DATE},
+            #{expectedDeliveryDate, jdbcType=DATE},
+            #{requestNote, jdbcType=VARCHAR},
+            #{internalMemo, jdbcType=VARCHAR},
+            #{totalSupplyAmount},
+            #{totalTaxAmount},
+            #{totalAmount},
+            #{createdBy}
+        )
+    </insert>
+
+    <insert id="insertPurchaseOrderItem"
+            parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam">
+        INSERT INTO purchase_order_item
+        (
+            purchase_order_id,
+            product_id,
+            product_unit_id,
+            ordered_qty,
+            conversion_qty,
+            base_ordered_qty,
+            unit_price,
+            tax_type,
+            supply_amount,
+            tax_amount,
+            total_amount
+        )
+        VALUES
+        (
+            #{purchaseOrderId},
+            #{productId},
+            #{productUnitId},
+            #{orderedQty},
+            #{conversionQty},
+            #{baseOrderedQty},
+            #{unitPrice},
+            #{taxType},
+            #{supplyAmount},
+            #{taxAmount},
+            #{totalAmount}
+        )
+    </insert>
+
+</mapper>
