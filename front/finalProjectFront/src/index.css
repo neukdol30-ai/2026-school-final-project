@@ -26,3 +26,253 @@ select,
 textarea {
   font: inherit;
 }
+
+/* --- 고객센터 전용 깔끔한 CSS 스타일 --- */
+.support-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.support-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.support-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+/* 상단 카드 3개 */
+.support-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.support-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.support-card.blue {
+  background: #eff6ff;
+  border-color: #dbeafe;
+}
+
+.support-card .card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.support-card.blue .card-title {
+  color: #2563eb;
+}
+
+.support-card .card-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.support-card .card-desc {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 탭 버튼 메뉴 */
+.support-tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: #1f2937;
+}
+
+.tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 600;
+}
+
+/* 콘텐츠 박스 */
+.support-content-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.support-content-box h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+/* 공지사항 리스트 스타일 */
+.notice-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notice-item:hover {
+  background: #f9fafb;
+}
+
+.notice-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 12px;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.notice-meta {
+  font-size: 12px;
+  color: #9ca3af;
+  display: flex;
+  gap: 16px;
+}
+
+/* FAQ 스타일 */
+.faq-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 16px;
+  background: #f9fafb;
+  margin-bottom: 12px;
+}
+
+.faq-q {
+  font-size: 14px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.faq-q span {
+  color: #2563eb;
+  margin-right: 6px;
+}
+
+.faq-a {
+  font-size: 14px;
+  color: #4b5563;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+
+.faq-a span {
+  color: #059669;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+/* 1:1 문의 테이블 스타일 */
+.qna-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.qna-write-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.qna-write-btn:hover {
+  background: #1d4ed8;
+}
+
+.support-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.support-table th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.support-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.support-table tr:hover {
+  background: #f9fafb;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.status-badge.done {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.wait {
+  background: #fef3c7;
+  color: #92400e;
+}
