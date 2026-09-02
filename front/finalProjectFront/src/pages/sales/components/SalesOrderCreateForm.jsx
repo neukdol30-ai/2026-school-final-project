@@ -13,6 +13,7 @@ function SalesOrderCreateForm({
     {
       productUnitId: "",
       orderedQty: "",
+      unitPrice: "",
     },
   ]);
 
@@ -38,6 +39,7 @@ function SalesOrderCreateForm({
       {
         productUnitId: "",
         orderedQty: "",
+        unitPrice: "",
       },
     ]);
   }
@@ -57,6 +59,7 @@ function SalesOrderCreateForm({
       items: items.map((item) => ({
         productUnitId: Number(item.productUnitId),
         orderedQty: Number(item.orderedQty),
+        unitPrice: Number(item.unitPrice),
       })),
     });
 
@@ -68,6 +71,7 @@ function SalesOrderCreateForm({
         {
           productUnitId: "",
           orderedQty: "",
+          unitPrice: "",
         },
       ]);
     }
@@ -119,6 +123,9 @@ function SalesOrderCreateForm({
           const orderedQtyError = getValidationErrorMessage(
             `items[${index}].orderedQty`,
           );
+          const unitPriceError = getValidationErrorMessage(
+            `items[${index}].unitPrice`,
+          );
 
           return (
             <div className="sales-order-item-row" key={index}>
@@ -158,6 +165,25 @@ function SalesOrderCreateForm({
 
                 {orderedQtyError && (
                   <p className="field-error">{orderedQtyError}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor={`unitPrice-${index}`}>판매 단가</label>
+                <input
+                  id={`unitPrice-${index}`}
+                  type="number"
+                  min="1"
+                  step="1"
+                  required
+                  value={item.unitPrice}
+                  onChange={(event) =>
+                    handleItemChange(index, "unitPrice", event.target.value)
+                  }
+                />
+
+                {unitPriceError && (
+                  <p className="field-error">{unitPriceError}</p>
                 )}
               </div>
 

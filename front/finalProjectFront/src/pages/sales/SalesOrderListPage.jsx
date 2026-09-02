@@ -94,6 +94,16 @@ function SalesOrderListPage() {
         ),
       );
 
+      setSalesOrderDetail((currentSalesOrderDetail) =>
+        currentSalesOrderDetail?.salesOrderId === salesOrderId
+          ? {
+              ...currentSalesOrderDetail,
+              orderStatus: confirmedSalesOrder.orderStatus,
+              shipmentStatus: confirmedSalesOrder.shipmentStatus,
+            }
+          : currentSalesOrderDetail,
+      );
+
       setSuccessMessage("판매주문이 확정되었습니다.");
     } catch (error) {
       setError(error.message);

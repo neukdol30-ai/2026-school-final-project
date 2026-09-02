@@ -50,4 +50,127 @@
         ORDER BY soi.line_no
 
     </select>
+
+    <!-- 상품 단위 ID로 상품·환산수량·과세유형을 조회 -->
+    <select id="findOrderItemInfoByProductUnitId"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderItemOrderInfoDto">
+
+        SELECT
+        p.company_id AS "companyId",
+        p.product_id AS "productId",
+        pu.conversion_qty AS "conversionQty",
+        p.tax_type AS "taxType"
+        FROM product_unit pu
+        JOIN product p
+        ON p.product_id = pu.product_id
+        WHERE pu.product_unit_id = #{productUnitId}
+        AND pu.use_yn = 'Y'
+        AND p.use_yn = 'Y'
+
+    </select>
+
+    <select id="countUsableCustomer" resultType="int">
+
+        SELECT COUNT(*)
+        FROM business_partner bp
+        WHERE bp.partner_id = #{customerId}
+            AND bp.company_id = #{companyId}
+            AND bp.customer_yn = 'Y'
+            AND bp.use_yn = 'Y'
+
+    </select>
+
+    <select id="countUsableWarehouse" resultType="int">
+
+        SELECT COUNT(*)
+        FROM warehouse w
+        WHERE w.warehouse_id = #{warehouseId}
+            AND w.company_id = #{companyId}
+            AND w.use_yn = 'Y'
+    </select>
+
+    <insert id="insertSalesOrder"
+            parameterType="com.foodlogistics.erp.salesorder.dto.SalesOrderSaveDto"
+            useGeneratedKeys="true"
+            keyProperty="salesOrderId"
+            keyColumn="SALES_ORDER_ID">
+
+        INSERT INTO sales_order (
+            company_id,
+            order_no,
+            customer_id,
+            warehouse_id,
+            order_status,
+            shipment_status,
+            total_supply_amount,
+            total_tax_amount,
+            total_amount,
+            created_by
+        )
+        VALUES (
+            #{companyId},
+            #{orderNo},
+            #{customerId},
+            #{warehouseId},
+            'DRAFT',
+            'NOT_SHIPPED',
+            #{totalSupplyAmount},
+            #{totalTaxAmount},
+            #{totalAmount},
+            #{createdBy}
+        )
+
+    </insert>
+
+    <insert id="insertSalesOrderItem">
+
+            INSERT INTO sales_order_item (
+                sales_order_id,
+                line_no,
+                product_id,
+                product_unit_id,
+                ordered_qty,
+                conversion_qty,
+                base_ordered_qty,
+                shipped_qty,
+                unit_price,
+                tax_type,
+                supply_amount,
+                tax_amount,
+                total_amount,
+                version,
+                created_by
+            )
+            VALUES (
+                #{salesOrderId},
+                #{lineNo},
+                #{item.productId},
+                #{item.productUnitId},
+                #{item.orderedQty},
+                #{item.conversionQty},
+                #{item.baseOrderedQty},
+                0,
+                #{item.unitPrice},
+                #{item.taxType},
+                #{item.supplyAmount},
+                #{item.taxAmount},
+                #{item.totalAmount},
+                0,
+                #{createdBy}
+            )
+    </insert>
+
+    <update id="confirmSalesOrder">
+
+            UPDATE sales_order
+            SET
+                order_status = 'CONFIRMED',
+                confirmed_at = SYSTIMESTAMP,
+                confirmed_by = #{confirmedBy},
+                updated_at = SYSTIMESTAMP,
+                updated_by = #{confirmedBy}
+            WHERE sales_order_id = #{salesOrderId}
+                AND company_id = #{companyId}
+                AND order_status = 'DRAFT'
+    </update>
 </mapper>
