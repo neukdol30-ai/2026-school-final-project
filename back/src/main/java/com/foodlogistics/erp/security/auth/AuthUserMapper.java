@@ -8,17 +8,20 @@ import java.util.Optional;
 public interface AuthUserMapper {
 
     @Select("""
-            SELECT 
-                app_user_id,
-                company_id,
-                login_id,
-                password,
-                user_name,
-                use_yn
-            FROM app_user
-            WHERE LOWER(TRIM(login_id))
+        SELECT
+            au.app_user_id,
+            au.company_id,
+            au.login_id,
+            au.password,
+            au.user_name,
+            au.use_yn
+        FROM app_user au
+        JOIN company c
+          ON c.company_id = au.company_id
+        WHERE LOWER(TRIM(au.login_id))
             = LOWER(TRIM(#{loginId}))
-            """)
+          AND c.active_yn = 'Y'
+        """)
     @Results(id = "authUserResult",
     value =
 
