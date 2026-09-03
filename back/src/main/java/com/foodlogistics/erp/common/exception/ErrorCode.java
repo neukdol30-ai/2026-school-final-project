@@ -39,6 +39,12 @@ public enum ErrorCode {
             "접근 권한이 없습니다."
     ),
 
+    DUPLICATE_LOGIN_ID(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_LOGIN_ID",
+            "이미 사용 중인 아이디입니다."
+    ),
+
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",
