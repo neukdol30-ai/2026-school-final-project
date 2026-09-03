@@ -6,6 +6,7 @@
 
 <mapper namespace="com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper">
 
+    <!-- 상품/상품단위 기준정보 조회 결과를 Java 객체에 연결 -->
     <resultMap id="purchaseOrderItemReferenceMap"
                type="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference">
         <id column="product_id" property="productId"/>
@@ -14,6 +15,7 @@
         <result column="tax_type" property="taxType" />
     </resultMap>
 
+    <!-- 현재 회사에서 사용 가능한 공급업체인지 확인 -->
     <select id="countAvailableSupplier" resultType="int">
         SELECT COUNT(*)
         FROM business_partner
@@ -23,6 +25,7 @@
           AND use_yn = 'Y'
     </select>
 
+    <!-- 현재 회사에서 사용 가능한 창고인지 확인 -->
     <select id="countAvailableWarehouse" resultType="int">
         SELECT COUNT(*)
         FROM warehouse
@@ -31,6 +34,7 @@
           AND use_yn = 'Y'
     </select>
 
+    <!-- 상품과 상품단위가 현재 회사에서 사용 가능한지 확인하고, Service 계산에 필요한 conversion_qty와 tax_type을 조회 -->
     <select id="findItemReference"
             resultMap="purchaseOrderItemReferenceMap">
         SELECT
@@ -48,6 +52,20 @@
           AND pu.use_yn = 'Y'
     </select>
 
+    <!-- 발주번호 ORDER_NO에 사용할 다음 순번을 Oracle Sequence에서 가져옴
+
+         첫 호출 예:
+         SEQ_PURCHASE_ORDER_NO.NEXTVAL -> 1
+
+         Service에서 이 숫자를 이용해 PO-20260903-000001 형식의 발주번호를 만듦
+    -->
+    <select id="nextPurchaseOrderNoSequence"
+            resultType="java.lang.Long">
+        SELECT seq_purchase_order_no.NEXTVAL
+        FROM dual
+    </select>
+
+    <!-- PURCHASE_ORDER 발주 Header를 저장합니다. -->
     <insert id="insertPurchaseOrder"
             parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam"
             useGeneratedKeys="true"
@@ -85,6 +103,7 @@
         )
     </insert>
 
+    <!-- PURCHASE_ORDER_ITEM 발주 품목 한 건을 저장. -->
     <insert id="insertPurchaseOrderItem"
             parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam">
         INSERT INTO purchase_order_item
