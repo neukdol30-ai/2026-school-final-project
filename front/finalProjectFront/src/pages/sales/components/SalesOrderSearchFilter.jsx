@@ -3,18 +3,16 @@ function SalesOrderSearchFilter({
   onKeywordChange,
   orderStatus,
   onOrderStatusChange,
+  onSearch,
+  onReset,
 }) {
-  function handleReset() {
-    onKeywordChange("");
-    onOrderStatusChange("");
-  }
   return (
     <div className="content-panel">
       <h2>판매주문 검색</h2>
 
       <div className="sales-order-filter">
         <div>
-          <label htmlFor="keyword">주문번호 / 거래처 </label>
+          <label htmlFor="keyword">주문번호 / 거래처</label>
           <input
             id="keyword"
             type="text"
@@ -37,8 +35,13 @@ function SalesOrderSearchFilter({
             <option value="CANCELLED">취소</option>
           </select>
         </div>
-        <button type="button" onClick={handleReset}>
-          검색 초기화
+
+        <button type="button" onClick={onSearch}>
+          검색
+        </button>
+
+        <button type="button" onClick={onReset}>
+          초기화
         </button>
       </div>
     </div>

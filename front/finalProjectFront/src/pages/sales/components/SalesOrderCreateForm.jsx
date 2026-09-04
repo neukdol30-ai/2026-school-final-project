@@ -7,8 +7,6 @@ function SalesOrderCreateForm({
 }) {
   const [customerId, setCustomerId] = useState("");
 
-  const [warehouseId, setWarehouseId] = useState("");
-
   const [items, setItems] = useState([
     {
       productUnitId: "",
@@ -16,6 +14,8 @@ function SalesOrderCreateForm({
       unitPrice: "",
     },
   ]);
+
+  const [formError, setFormError] = useState("");
 
   function getValidationErrorMessage(fieldName) {
     const validationError = validationErrors.find(
@@ -53,9 +53,19 @@ function SalesOrderCreateForm({
   async function handleSubmit(event) {
     event.preventDefault();
 
+    setFormError("");
+
+    const enteredProductUnitIds = items
+      .map((item) => Number(item.productUnitId))
+      .filter((productUnitId) => productUnitId > 0);
+
+    if (new Set(enteredProductUnitIds).size !== enteredProductUnitIds.length) {
+      setFormError("같은 상품 단위는 주문 품목에 한 번만 등록할 수 있습니다.");
+      return;
+    }
+
     const created = await onCreate({
       customerId: Number(customerId),
-      warehouseId: Number(warehouseId),
       items: items.map((item) => ({
         productUnitId: Number(item.productUnitId),
         orderedQty: Number(item.orderedQty),
@@ -65,7 +75,6 @@ function SalesOrderCreateForm({
 
     if (created) {
       setCustomerId("");
-      setWarehouseId("");
 
       setItems([
         {
@@ -78,131 +87,188 @@ function SalesOrderCreateForm({
   }
 
   const customerIdError = getValidationErrorMessage("customerId");
-  const warehouseIdError = getValidationErrorMessage("warehouseId");
 
   return (
-    <div className="content-panel">
-      <h2>판매주문 등록</h2>
+    <div className="content-panel sales-order-entry-panel">
+      <div className="sales-order-entry-title">
+        <h2>판매주문 등록</h2>
+        <p>
+          고객과 주문 품목을 입력하세요. 출고 창고는 출고 단계에서 정합니다.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="customerId">고객 거래처 ID</label>
-          <input
-            id="customerId"
-            type="number"
-            min="1"
-            required
-            value={customerId}
-            onChange={(event) => setCustomerId(event.target.value)}
-          />
+        {/* 주문 전체에 공통으로 적용되는 정보 */}
+        <section className="sales-order-basic-section">
+          <h3>기본 정보</h3>
 
-          {customerIdError && <p className="field-error">{customerIdError}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="warehouseId">출고 창고 ID</label>
-          <input
-            id="warehouseId"
-            type="number"
-            min="1"
-            required
-            value={warehouseId}
-            onChange={(event) => setWarehouseId(event.target.value)}
-          />
-
-          {warehouseIdError && (
-            <p className="field-error">{warehouseIdError}</p>
-          )}
-        </div>
-
-        {items.map((item, index) => {
-          const productUnitIdError = getValidationErrorMessage(
-            `items[${index}].productUnitId`,
-          );
-
-          const orderedQtyError = getValidationErrorMessage(
-            `items[${index}].orderedQty`,
-          );
-          const unitPriceError = getValidationErrorMessage(
-            `items[${index}].unitPrice`,
-          );
-
-          return (
-            <div className="sales-order-item-row" key={index}>
-              <h3>주문 품목 {index + 1}</h3>
-
-              <div>
-                <label htmlFor={`productUnitId-${index}`}>상품 단위 ID</label>
-                <input
-                  id={`productUnitId-${index}`}
-                  type="number"
-                  min="1"
-                  required
-                  value={item.productUnitId}
-                  onChange={(event) =>
-                    handleItemChange(index, "productUnitId", event.target.value)
-                  }
-                />
-
-                {productUnitIdError && (
-                  <p className="field-error">{productUnitIdError}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor={`orderedQty-${index}`}>주문 수량</label>
-                <input
-                  id={`orderedQty-${index}`}
-                  type="number"
-                  min="0.001"
-                  step="0.001"
-                  required
-                  value={item.orderedQty}
-                  onChange={(event) =>
-                    handleItemChange(index, "orderedQty", event.target.value)
-                  }
-                />
-
-                {orderedQtyError && (
-                  <p className="field-error">{orderedQtyError}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor={`unitPrice-${index}`}>판매 단가</label>
-                <input
-                  id={`unitPrice-${index}`}
-                  type="number"
-                  min="1"
-                  step="1"
-                  required
-                  value={item.unitPrice}
-                  onChange={(event) =>
-                    handleItemChange(index, "unitPrice", event.target.value)
-                  }
-                />
-
-                {unitPriceError && (
-                  <p className="field-error">{unitPriceError}</p>
-                )}
-              </div>
-
-              {items.length > 1 && (
-                <button type="button" onClick={() => handleRemoveItem(index)}>
-                  품목 삭제
-                </button>
+          <div className="sales-order-basic-grid">
+            <div className="sales-order-field">
+              <label htmlFor="customerId">고객 거래처 ID</label>
+              <input
+                id="customerId"
+                type="number"
+                min="1"
+                placeholder="예: 1"
+                required
+                value={customerId}
+                onChange={(event) => setCustomerId(event.target.value)}
+              />
+              {customerIdError && (
+                <p className="field-error">{customerIdError}</p>
               )}
             </div>
-          );
-        })}
+          </div>
+        </section>
 
-        <button type="button" onClick={handleAddItem}>
-          품목 추가
-        </button>
+        <section className="sales-order-items-section">
+          <div className="sales-order-items-title">
+            <div>
+              <h3>주문 품목</h3>
+              <p>한 줄이 주문 품목 한 건입니다.</p>
+            </div>
 
-        <button type="submit" disabled={createLoading}>
-          {createLoading ? "등록 중..." : "판매주문 등록"}
-        </button>
+            <button
+              className="sales-order-add-button"
+              type="button"
+              onClick={handleAddItem}
+            >
+              + 품목 추가
+            </button>
+          </div>
+
+          {formError && (
+            <p className="sales-order-form-error" role="alert">
+              {formError}
+            </p>
+          )}
+
+          {/* 품목이 늘어나도 카드 대신 표의 행 한 줄만 추가된다. */}
+          <div className="sales-order-table-wrap">
+            <table className="sales-order-entry-table">
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>상품 단위 ID</th>
+                  <th>주문 수량</th>
+                  <th>판매 단가</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {items.map((item, index) => {
+                  const productUnitIdError = getValidationErrorMessage(
+                    `items[${index}].productUnitId`,
+                  );
+                  const orderedQtyError = getValidationErrorMessage(
+                    `items[${index}].orderedQty`,
+                  );
+                  const unitPriceError = getValidationErrorMessage(
+                    `items[${index}].unitPrice`,
+                  );
+
+                  return (
+                    <tr key={index}>
+                      <td className="sales-order-row-number">{index + 1}</td>
+
+                      <td>
+                        <input
+                          aria-label={`품목 ${index + 1} 상품 단위 ID`}
+                          type="number"
+                          min="1"
+                          placeholder="예: 2"
+                          required
+                          value={item.productUnitId}
+                          onChange={(event) =>
+                            handleItemChange(
+                              index,
+                              "productUnitId",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        {productUnitIdError && (
+                          <p className="field-error">{productUnitIdError}</p>
+                        )}
+                      </td>
+
+                      <td>
+                        <input
+                          aria-label={`품목 ${index + 1} 주문 수량`}
+                          type="number"
+                          min="0.001"
+                          step="0.001"
+                          placeholder="예: 3"
+                          required
+                          value={item.orderedQty}
+                          onChange={(event) =>
+                            handleItemChange(
+                              index,
+                              "orderedQty",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        {orderedQtyError && (
+                          <p className="field-error">{orderedQtyError}</p>
+                        )}
+                      </td>
+
+                      <td>
+                        <input
+                          aria-label={`품목 ${index + 1} 판매 단가`}
+                          type="number"
+                          min="1"
+                          step="1"
+                          placeholder="예: 25000"
+                          required
+                          value={item.unitPrice}
+                          onChange={(event) =>
+                            handleItemChange(
+                              index,
+                              "unitPrice",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        {unitPriceError && (
+                          <p className="field-error">{unitPriceError}</p>
+                        )}
+                      </td>
+
+                      <td>
+                        {items.length > 1 ? (
+                          <button
+                            className="sales-order-delete-button"
+                            type="button"
+                            onClick={() => handleRemoveItem(index)}
+                          >
+                            삭제
+                          </button>
+                        ) : (
+                          <span className="sales-order-row-fixed">기본 행</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div className="sales-order-submit-area">
+          <p>판매 단가는 주문 당시 값으로 저장됩니다.</p>
+
+          <button
+            className="sales-order-submit-button"
+            type="submit"
+            disabled={createLoading}
+          >
+            {createLoading ? "등록 중..." : "판매주문 등록"}
+          </button>
+        </div>
       </form>
     </div>
   );

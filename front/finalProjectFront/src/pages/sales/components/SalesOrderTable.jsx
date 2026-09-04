@@ -39,6 +39,7 @@ function SalesOrderTable({
               <tr key={salesOrder.salesOrderId}>
                 <td>
                   <button
+                    className="sales-order-number-button"
                     type="button"
                     onClick={() => onSelect(salesOrder.salesOrderId)}
                   >

@@ -4,6 +4,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
 import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
 import OutboundListPage from "./pages/outbound/OutboundListPage";
+import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
         <Route path="/stocktakes" element={<EmptyPage title="재고실사" />} />
         <Route path="/sales-orders" element={<SalesOrderListPage />} />
+        <Route path="/sales-orders/new" element={<SalesOrderCreatePage />} />
         <Route path="/outbounds" element={<OutboundListPage />} />
         <Route
           path="/settings"

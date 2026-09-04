@@ -20,8 +20,6 @@ public class SalesOrderSaveDto {
 
     private final Long customerId;
 
-    private final Long warehouseId;
-
     private final BigDecimal totalSupplyAmount;
 
     private final BigDecimal totalTaxAmount;

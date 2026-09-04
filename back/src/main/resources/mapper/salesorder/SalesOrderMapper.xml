@@ -80,14 +80,6 @@
 
     </select>
 
-    <select id="countUsableWarehouse" resultType="int">
-
-        SELECT COUNT(*)
-        FROM warehouse w
-        WHERE w.warehouse_id = #{warehouseId}
-            AND w.company_id = #{companyId}
-            AND w.use_yn = 'Y'
-    </select>
 
     <insert id="insertSalesOrder"
             parameterType="com.foodlogistics.erp.salesorder.dto.SalesOrderSaveDto"
@@ -99,7 +91,6 @@
             company_id,
             order_no,
             customer_id,
-            warehouse_id,
             order_status,
             shipment_status,
             total_supply_amount,
@@ -111,7 +102,6 @@
             #{companyId},
             #{orderNo},
             #{customerId},
-            #{warehouseId},
             'DRAFT',
             'NOT_SHIPPED',
             #{totalSupplyAmount},

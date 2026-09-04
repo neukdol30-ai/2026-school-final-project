@@ -28,10 +28,6 @@ public interface SalesOrderMapper {
             @Param("customerId") Long customerId
     );
 
-    int countUsableWarehouse(
-            @Param("companyId") Long companyId,
-            @Param("warehouseId") Long warehouseId
-    );
 
     int insertSalesOrder(SalesOrderSaveDto salesOrder);
 

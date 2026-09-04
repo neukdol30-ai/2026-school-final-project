@@ -1,40 +1,38 @@
 import { useEffect, useState } from "react";
-import SalesOrderCreateForm from "./components/SalesOrderCreateForm";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SalesOrderTable from "./components/SalesOrderTable";
 import SalesOrderDetail from "./components/SalesOrderDetail";
 import {
   confirmSalesOrder,
-  createSalesOrder,
   getSalesOrderDetail,
   getSalesOrders,
 } from "./js/salesOrderApi";
-import "./css/SalesOrder.css";
+import "./css/SalesOrderCommon.css";
+import "./css/SalesOrderList.css";
+import "./css/SalesOrderDetail.css";
 import SalesOrderSearchFilter from "./components/SalesOrderSearchFilter";
 
 function SalesOrderListPage() {
-  const [saleOrders, setSalesOrders] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const [saleOrders, setSalesOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [keyword, setKeyword] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
+  const [appliedKeyword, setAppliedKeyword] = useState("");
+  const [appliedOrderStatus, setAppliedOrderStatus] = useState("");
 
   const [successMessage, setSuccessMessage] = useState("");
-
-  const [createValidationErrors, setCreateValidationErrors] = useState([]);
-
-  const [createLoading, setCreateLoading] = useState(false);
-
   const [confirmingSalesOrderId, setConfirmingSalesOrderId] = useState(null);
-
   const [salesOrderDetail, setSalesOrderDetail] = useState(null);
 
   useEffect(() => {
     async function fetchSalesOrders() {
       try {
         const salesOrderData = await getSalesOrders();
-
         setSalesOrders(salesOrderData);
       } catch (error) {
         setError(error.message);
@@ -46,37 +44,18 @@ function SalesOrderListPage() {
     fetchSalesOrders();
   }, []);
 
-  async function handleCreateSalesOrder(requestData) {
-    setError("");
-    setSuccessMessage("");
-    setCreateValidationErrors([]);
-    setCreateLoading(true);
-
-    try {
-      const createdSalesOrder = await createSalesOrder(requestData);
-
-      setSalesOrders((currentSalesOrders) => [
-        ...currentSalesOrders,
-        createdSalesOrder,
-      ]);
-
-      setSuccessMessage("판매주문이 등록되었습니다.");
-
-      return true;
-    } catch (error) {
-      const validationErrors = error.validationErrors || [];
-
-      setCreateValidationErrors(validationErrors);
-
-      if (validationErrors.length === 0) {
-        setError(error.message);
-      }
-
-      return false;
-    } finally {
-      setCreateLoading(false);
+  useEffect(() => {
+    if (!location.state?.successMessage) {
+      return;
     }
-  }
+
+    setSuccessMessage(location.state.successMessage);
+
+    navigate("/sales-orders", {
+      replace: true,
+      state: null,
+    });
+  }, [location.state, navigate]);
 
   async function handleConfirmSalesOrder(salesOrderId) {
     setError("");
@@ -117,15 +96,26 @@ function SalesOrderListPage() {
 
     try {
       const selectedSalesOrderDetail = await getSalesOrderDetail(salesOrderId);
-
       setSalesOrderDetail(selectedSalesOrderDetail);
     } catch (error) {
       setError(error.message);
     }
   }
 
+  function handleSearchSalesOrder() {
+    setAppliedKeyword(keyword);
+    setAppliedOrderStatus(orderStatus);
+  }
+
+  function handleResetSalesOrderSearch() {
+    setKeyword("");
+    setOrderStatus("");
+    setAppliedKeyword("");
+    setAppliedOrderStatus("");
+  }
+
   const filteredSalesOrders = saleOrders.filter((salesOrder) => {
-    const normalizedKeyword = keyword.trim().toLowerCase();
+    const normalizedKeyword = appliedKeyword.trim().toLowerCase();
 
     const matchesKeyword =
       normalizedKeyword === "" ||
@@ -133,23 +123,35 @@ function SalesOrderListPage() {
       salesOrder.customerName.toLowerCase().includes(normalizedKeyword);
 
     const matchesOrderStatus =
-      orderStatus === "" || salesOrder.orderStatus === orderStatus;
+      appliedOrderStatus === "" ||
+      salesOrder.orderStatus === appliedOrderStatus;
 
     return matchesKeyword && matchesOrderStatus;
   });
 
-  const hasSearchCondition = keyword.trim() !== "" || orderStatus !== "";
+  const hasSearchCondition =
+    appliedKeyword.trim() !== "" || appliedOrderStatus !== "";
 
   return (
     <section className="page sales-order-page">
-      <div className="page-header">
+      <div className="page-header sales-order-page-header">
         <div>
           <h1>판매주문</h1>
-          <p>고객의 식자재 주문을 조회하고 등록·확정합니다.</p>
+          <p>고객의 식자재 주문을 조회하고 확정합니다.</p>
         </div>
+
+        <Link className="sales-order-create-link" to="/sales-orders/new">
+          + 판매주문 등록
+        </Link>
       </div>
 
       {successMessage && <p className="success-message">{successMessage}</p>}
+
+      {error && (
+        <p className="sales-order-api-error" role="alert">
+          {error}
+        </p>
+      )}
 
       {salesOrderDetail && (
         <SalesOrderDetail
@@ -158,24 +160,18 @@ function SalesOrderListPage() {
         />
       )}
 
-      <SalesOrderCreateForm
-        onCreate={handleCreateSalesOrder}
-        createLoading={createLoading}
-        validationErrors={createValidationErrors}
-      />
-
       <SalesOrderSearchFilter
         keyword={keyword}
         onKeywordChange={setKeyword}
         orderStatus={orderStatus}
         onOrderStatusChange={setOrderStatus}
+        onSearch={handleSearchSalesOrder}
+        onReset={handleResetSalesOrderSearch}
       />
 
       {loading && (
         <p className="empty-message">판매주문을 불러오는 중입니다.</p>
       )}
-
-      {error && <p className="empty-message">{error}</p>}
 
       {!loading && (
         <SalesOrderTable
