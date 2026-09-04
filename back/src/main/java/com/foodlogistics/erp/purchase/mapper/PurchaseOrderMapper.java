@@ -1,8 +1,11 @@
 package com.foodlogistics.erp.purchase.mapper;
 
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -36,4 +39,16 @@ public interface PurchaseOrderMapper {
 
     // PURCHASE_ORDER_ITEM(발주 품목) 한 건을 저장.
     int insertPurchaseOrderItem(PurchaseOrderItemInsertParam insertParam);
+
+    // 현재 로그인 회사의 발주 목록을 검색조건에 맞춰 조회
+    // 페이지네이션 없이 조건에 해당하는 전체 결과를 반환
+    List<PurchaseOrderListResponse> findPurchaseOrders(
+            @Param("companyId") Long companyId,
+            @Param("orderNo") String orderNo,
+            @Param("supplierId") Long supplierId,
+            @Param("orderDateFrom") LocalDate orderDateFrom,
+            @Param("orderDateTo") LocalDate orderDateTo,
+            @Param("approvalStatus") String approvalStatus,
+            @Param("receiptStatus") String receiptStatus
+            );
 }

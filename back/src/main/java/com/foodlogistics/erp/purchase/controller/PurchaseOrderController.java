@@ -3,16 +3,18 @@ package com.foodlogistics.erp.purchase.controller;
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
 import com.foodlogistics.erp.purchase.service.PurchaseOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/purchase-orders")
@@ -52,25 +54,71 @@ public class PurchaseOrderController {
                 ApiResponse.ok(response)
         );
     }
+
+    // 발주 목록 조회
+    // GET /api/purchase-orders
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PurchaseOrderListResponse>>>
+    getPurchaseOrders(
+
+            // 로그인 후 검증된 JWT를 Spring Security가 전달
+            @AuthenticationPrincipal Jwt jwt,
+
+            // 발주번호 검색
+            // 값이 없으면 전체 발주번호를 대상으로 조회
+            @RequestParam(required = false)
+            String orderNo,
+
+            // 공급업체 필터
+            // 화면의 공급업체 선택창에서 partner_id를 전달
+            @RequestParam(required = false)
+            Long supplierId,
+
+            // 발주일 조회 시작일
+            // 예: 2026-09-01
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate orderDateFrom,
+
+            // 발주일 조회 종료일
+            // 예: 2026-09-30
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate orderDateTo,
+
+            // DRAFT / PENDING / APPROVED / REJECTED
+            @RequestParam(required = false)
+            String approvalStatus,
+
+            // NOT RECEIVED / PARTIAL / RECEIVED / CLOSED
+            @RequestParam(required = false)
+            String receiptStatus
+    ) {
+
+        // JWT 생성 시 JwtTokenProvider가 넣어 둔 로그인 사용자 ID
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        // JWT에 들어 있는 현재 로그인 회사 ID
+        // Frontend가 회사 ID를 직접 보내지 않음
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        // Service에서 검색조건 검증 후 Oracle 목록 조회
+        List<PurchaseOrderListResponse> response =
+                purchaseOrderService.getPurchaseOrders(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        orderNo,
+                        supplierId,
+                        orderDateFrom,
+                        orderDateTo,
+                        approvalStatus,
+                        receiptStatus
+                );
+        // 기존 프로젝트 공통 ApiResponse 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

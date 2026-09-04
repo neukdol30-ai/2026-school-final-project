@@ -6,6 +6,7 @@ import com.foodlogistics.erp.purchase.calculator.PurchaseOrderCalculator;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderItemCreateRequest;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
@@ -16,11 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -243,6 +242,58 @@ public class PurchaseOrderService {
         );
     }
 
+    // 발주 목록 조회 전용 Service
+    // readOnly = true는 이 Transaction에서 데이터를 변경하지 않는 조회 전용이라는 뜻
+    @Transactional(readOnly = true)
+    public List<PurchaseOrderListResponse> getPurchaseOrders(
+            Long companyId,
+            Long appUserId,
+            String orderNo,
+            Long supplierId,
+            LocalDate orderDateFrom,
+            LocalDate orderDateTo,
+            String approvalStatus,
+            String receiptStatus
+    ) {
+        // JWT에서 넘어온 회사 ID와 사용자 ID가 정상인지 기존 Validator로 확인
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 사용자가 검색창에 공백만 입력했다면 검색조건이 없는 것으로 처리
+        String normalizedOrderNo =
+                normalizeSearchText(orderNo);
+
+        // 상태코드는 사용자가 소문자로 보내더라도 DB 코드인 대문자 형태로 통일
+        String normalizedApprovalStatus =
+                normalizeStatusCode(approvalStatus);
+
+        // 입고상태도 같은 방식으로 대문자로 통일
+        String normalizedReceiptStatus =
+                normalizeStatusCode(receiptStatus);
+
+        // 날짜 범위와 상태값 등이 정상인지 검사
+        purchaseOrderValidator.validateListSearchConditions(
+                supplierId,
+                orderDateFrom,
+                orderDateTo,
+                normalizedApprovalStatus,
+                normalizedReceiptStatus
+        );
+
+        // 현재 회사 + 검색조건에 맞는 발주를 전부 조회
+        return purchaseOrderMapper.findPurchaseOrders(
+                companyId,
+                normalizedOrderNo,
+                supplierId,
+                orderDateFrom,
+                orderDateTo,
+                normalizedApprovalStatus,
+                normalizedReceiptStatus
+        );
+    }
+
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드
     private List<PurchaseOrderItemInsertParam> validateAndCalculateItems(
             Long companyId,
@@ -372,5 +423,33 @@ public class PurchaseOrderService {
                 );
             }
         }
+    }
+
+    // 일반 검색문자열의 앞뒤 공백을 제거
+    private String normalizeSearchText(
+            String value
+    ) {
+        // 값 자체가 없거나 공백뿐이면 MyBatis 검색조건에서 제외하도록 null 반환
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        // 실제 문자가 있다면 앞뒤 공백만 제거
+        return value.trim();
+    }
+
+    // 상태코드를 DB 상태값 형식인 대문자로 통일
+    private String normalizeStatusCode(
+            String value
+    ) {
+        // 상태를 선택하지 않았다면 검색조건 없음
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        // 예: "draft" -> "DRAFT"
+        return value
+                .trim()
+                .toUpperCase(Locale.ROOT);
     }
 }

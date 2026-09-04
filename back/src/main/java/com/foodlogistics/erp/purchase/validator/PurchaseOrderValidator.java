@@ -8,6 +8,8 @@ import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +23,24 @@ public class PurchaseOrderValidator {
 
     // 공급업체와 창고를 실제 DB에서 확인하기 위해 사용
     private final PurchaseOrderMapper purchaseOrderMapper;
+
+    // PURCHASE_ORDER.approval_status에서 DB가 허용하는 승인상태
+    private static final Set<String> APPROVAL_STATUSES =
+            Set.of(
+                    "DRAFT",
+                    "PENDING",
+                    "APPROVED",
+                    "REJECTED"
+            );
+
+    // PURCHASE_ORDER.receipt_status에서 DB가 허용하는 입고진행상태
+    private static final Set<String> RECEIPT_STATUSES =
+            Set.of(
+                    "NOT_RECEIVED",
+                    "PARTIAL",
+                    "RECEIVED",
+                    "CLOSED"
+            );
 
     // JWT에서 전달받은 회사 ID와 사용자 ID가 정상인지 확인
     public void validateAuthenticatedUser(
@@ -123,6 +143,51 @@ public class PurchaseOrderValidator {
             // DB 기준정보 자체의 이상임
             throw new IllegalStateException(
                     "상품의 과세유형이 올바르지 않습니다."
+            );
+        }
+    }
+
+    // 발주 목록 검색조건이 정상인지 검사
+    public void validateListSearchConditions (
+            Long supplierId,
+            LocalDate orderDateFrom,
+            LocalDate orderDateTo,
+            String approvalStatus,
+            String receiptStatus
+    ) {
+        //  공급업체 필터가 들어왔다면 PK는 0보다 커야 함
+        if (supplierId != null && supplierId <= 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "공급업체 ID는 0보다 커야 합니다."
+            );
+        }
+
+        // 시작일과 종료일이 모두 있다면 시작일이 더 늦을 수 없음
+        if (orderDateFrom != null
+                && orderDateTo != null
+                && orderDateFrom.isAfter(orderDateTo)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주일 조회 시작일은 종료일보다 늦을 수 없습니다."
+            );
+        }
+
+        // 승인상태가 들어왔다면 DB에 정의된 상태만 허용
+        if (approvalStatus != null
+                && !APPROVAL_STATUSES.contains(approvalStatus)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "올바르지 않은 발주 승인상태입니다."
+            );
+        }
+
+        // 입고상태가 들어왔다면 DB에 정의된 상태만 허용
+        if (receiptStatus != null
+                && !RECEIPT_STATUSES.contains(receiptStatus)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "올바르지 않은 발주 입고상태입니다."
             );
         }
     }
