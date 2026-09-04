@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -69,6 +70,23 @@ public class UserService {
             );
         }
 
+        return toResponse(appUser);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getUsers(
+            Long companyId
+    ) {
+        return appUserMapper
+                .findAllByCompanyId(companyId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private UserResponse toResponse(
+            AppUser appUser
+    ) {
         return new UserResponse(
                 appUser.getAppUserId(),
                 appUser.getCompanyId(),

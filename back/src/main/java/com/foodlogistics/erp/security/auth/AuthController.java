@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -36,12 +38,22 @@ public class AuthController {
         Number appUserId = jwt.getClaim("appUserId");
         Number companyId = jwt.getClaim("companyId");
 
+        List<String> authorities =
+                jwt.getClaimAsStringList(
+                        "authorities"
+                );
+
+        if (authorities == null) {
+            authorities = List.of();
+        }
+
         CurrentUserResponse response =
                 new CurrentUserResponse(
                         appUserId.longValue(),
                         companyId.longValue(),
                         jwt.getSubject(),
-                        jwt.getClaimAsString("userName")
+                        jwt.getClaimAsString("userName"),
+                        authorities
                 );
 
         return ResponseEntity.ok(
