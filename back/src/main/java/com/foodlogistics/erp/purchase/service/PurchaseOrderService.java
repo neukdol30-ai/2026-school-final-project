@@ -249,7 +249,7 @@ public class PurchaseOrderService {
             Long companyId,
             Long appUserId,
             String orderNo,
-            Long supplierId,
+            String supplierName,
             LocalDate orderDateFrom,
             LocalDate orderDateTo,
             String approvalStatus,
@@ -265,6 +265,10 @@ public class PurchaseOrderService {
         String normalizedOrderNo =
                 normalizeSearchText(orderNo);
 
+        // 공급업체명의 앞뒤 공백을 제거하고 공백만 입력했다면 검색조건에서 제외
+        String normalizedSupplierName =
+                normalizeSearchText(supplierName);
+
         // 상태코드는 사용자가 소문자로 보내더라도 DB 코드인 대문자 형태로 통일
         String normalizedApprovalStatus =
                 normalizeStatusCode(approvalStatus);
@@ -275,7 +279,6 @@ public class PurchaseOrderService {
 
         // 날짜 범위와 상태값 등이 정상인지 검사
         purchaseOrderValidator.validateListSearchConditions(
-                supplierId,
                 orderDateFrom,
                 orderDateTo,
                 normalizedApprovalStatus,
@@ -286,7 +289,7 @@ public class PurchaseOrderService {
         return purchaseOrderMapper.findPurchaseOrders(
                 companyId,
                 normalizedOrderNo,
-                supplierId,
+                normalizedSupplierName,
                 orderDateFrom,
                 orderDateTo,
                 normalizedApprovalStatus,

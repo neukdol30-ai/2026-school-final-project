@@ -45,7 +45,7 @@ public interface PurchaseOrderMapper {
     List<PurchaseOrderListResponse> findPurchaseOrders(
             @Param("companyId") Long companyId,
             @Param("orderNo") String orderNo,
-            @Param("supplierId") Long supplierId,
+            @Param("supplierName") String supplierName,
             @Param("orderDateFrom") LocalDate orderDateFrom,
             @Param("orderDateTo") LocalDate orderDateTo,
             @Param("approvalStatus") String approvalStatus,

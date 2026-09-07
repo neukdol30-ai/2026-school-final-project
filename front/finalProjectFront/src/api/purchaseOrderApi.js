@@ -16,8 +16,10 @@ export async function requestPurchaseOrders(filters = {}) {
     params.set("orderNo", filters.orderNo.trim());
   }
 
-  if (filters.supplierId) {
-    params.set("supplierId", filters.supplierId);
+  // 공급업체명이 실제로 입력된 경우에만 URL 검색조건에 추가한다.
+  if (filters.supplierName?.trim()) {
+    // 앞뒤 공백은 제거하고 supplierName이라는 Query Parameter로 Backend에 보낸다.
+    params.set("supplierName", filters.supplierName.trim());
   }
 
   if (filters.orderDateFrom) {

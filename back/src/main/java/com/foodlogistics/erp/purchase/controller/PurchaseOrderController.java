@@ -69,10 +69,10 @@ public class PurchaseOrderController {
             @RequestParam(required = false)
             String orderNo,
 
-            // 공급업체 필터
-            // 화면의 공급업체 선택창에서 partner_id를 전달
+            // 공급업체명 검색
+            // 예: "테스트"를 입력하면 이름에 "테스트"가 포함된 공급업체의 발주를 검색
             @RequestParam(required = false)
-            Long supplierId,
+            String supplierName,
 
             // 발주일 조회 시작일
             // 예: 2026-09-01
@@ -110,7 +110,7 @@ public class PurchaseOrderController {
                         companyId.longValue(),
                         appUserId.longValue(),
                         orderNo,
-                        supplierId,
+                        supplierName,
                         orderDateFrom,
                         orderDateTo,
                         approvalStatus,

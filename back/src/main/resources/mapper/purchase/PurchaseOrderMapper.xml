@@ -10,9 +10,9 @@
     <resultMap id="purchaseOrderItemReferenceMap"
                type="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference">
         <id column="product_id" property="productId"/>
-        <result column="product_unit_id" property="productUnitId" />
-        <result column="conversion_qty" property="conversionQty" />
-        <result column="tax_type" property="taxType" />
+        <result column="product_unit_id" property="productUnitId"/>
+        <result column="conversion_qty" property="conversionQty"/>
+        <result column="tax_type" property="taxType"/>
     </resultMap>
 
     <!-- 발주 목록 SELECT 결과를 PurchaseOrderListResponse에 연결 -->
@@ -20,31 +20,31 @@
                type="com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse">
 
         <!-- PURCHASE_ORDER의 실제 PK -->
-        <id column="purchase_order_id" property="purchaseOrderId" />
+        <id column="purchase_order_id" property="purchaseOrderId"/>
 
         <!-- 사람이 보는 업무용 발주번호 -->
-        <result column="order_no" property="orderNo" />
+        <result column="order_no" property="orderNo"/>
 
         <!-- BUSINESS_PARTNER에서 JOIN한 공급업체명 -->
-        <result column="supplier_name" property="supplierName" />
+        <result column="supplier_name" property="supplierName"/>
 
         <!-- WAREHOUSE에서 JOIN한 창고명 -->
-        <result column="warehouse_name" property="warehouseName" />
+        <result column="warehouse_name" property="warehouseName"/>
 
         <!-- 발주일 -->
-        <result column="order_date" property="orderDate" />
+        <result column="order_date" property="orderDate"/>
 
         <!-- 납품희망일 -->
-        <result column="expected_delivery_date" property="expectedDeliveryDate" />
+        <result column="expected_delivery_date" property="expectedDeliveryDate"/>
 
         <!-- 승인상태 코드 -->
-        <result column="approval_status" property="approvalStatus" />
+        <result column="approval_status" property="approvalStatus"/>
 
         <!-- 입고진행상태 코드 -->
-        <result column="receipt_status" property="receiptStatus" />
+        <result column="receipt_status" property="receiptStatus"/>
 
         <!-- 발주 총액 -->
-        <result column="total_amount" property="totalAmount" />
+        <result column="total_amount" property="totalAmount"/>
     </resultMap>
 
     <!--
@@ -65,27 +65,27 @@
             resultMap="purchaseOrderListResponseMap">
 
         SELECT
-            po.purchase_order_id,
-            po.order_no,
-            bp.partner_name AS supplier_name,
-            w.warehouse_name AS warehouse_name,
-            po.order_date,
-            po.expected_delivery_date,
-            po.approval_status,
-            po.receipt_status,
-            po.total_amount
+        po.purchase_order_id,
+        po.order_no,
+        bp.partner_name AS supplier_name,
+        w.warehouse_name AS warehouse_name,
+        po.order_date,
+        po.expected_delivery_date,
+        po.approval_status,
+        po.receipt_status,
+        po.total_amount
 
         FROM purchase_order po
 
         <!-- 발주에 연결된 거래처에서 공급업체명을 가져옴 -->
         INNER JOIN business_partner bp
-            ON bp.partner_id = po.supplier_id
-           AND bp.company_id = po.company_id
+        ON bp.partner_id = po.supplier_id
+        AND bp.company_id = po.company_id
 
         <!-- 발주에 연결된 창고에서 창고명을 가져옴 -->
         INNER JOIN warehouse w
-            ON w.warehouse_id = po.warehouse_id
-           AND w.company_id = po.company_id
+        ON w.warehouse_id = po.warehouse_id
+        AND w.company_id = po.company_id
 
         <!-- 가장 중요한 멀티테넌트 조건. JWT에서 가져온 현재 로그인 회사의 발주만 조회 -->
         WHERE po.company_id = #{companyId}
@@ -93,12 +93,13 @@
         <!-- 발주번호를 입력한 경우에만 부분검색 -->
         <if test="orderNo != null and orderNo != ''">
             AND UPPER(po.order_no)
-                LIKE '%' || UPPER(#{orderNo}) || '%'
+            LIKE '%' || UPPER(#{orderNo}) || '%'
         </if>
 
-        <!-- 공급업체를 선택한 경우 -->
-        <if test="supplierId != null">
-            AND po.supplier_id = #{supplierId}
+        <!-- 공급업체명을 입력한 경우 이름에 해당 문자열이 포함된 공급업체의 발주를 조회 -->
+        <if test="supplierName != null and supplierName != ''">
+            AND UPPER(bp.partner_name)
+            LIKE '%' || UPPER(#{supplierName}) || '%'
         </if>
 
         <!-- 조회 시작일을 입력한 경우 -->
@@ -123,8 +124,8 @@
 
         <!-- 최신 발주부터 위에 표시 -->
         ORDER BY
-            po.order_date DESC,
-            po.purchase_order_id DESC
+        po.order_date DESC,
+        po.purchase_order_id DESC
 
     </select>
 
@@ -133,9 +134,9 @@
         SELECT COUNT(*)
         FROM business_partner
         WHERE partner_id = #{supplierId}
-          AND company_id = #{companyId}
-          AND supplier_yn = 'Y'
-          AND use_yn = 'Y'
+        AND company_id = #{companyId}
+        AND supplier_yn = 'Y'
+        AND use_yn = 'Y'
     </select>
 
     <!-- 현재 회사에서 사용 가능한 창고인지 확인 -->
@@ -143,26 +144,26 @@
         SELECT COUNT(*)
         FROM warehouse
         WHERE warehouse_id = #{warehouseId}
-          AND company_id = #{companyId}
-          AND use_yn = 'Y'
+        AND company_id = #{companyId}
+        AND use_yn = 'Y'
     </select>
 
     <!-- 상품과 상품단위가 현재 회사에서 사용 가능한지 확인하고, Service 계산에 필요한 conversion_qty와 tax_type을 조회 -->
     <select id="findItemReference"
             resultMap="purchaseOrderItemReferenceMap">
         SELECT
-            p.product_id,
-            pu.product_unit_id,
-            pu.conversion_qty,
-            p.tax_type
+        p.product_id,
+        pu.product_unit_id,
+        pu.conversion_qty,
+        p.tax_type
         FROM product p
         INNER JOIN product_unit pu
-            ON pu.product_id = p.product_id
+        ON pu.product_id = p.product_id
         WHERE p.product_id = #{productId}
-          AND p.company_id = #{companyId}
-          AND p.use_yn = 'Y'
-          AND pu.product_unit_id = #{productUnitId}
-          AND pu.use_yn = 'Y'
+        AND p.company_id = #{companyId}
+        AND p.use_yn = 'Y'
+        AND pu.product_unit_id = #{productUnitId}
+        AND pu.use_yn = 'Y'
     </select>
 
     <!-- 발주번호 ORDER_NO에 사용할 다음 순번을 Oracle Sequence에서 가져옴
@@ -186,33 +187,33 @@
             keyColumn="PURCHASE_ORDER_ID">
         INSERT INTO purchase_order
         (
-            company_id,
-            order_no,
-            supplier_id,
-            warehouse_id,
-            order_date,
-            expected_delivery_date,
-            request_note,
-            internal_memo,
-            total_supply_amount,
-            total_tax_amount,
-            total_amount,
-            created_by
+        company_id,
+        order_no,
+        supplier_id,
+        warehouse_id,
+        order_date,
+        expected_delivery_date,
+        request_note,
+        internal_memo,
+        total_supply_amount,
+        total_tax_amount,
+        total_amount,
+        created_by
         )
         VALUES
         (
-            #{companyId},
-            #{orderNo},
-            #{supplierId},
-            #{warehouseId},
-            #{orderDate, jdbcType=DATE},
-            #{expectedDeliveryDate, jdbcType=DATE},
-            #{requestNote, jdbcType=VARCHAR},
-            #{internalMemo, jdbcType=VARCHAR},
-            #{totalSupplyAmount},
-            #{totalTaxAmount},
-            #{totalAmount},
-            #{createdBy}
+        #{companyId},
+        #{orderNo},
+        #{supplierId},
+        #{warehouseId},
+        #{orderDate, jdbcType=DATE},
+        #{expectedDeliveryDate, jdbcType=DATE},
+        #{requestNote, jdbcType=VARCHAR},
+        #{internalMemo, jdbcType=VARCHAR},
+        #{totalSupplyAmount},
+        #{totalTaxAmount},
+        #{totalAmount},
+        #{createdBy}
         )
     </insert>
 
@@ -221,31 +222,31 @@
             parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam">
         INSERT INTO purchase_order_item
         (
-            purchase_order_id,
-            product_id,
-            product_unit_id,
-            ordered_qty,
-            conversion_qty,
-            base_ordered_qty,
-            unit_price,
-            tax_type,
-            supply_amount,
-            tax_amount,
-            total_amount
+        purchase_order_id,
+        product_id,
+        product_unit_id,
+        ordered_qty,
+        conversion_qty,
+        base_ordered_qty,
+        unit_price,
+        tax_type,
+        supply_amount,
+        tax_amount,
+        total_amount
         )
         VALUES
         (
-            #{purchaseOrderId},
-            #{productId},
-            #{productUnitId},
-            #{orderedQty},
-            #{conversionQty},
-            #{baseOrderedQty},
-            #{unitPrice},
-            #{taxType},
-            #{supplyAmount},
-            #{taxAmount},
-            #{totalAmount}
+        #{purchaseOrderId},
+        #{productId},
+        #{productUnitId},
+        #{orderedQty},
+        #{conversionQty},
+        #{baseOrderedQty},
+        #{unitPrice},
+        #{taxType},
+        #{supplyAmount},
+        #{taxAmount},
+        #{totalAmount}
         )
     </insert>
 

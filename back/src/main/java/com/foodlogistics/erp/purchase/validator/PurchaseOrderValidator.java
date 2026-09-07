@@ -7,6 +7,7 @@ import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
@@ -148,20 +149,12 @@ public class PurchaseOrderValidator {
     }
 
     // 발주 목록 검색조건이 정상인지 검사
-    public void validateListSearchConditions (
-            Long supplierId,
+    public void validateListSearchConditions(
             LocalDate orderDateFrom,
             LocalDate orderDateTo,
             String approvalStatus,
             String receiptStatus
     ) {
-        //  공급업체 필터가 들어왔다면 PK는 0보다 커야 함
-        if (supplierId != null && supplierId <= 0) {
-            throw new BusinessException(
-                    ErrorCode.INVALID_REQUEST,
-                    "공급업체 ID는 0보다 커야 합니다."
-            );
-        }
 
         // 시작일과 종료일이 모두 있다면 시작일이 더 늦을 수 없음
         if (orderDateFrom != null
