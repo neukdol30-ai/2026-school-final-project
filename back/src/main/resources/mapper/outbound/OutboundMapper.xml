@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.outbound.mapper.OutboundMapper">
+
+    <select id="findById"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundResponseDto">
+
+        SELECT
+            ob.outbound_id AS "outboundId",
+            ob.outbound_no AS "outboundNo",
+            ob.sales_order_id AS "salesOrderId",
+            so.order_no AS "salesOrderNo",
+            w.warehouse_name AS "warehouseName",
+            ob.status AS "status"
+        FROM outbound ob
+        JOIN sales_order so
+            ON so.sales_order_id = ob.sales_order_id
+        JOIN warehouse w
+            ON w.warehouse_id = ob.warehouse_id
+        WHERE ob.outbound_id = #{outboundId}
+    </select>
+
+
+    <select id="findItemConfirmInfosByOutboundId"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundItemConfirmInfoDto">
+
+        SELECT
+        ob.sales_order_id AS "salesOrderId",
+        oi.sales_order_item_id AS "salesOrderItemId",
+        oi.base_shipped_qty AS "baseShippedQty",
+        soi.base_ordered_qty AS "baseOrderedQty",
+        soi.shipped_qty AS "shippedQty",
+        soi.version AS "version"
+        FROM outbound ob
+        JOIN outbound_item oi
+        ON oi.outbound_id = ob.outbound_id
+        JOIN sales_order_item soi
+        ON soi.sales_order_item_id = oi.sales_order_item_id
+        WHERE ob.outbound_id = #{outboundId}
+        ORDER BY oi.line_no
+
+    </select>
+
+    <update id="increaseSalesOrderItemShippedQty">
+
+        UPDATE sales_order_item
+        SET
+            shipped_qty = shipped_qty + #{baseShippedQty},
+            version = version + 1,
+            updated_at = SYSTIMESTAMP,
+            updated_by = #{updatedBy}
+        WHERE sales_order_item_id = #{salesOrderItemId}
+
+            AND version = #{version}
+        AND shipped_qty + #{baseShippedQty} &lt;= base_ordered_qty
+    </update>
+
+    <update id="confirmOutbound">
+
+        UPDATE outbound
+        SET
+            status = 'CONFIRMED',
+            confirmed_at = SYSTIMESTAMP,
+            confirmed_by = #{confirmedBy},
+            updated_at = SYSTIMESTAMP,
+            updated_by =#{confirmedBy}
+        WHERE outbound_id = #{outboundId}
+            AND company_id = #{companyId}
+            AND status = 'DRAFT'
+    </update>
+
+    <!--
+    판매주문에 속한 모든 품목의 누적 출고수량을 확인해서
+    판매주문 전체 shipment_status를 다시 계산한다.
+-->
+    <update id="recalculateSalesOrderShipmentStatus">
+
+        UPDATE sales_order so
+        SET
+        shipment_status =
+        CASE
+        <!--
+            품목이 최소 1개 있고,
+            아직 전량 출고되지 않은 품목이 하나도 없으면
+            모든 품목 출고 완료 = SHIPPED
+        -->
+        WHEN EXISTS (
+        SELECT 1
+        FROM sales_order_item soi
+        WHERE soi.sales_order_id = so.sales_order_id
+        )
+        AND NOT EXISTS (
+        SELECT 1
+        FROM sales_order_item soi
+        WHERE soi.sales_order_id = so.sales_order_id
+        AND soi.shipped_qty &lt; soi.base_ordered_qty
+        )
+        THEN 'SHIPPED'
+
+        <!--
+            전량 출고는 아니지만,
+            하나라도 출고된 품목이 있으면 부분출고 = PARTIAL
+        -->
+        WHEN EXISTS (
+        SELECT 1
+        FROM sales_order_item soi
+        WHERE soi.sales_order_id = so.sales_order_id
+        AND soi.shipped_qty > 0
+        )
+        THEN 'PARTIAL'
+
+        <!-- 아직 한 건도 출고하지 않은 경우 -->
+        ELSE 'NOT_SHIPPED'
+        END,
+
+        updated_at = SYSTIMESTAMP,
+        updated_by = #{updatedBy}
+        WHERE so.sales_order_id = #{salesOrderId}
+        AND so.company_id = #{companyId}
+        AND so.order_status = 'CONFIRMED'
+
+    </update>
+
+    <select id="findOutboundItemOrderInfo"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundItemOrderInfoDto">
+
+        SELECT
+        so.company_id AS "companyId",
+        so.sales_order_id AS "salesOrderId",
+        so.order_status AS "orderStatus",
+        soi.product_id AS "productId",
+        soi.base_ordered_qty AS "baseOrderedQty",
+        soi.shipped_qty AS "shippedQty",
+        pu.conversion_qty AS "conversionQty"
+        FROM sales_order_item soi
+        JOIN sales_order so
+        ON so.sales_order_id = soi.sales_order_id
+        JOIN product_unit pu
+        ON pu.product_unit_id = #{productUnitId}
+        AND pu.product_id = soi.product_id
+        JOIN product p
+        ON p.product_id = soi.product_id
+        WHERE soi.sales_order_item_id = #{salesOrderItemId}
+        AND pu.use_yn = 'Y'
+        AND p.use_yn = 'Y'
+
+    </select>
+
+    <select id="countUsableWarehouse" resultType="int">
+
+        SELECT COUNT(*)
+        FROM warehouse w
+        WHERE w.warehouse_id = #{warehouseId}
+        AND w.company_id = #{companyId}
+
+    </select>
+
+    <insert id="insertOutbound"
+            parameterType="com.foodlogistics.erp.outbound.dto.OutboundSaveDto"
+            useGeneratedKeys="true"
+            keyProperty="outboundId"
+            keyColumn="OUTBOUND_ID">
+
+        INSERT INTO outbound (
+        company_id,
+        outbound_no,
+        sales_order_id,
+        warehouse_id,
+        status,
+        created_by
+        )
+        VALUES (
+        #{companyId},
+        #{outboundNo},
+        #{salesOrderId},
+        #{warehouseId},
+        'DRAFT',
+        #{createdBy}
+        )
+
+    </insert>
+
+    <insert id="insertOutboundItem">
+
+        INSERT INTO outbound_item (
+        outbound_id,
+        line_no,
+        sales_order_item_id,
+        product_unit_id,
+        shipped_qty,
+        conversion_qty,
+        base_shipped_qty,
+        created_by
+        )
+        VALUES (
+        #{outboundId},
+        #{lineNo},
+        #{item.salesOrderItemId},
+        #{item.productUnitId},
+        #{item.shippedQty},
+        #{item.conversionQty},
+        #{item.baseShippedQty},
+        #{createdBy}
+        )
+
+    </insert>
+
+</mapper>

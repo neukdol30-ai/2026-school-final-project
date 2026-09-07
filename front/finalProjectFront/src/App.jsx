@@ -5,6 +5,7 @@ import EmptyPage from "./pages/EmptyPage";
 import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
 import OutboundListPage from "./pages/outbound/OutboundListPage";
 import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
+import OutboundCreatePage from "./pages/outbound/OutboundCreatePage";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
         <Route path="/sales-orders" element={<SalesOrderListPage />} />
         <Route path="/sales-orders/new" element={<SalesOrderCreatePage />} />
         <Route path="/outbounds" element={<OutboundListPage />} />
+        <Route path="/outbounds/new" element={<OutboundCreatePage />} />
+
         <Route
           path="/settings"
           element={<EmptyPage title="사용자 / 권한 설정" />}
