@@ -58,4 +58,12 @@ public interface OutboundMapper {
             @Param("companyId") Long companyId,
             @Param("updatedBy") Long updatedBy
     );
+
+    List<OutboundResponseDto> findAllByCompanyId(
+            @Param("companyId") Long companyId
+    );
+
+    List<OutboundItemResponseDto> findItemsByOutboundId(
+            @Param("outboundId") Long outboundId
+    );
 }

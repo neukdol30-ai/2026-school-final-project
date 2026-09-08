@@ -49,6 +49,30 @@ public class OutboundService {
     }
 
     @Transactional
+    public List<OutboundResponseDto> getOutboundList() {
+        return  outboundMapper.findAllByCompanyId(TEMPORARY_COMPANY_ID);
+    }
+    @Transactional(readOnly = true)
+    public OutboundDetailResponseDto getOutboundDetail(Long outboundId) {
+        OutboundResponseDto outbound = outboundMapper.findById(outboundId);
+
+        if(outbound == null) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "존재하지 않는 출고서입니다."
+            );
+        }
+
+        List<OutboundItemResponseDto> items =
+                outboundMapper.findItemsByOutboundId(outboundId);
+
+        return new OutboundDetailResponseDto(
+                outbound,
+                items
+        );
+    }
+
+    @Transactional
     public OutboundResponseDto confirmOutbound(Long outboundId) {
         OutboundResponseDto outbound =
                 outboundMapper.findById(outboundId);

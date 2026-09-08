@@ -6,6 +6,7 @@ import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
 import OutboundListPage from "./pages/outbound/OutboundListPage";
 import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
 import OutboundCreatePage from "./pages/outbound/OutboundCreatePage";
+import OutboundDetailPage from "./pages/outbound/OutboundDetailPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/sales-orders/new" element={<SalesOrderCreatePage />} />
         <Route path="/outbounds" element={<OutboundListPage />} />
         <Route path="/outbounds/new" element={<OutboundCreatePage />} />
+        <Route path="/outbounds/:outboundId" element={<OutboundDetailPage />} />
 
         <Route
           path="/settings"

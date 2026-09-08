@@ -3,11 +3,14 @@ package com.foodlogistics.erp.outbound.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.outbound.dto.OutboundCreateRequestDto;
+import com.foodlogistics.erp.outbound.dto.OutboundDetailResponseDto;
 import com.foodlogistics.erp.outbound.dto.OutboundResponseDto;
 import com.foodlogistics.erp.outbound.service.OutboundService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/outbounds")
@@ -17,6 +20,20 @@ public class OutboundController {
 
     private final OutboundService outboundService;
 
+    @GetMapping
+    public ApiResponse<List<OutboundResponseDto>> getOutboundList() {
+        return ApiResponse.ok(
+                outboundService.getOutboundList()
+        );
+    }
+    @GetMapping("/{outboundId}")
+    public ApiResponse<OutboundDetailResponseDto> getOutboundDetail(
+            @PathVariable Long outboundId
+    ) {
+        return ApiResponse.ok(
+                outboundService.getOutboundDetail(outboundId)
+        );
+    }
     @PostMapping
     public ApiResponse<OutboundResponseDto> createOutbound(
             @RequestBody

@@ -2,12 +2,17 @@ spring:
   application:
     name: food-logistics-erp
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   flyway:
     enabled: false
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
 
 logging:
   file:

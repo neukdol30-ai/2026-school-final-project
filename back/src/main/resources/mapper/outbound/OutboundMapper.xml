@@ -209,4 +209,39 @@
 
     </insert>
 
+    <select id="findAllByCompanyId"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundResponseDto">
+
+        SELECT
+            ob.outbound_id AS "outboundId",
+            ob.outbound_no AS "outboundNo",
+            ob.sales_order_id AS "salesOrderId",
+            so.order_no AS "salesOrderNo",
+            w.warehouse_name AS "warehouseName",
+            ob.status AS "status"
+        FROM outbound ob
+        JOIN sales_order so
+            ON so.sales_order_id = ob.sales_order_id
+        JOIN warehouse w
+            ON w.warehouse_id = ob.warehouse_id
+        WHERE ob.company_id = #{companyId}
+        ORDER BY ob.outbound_id DESC
+    </select>
+
+    <select id="findItemsByOutboundId"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundItemResponseDto">
+
+        SELECT
+            oi.outbound_item_id AS "outboundItemId",
+            oi.line_no AS "lineNo",
+            oi.sales_order_item_id AS "salesOrderItemId",
+            oi.product_unit_id AS "productUnitId",
+            oi.shipped_qty AS "shippedQty",
+            oi.conversion_qty AS "conversionQty",
+            oi.base_shipped_qty AS "baseShippedQty"
+        FROM outbound_item oi
+        WHERE oi.outbound_id = #{outboundId}
+        ORDER BY oi.line_no
+    </select>
+
 </mapper>
