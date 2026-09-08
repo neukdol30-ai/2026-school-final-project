@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { requestPurchaseOrders } from "../../api/purchaseOrderApi.js";
 import "./PurchaseOrderListPage.css";
 
@@ -26,6 +27,47 @@ const RECEIPT_STATUS_LABELS = {
   CLOSED: "잔량마감",
 };
 
+function createFiltersFromSearchParams(searchParams) {
+  return {
+    orderNo: searchParams.get("orderNo") ?? "",
+    supplierName: searchParams.get("supplierName") ?? "",
+    orderDateFrom: searchParams.get("orderDateFrom") ?? "",
+    orderDateTo: searchParams.get("orderDateTo") ?? "",
+    approvalStatus: searchParams.get("approvalStatus") ?? "",
+    receiptStatus: searchParams.get("receiptStatus") ?? "",
+  };
+}
+
+function createSearchParamsFromFilters(filters) {
+  const params = new URLSearchParams();
+
+  if (filters.orderNo?.trim()) {
+    params.set("orderNo", filters.orderNo.trim());
+  }
+
+  if (filters.supplierName?.trim()) {
+    params.set("supplierName", filters.supplierName.trim());
+  }
+
+  if (filters.orderDateFrom) {
+    params.set("orderDateFrom", filters.orderDateFrom);
+  }
+
+  if (filters.orderDateTo) {
+    params.set("orderDateTo", filters.orderDateTo);
+  }
+
+  if (filters.approvalStatus) {
+    params.set("approvalStatus", filters.approvalStatus);
+  }
+
+  if (filters.receiptStatus) {
+    params.set("receiptStatus", filters.receiptStatus);
+  }
+
+  return params;
+}
+
 function formatAmount(amount) {
   if (amount === null || amount === undefined) {
     return "-";
@@ -37,18 +79,49 @@ function formatAmount(amount) {
     return "-";
   }
 
-  // 한국식 숫자 표시에 맞춰 천 단위 쉼표. / 템플릿 리터럴 `${}` 사용해서 뒤에 "원" 붙임.
   return `${numericAmount.toLocaleString("ko-KR")}원`;
 }
 
 function PurchaseOrderListPage() {
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [filters, setFilters] = useState(() =>
+    createFiltersFromSearchParams(searchParams),
+  );
 
   const [purchaseOrders, setPurchaseOrders] = useState([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadPurchaseOrders() {
+      const currentFilters = createFiltersFromSearchParams(searchParams);
+
+      setFilters(currentFilters);
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await requestPurchaseOrders(currentFilters);
+        setPurchaseOrders(data);
+      } catch (requestError) {
+        setPurchaseOrders([]);
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "발주 목록을 불러오지 못했습니다.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPurchaseOrders();
+  }, [searchParams]);
 
   function handleFilterChange(event) {
     const { name, value } = event.target;
@@ -59,29 +132,28 @@ function PurchaseOrderListPage() {
     }));
   }
 
-  async function handleSearch(event) {
+  function handleSearch(event) {
     event.preventDefault();
-    setLoading(true);
-    setError("");
 
-    try {
-      const data = await requestPurchaseOrders(filters);
-      setPurchaseOrders(data);
-    } catch (requestError) {
-      setPurchaseOrders([]);
+    const nextSearchParams = createSearchParamsFromFilters(filters);
 
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "발주 목록을 불러오지 못했습니다.",
-      );
-    } finally {
-      setLoading(false);
-    }
+    setSearchParams(nextSearchParams);
   }
 
   function handleReset() {
     setFilters(INITIAL_FILTERS);
+    setSearchParams(new URLSearchParams());
+  }
+
+  function handleDetail(purchaseOrderId) {
+    const queryString = searchParams.toString();
+
+    if (queryString) {
+      navigate(`/purchase-orders/${purchaseOrderId}?${queryString}`);
+      return;
+    }
+
+    navigate(`/purchase-orders/${purchaseOrderId}`);
   }
 
   return (
@@ -201,6 +273,7 @@ function PurchaseOrderListPage() {
                   <th>승인상태</th>
                   <th>입고상태</th>
                   <th>총액</th>
+                  <th>상세</th>
                 </tr>
               </thead>
 
@@ -221,6 +294,15 @@ function PurchaseOrderListPage() {
                         order.receiptStatus}
                     </td>
                     <td>{formatAmount(order.totalAmount)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="purchase-order-detail-button"
+                        onClick={() => handleDetail(order.purchaseOrderId)}
+                      >
+                        상세
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

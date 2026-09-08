@@ -61,3 +61,40 @@ export async function requestPurchaseOrders(filters = {}) {
 
   return body.data ?? [];
 }
+
+export async function requestPurchaseOrderDetail(purchaseOrderId) {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    throw new Error("로그인 정보가 없습니다. 다시 로그인해주세요.");
+  }
+
+  const numericPurchaseOrderId = Number(purchaseOrderId);
+
+  if (
+    !Number.isInteger(numericPurchaseOrderId) ||
+    numericPurchaseOrderId <= 0
+  ) {
+    throw new Error("올바르지 않은 발주 ID입니다.");
+  }
+
+  const requestUrl = `${API_BASE_URL}/api/purchase-orders/${numericPurchaseOrderId}`;
+
+  const response = await fetch(requestUrl, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const body = await response.json();
+
+  if (!response.ok || !body.success) {
+    const message =
+      body.error?.message ?? "발주 상세정보를 불러오지 못했습니다.";
+
+    throw new Error(message);
+  }
+
+  return body.data;
+}
