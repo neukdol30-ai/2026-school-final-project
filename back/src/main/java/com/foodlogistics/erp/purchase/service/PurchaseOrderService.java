@@ -3,10 +3,7 @@ package com.foodlogistics.erp.purchase.service;
 import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.purchase.calculator.PurchaseOrderCalculator;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderItemCreateRequest;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
+import com.foodlogistics.erp.purchase.dto.*;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
@@ -295,6 +292,58 @@ public class PurchaseOrderService {
                 normalizedApprovalStatus,
                 normalizedReceiptStatus
         );
+    }
+
+    // 발주 한 건의 Header와 Item을 상세조회하는 Service
+    @Transactional(readOnly = true)
+    public PurchaseOrderDetailResponse getPurchaseOrderDetail(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId
+    ) {
+        // 1단계:
+        // Controller가 JWT에서 꺼내 전달한 회사 ID와 사용자 ID가 정상인지 확인
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 2단계:
+        // URL에서 받은 발주 ID가 null, 0, 음수가 아닌지 확인
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        // 3단계:
+        // 현재 로그인 회사의 발주 Header 한 건 조회
+        // purchaseOrderId가 존재해도 다른 회사 발주이면 조회되지 않음
+        PurchaseOrderDetailResponse response =
+                purchaseOrderMapper.findPurchaseOrderDetail(
+                                companyId,
+                                purchaseOrderId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        // 4단계:
+        // 같은 발주에 포함된 상품 여러 건을 조회
+        List<PurchaseOrderItemDetailResponse> items =
+                purchaseOrderMapper.findPurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        // 5단계:
+        // Header DTO 안의 items 필드에 상품 목록을 넣음
+        response.setItems(items);
+
+        // 6단계:
+        // Header + Item이 합쳐진 최종 상세조회 DTO를 Controller로 반환
+        return response;
     }
 
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드

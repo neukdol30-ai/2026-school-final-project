@@ -1,5 +1,7 @@
 package com.foodlogistics.erp.purchase.mapper;
 
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderItemDetailResponse;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -51,4 +53,18 @@ public interface PurchaseOrderMapper {
             @Param("approvalStatus") String approvalStatus,
             @Param("receiptStatus") String receiptStatus
             );
+
+    // 현재 로그인 회사의 발주 Header 한 건을 상세조회
+    // 다른 회사의 purchaseOrderId를 조회하지 못하도록 companyId도 함께 사용
+    Optional<PurchaseOrderDetailResponse> findPurchaseOrderDetail(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
+    // 해당 발주서에 포함된 상품 여러 건을 조회
+    List<PurchaseOrderItemDetailResponse> findPurchaseOrderItems(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
 }

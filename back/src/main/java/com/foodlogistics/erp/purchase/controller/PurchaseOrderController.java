@@ -3,6 +3,7 @@ package com.foodlogistics.erp.purchase.controller;
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
 import com.foodlogistics.erp.purchase.service.PurchaseOrderService;
 import jakarta.validation.Valid;
@@ -24,14 +25,18 @@ public class PurchaseOrderController {
     // 발주 검증, 계산, 발주번호 생성, DB 저장 등 실제 업무는 Service가 담당
     private final PurchaseOrderService purchaseOrderService;
 
+    // 발주 등록
+    // POST /api/purchase-orders
     @PostMapping
     public ResponseEntity<ApiResponse<PurchaseOrderCreateResponse>>
     createPurchaseOrder(
 
-            // 로그인 성공 후 클라이언트가 Authorization 헤더로 보낸 JWT를 Spring Security가 먼저 검증한 뒤 이 매개변수에 전달
+            // 로그인 성공 후 클라이언트가 Authorization 헤더로 보낸 JWT를
+            // Spring Security가 먼저 검증한 뒤 이 매개변수에 전달
             @AuthenticationPrincipal Jwt jwt,
 
-            // React가 보낸 JSON을 PurchaseOrderCreateRequest로 변환하고 @Valid가 DTO의 Validation 조건을 검사함
+            // React가 보낸 JSON을 PurchaseOrderCreateRequest로 변환하고
+            // @Valid가 DTO의 Validation 조건을 검사함
             @Valid @RequestBody PurchaseOrderCreateRequest request
     ) {
 
@@ -42,7 +47,8 @@ public class PurchaseOrderController {
         // 멀티테넌트 구조에서 다른 회사의 데이터와 섞이지 않도록 사용
         Number companyId = jwt.getClaim("companyId");
 
-        // JWT에서 가져온 회사 ID와 사용자 ID, React에서 받은 발주 요청 DTO를 Service에 전달
+        // JWT에서 가져온 회사 ID와 사용자 ID,
+        // React에서 받은 발주 요청 DTO를 Service에 전달
         PurchaseOrderCreateResponse response =
                 purchaseOrderService.createPurchaseOrder(
                         companyId.longValue(),
@@ -50,6 +56,7 @@ public class PurchaseOrderController {
                         request
                 );
 
+        // 발주 등록 결과를 프로젝트 공통 ApiResponse 형식으로 반환
         return ResponseEntity.ok(
                 ApiResponse.ok(response)
         );
@@ -90,7 +97,7 @@ public class PurchaseOrderController {
             @RequestParam(required = false)
             String approvalStatus,
 
-            // NOT RECEIVED / PARTIAL / RECEIVED / CLOSED
+            // NOT_RECEIVED / PARTIAL / RECEIVED / CLOSED
             @RequestParam(required = false)
             String receiptStatus
     ) {
@@ -116,7 +123,44 @@ public class PurchaseOrderController {
                         approvalStatus,
                         receiptStatus
                 );
+
         // 기존 프로젝트 공통 ApiResponse 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 상세조회
+    // GET /api/purchase-orders/{purchaseOrderId}
+    @GetMapping("/{purchaseOrderId}")
+    public ResponseEntity<ApiResponse<PurchaseOrderDetailResponse>>
+    getPurchaseOrderDetail(
+
+            // 로그인 후 Spring Security가 검증한 JWT를 전달
+            @AuthenticationPrincipal Jwt jwt,
+
+            // URL 경로에 들어온 발주 ID를 받음
+            // 예: /api/purchase-orders/1
+            // → purchaseOrderId에는 1이 들어옴
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        // JWT 생성 시 넣어 둔 현재 로그인 사용자 ID
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT 생성 시 넣어 둔 현재 로그인 회사 ID
+        Number companyId = jwt.getClaim("companyId");
+
+        // 회사 ID + 사용자 ID + URL에서 받은 발주 ID를 Service로 전달
+        // Service에서 인증정보 검증 → Header 조회 → Item 조회 순서로 처리
+        PurchaseOrderDetailResponse response =
+                purchaseOrderService.getPurchaseOrderDetail(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId
+                );
+
+        // 상세조회 결과를 프로젝트 공통 ApiResponse 형식으로 반환
         return ResponseEntity.ok(
                 ApiResponse.ok(response)
         );

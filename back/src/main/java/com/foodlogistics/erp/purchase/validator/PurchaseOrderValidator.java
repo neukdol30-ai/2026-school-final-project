@@ -63,6 +63,19 @@ public class PurchaseOrderValidator {
         }
     }
 
+    // 상세조회에 사용할 발주 ID가 정상적인 숫자인지 확인
+    public void validatePurchaseOrderId(
+            Long purchaseOrderId
+    ) {
+        // PK는 null이거나 0 이하일 수 없음
+        if (purchaseOrderId == null || purchaseOrderId <= 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주 ID는 0보다 큰 값이어야 합니다."
+            );
+        }
+    }
+
     // 선택한 거래처가 현재 회사에서 사용할 수 있는 공급업체인지 검사
     public void validateSupplier(
             Long companyId,
