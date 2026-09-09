@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   getOrderStatusLabel,
   getShipmentStatusLabel,
@@ -7,6 +8,10 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
   if (!salesOrderDetail) {
     return null;
   }
+
+  const canCreateOutbound =
+    salesOrderDetail.orderStatus === "CONFIRMED" &&
+    salesOrderDetail.items.some((item) => Number(item.remainingQty) > 0);
 
   return (
     <section className="content-panel sales-order-detail-panel">
@@ -19,13 +24,24 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
           </p>
         </div>
 
-        <button
-          className="sales-order-detail-close-button"
-          type="button"
-          onClick={onClose}
-        >
-          목록으로
-        </button>
+        <div className="sales-order-detail-actions">
+          {canCreateOutbound && (
+            <Link
+              className="sales-order-create-outbound-link"
+              to={`/outbounds/new?salesOrderId=${salesOrderDetail.salesOrderId}`}
+            >
+              출고 등록
+            </Link>
+          )}
+
+          <button
+            className="sales-order-detail-close-button"
+            type="button"
+            onClick={onClose}
+          >
+            목록으로
+          </button>
+        </div>
       </div>
 
       {/* 주문의 핵심 상태를 한눈에 보여 주는 영역 */}
@@ -73,13 +89,15 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
               <th>번호</th>
               <th>상품 단위 ID</th>
               <th>주문 수량</th>
+              <th>누적 출고 수량</th>
+              <th>남은 출고 가능 수량</th>
             </tr>
           </thead>
 
           <tbody>
             {salesOrderDetail.items.length === 0 ? (
               <tr>
-                <td colSpan="3" className="empty-message">
+                <td colSpan="5" className="empty-message">
                   등록된 주문 품목이 없습니다.
                 </td>
               </tr>
@@ -89,6 +107,8 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
                   <td>{index + 1}</td>
                   <td>{item.productUnitId}</td>
                   <td>{Number(item.orderedQty).toLocaleString("ko-KR")}</td>
+                  <td>{Number(item.shippedQty).toLocaleString("ko-KR")}</td>
+                  <td>{Number(item.remainingQty).toLocaleString("ko-KR")}</td>
                 </tr>
               ))
             )}

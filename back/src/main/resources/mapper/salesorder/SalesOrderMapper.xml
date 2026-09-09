@@ -43,8 +43,12 @@
             resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderItemResponseDto">
 
         SELECT
+        soi.sales_order_item_id AS "salesOrderItemId",
         soi.product_unit_id AS "productUnitId",
-        soi.ordered_qty AS "orderedQty"
+        soi.ordered_qty AS "orderedQty",
+        soi.shipped_qty / soi.conversion_qty AS "shippedQty",
+        (soi.base_ordered_qty - soi.shipped_qty)
+            / soi.conversion_qty AS "remainingQty"
         FROM sales_order_item soi
         WHERE soi.sales_order_id = #{salesOrderId}
         ORDER BY soi.line_no
