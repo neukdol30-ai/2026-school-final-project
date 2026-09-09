@@ -1,15 +1,29 @@
+import { getAccessToken } from "../../../storage/authStorage";
 const OUTBOUND_API_URL = "http://localhost:8080/api/outbounds";
 
-async function requestApi(url, options, defaultErrorMessage) {
-  const response = await fetch(url, options);
+async function requestApi(url, options = {}, defaultErrorMessage) {
+  const accessToken = getAccessToken(); // 로그인 후 저장된 JWT 토큰
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(accessToken
+        ? { Authorization: `Bearer ${accessToken}` } // 토큰이 있으면 요청에 포함
+        : {}),
+    },
+  });
 
   const result = await response.json();
 
   if (!response.ok || !result.success) {
     const error = new Error(result.error?.message || defaultErrorMessage);
 
+    error.validationErrors = result.error?.fields || [];
+
     throw error;
   }
+
   return result.data;
 }
 //출고서 초안 등록

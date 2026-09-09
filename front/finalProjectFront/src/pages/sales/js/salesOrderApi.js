@@ -1,7 +1,18 @@
+import { getAccessToken } from "../../../storage/authStorage";
 const SALES_ORDER_API_URL = "http://localhost:8080/api/sales-orders";
 
-async function requestApi(url, options, defaultErrorMessage) {
-  const response = await fetch(url, options);
+async function requestApi(url, options = {}, defaultErrorMessage) {
+  const accessToken = getAccessToken(); // 로그인 후 저장된 JWT 토큰
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(accessToken
+        ? { Authorization: `Bearer ${accessToken}` } // 토큰이 있으면 요청에 포함
+        : {}),
+    },
+  });
 
   const result = await response.json();
 

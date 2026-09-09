@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.stocktake.mapper.StocktakeMapper">
+
+    <!-- 회사에 속한 창고인지 확인 -->
+    <select id="countUsableWarehouse" resultType="int">
+        SELECT COUNT(*)
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+    </select>
+
+    <!-- 회사에 속하고 사용 중인 상품인지 확인 -->
+    <select id="countUsableProduct" resultType="int">
+        SELECT COUNT(*)
+        FROM product
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 상품의 LOT 관리 여부 조회 -->
+    <select id="findLotManagedYn" resultType="string">
+        SELECT lot_managed_yn
+        FROM product
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 선택한 LOT가 해당 회사·상품의 LOT인지 확인 -->
+    <select id="countLotForProduct" resultType="int">
+        SELECT COUNT(*)
+        FROM lot
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND lot_id = #{lotId}
+    </select>
+
+    <!-- LOT 비관리 상품의 창고별 전산 재고 -->
+    <select id="findStockQty" resultType="java.math.BigDecimal">
+        SELECT quantity
+        FROM stock
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+    </select>
+
+    <!-- LOT 관리 상품의 LOT별 전산 재고 -->
+    <select id="findLotStockQty" resultType="java.math.BigDecimal">
+        SELECT ls.quantity
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND l.product_id = #{productId}
+        AND ls.lot_id = #{lotId}
+    </select>
+
+    <!-- 재고실사 헤더 저장 -->
+    <insert id="insertStocktake"
+            parameterType="com.foodlogistics.erp.stocktake.dto.StocktakeSaveDto"
+            useGeneratedKeys="true"
+            keyProperty="stocktakeId"
+            keyColumn="STOCKTAKE_ID">
+
+        INSERT INTO stocktake (
+        company_id,
+        stocktake_no,
+        warehouse_id,
+        status,
+        memo,
+        created_by
+        )
+        VALUES (
+        #{companyId},
+        #{stocktakeNo},
+        #{warehouseId},
+        'DRAFT',
+        #{memo},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- 재고실사 품목 한 줄 저장 -->
+    <insert id="insertStocktakeItem">
+        INSERT INTO stocktake_item (
+        stocktake_id,
+        line_no,
+        product_id,
+        lot_id,
+        system_qty,
+        actual_qty,
+        difference_qty,
+        reason,
+        created_by
+        )
+        VALUES (
+        #{stocktakeId},
+        #{lineNo},
+        #{item.productId},
+        #{item.lotId},
+        #{item.systemQty},
+        #{item.actualQty},
+        #{item.differenceQty},
+        #{item.reason},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- 최근 등록한 재고실사부터 목록 조회 -->
+    <select id="findAllByCompanyId"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeResponseDto">
+
+        SELECT
+        st.stocktake_id AS "stocktakeId",
+        st.stocktake_no AS "stocktakeNo",
+        w.warehouse_name AS "warehouseName",
+        st.stocktake_date AS "stocktakeDate",
+        st.status AS "status"
+        FROM stocktake st
+        JOIN warehouse w
+        ON w.warehouse_id = st.warehouse_id
+        WHERE st.company_id = #{companyId}
+        ORDER BY st.stocktake_id DESC
+
+    </select>
+
+</mapper>
