@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: security-test
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:security-test-only-secret-key-2026-erp-project}
+    access-token-expiration-seconds: 1800
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

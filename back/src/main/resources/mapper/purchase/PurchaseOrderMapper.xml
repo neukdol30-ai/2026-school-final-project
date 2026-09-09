@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper">
+
+    <!-- 상품/상품단위 기준정보 조회 결과를 Java 객체에 연결 -->
+    <resultMap id="purchaseOrderItemReferenceMap"
+               type="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference">
+        <id column="product_id" property="productId"/>
+        <result column="product_unit_id" property="productUnitId"/>
+        <result column="conversion_qty" property="conversionQty"/>
+        <result column="tax_type" property="taxType"/>
+    </resultMap>
+
+    <!-- 발주 목록 SELECT 결과를 PurchaseOrderListResponse에 연결 -->
+    <resultMap id="purchaseOrderListResponseMap"
+               type="com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse">
+
+        <!-- PURCHASE_ORDER의 실제 PK -->
+        <id column="purchase_order_id" property="purchaseOrderId"/>
+
+        <!-- 사람이 보는 업무용 발주번호 -->
+        <result column="order_no" property="orderNo"/>
+
+        <!-- BUSINESS_PARTNER에서 JOIN한 공급업체명 -->
+        <result column="supplier_name" property="supplierName"/>
+
+        <!-- WAREHOUSE에서 JOIN한 창고명 -->
+        <result column="warehouse_name" property="warehouseName"/>
+
+        <!-- 발주일 -->
+        <result column="order_date" property="orderDate"/>
+
+        <!-- 납품희망일 -->
+        <result column="expected_delivery_date" property="expectedDeliveryDate"/>
+
+        <!-- 승인상태 코드 -->
+        <result column="approval_status" property="approvalStatus"/>
+
+        <!-- 입고진행상태 코드 -->
+        <result column="receipt_status" property="receiptStatus"/>
+
+        <!-- 발주 총액 -->
+        <result column="total_amount" property="totalAmount"/>
+    </resultMap>
+
+    <!--
+        발주 상세조회 Header SELECT 결과와
+        PurchaseOrderDetailResponse Java 객체의 필드를 연결한다.
+
+        MyBatis의 resultMap은 Oracle SELECT 결과의 컬럼 이름과
+        Java DTO 필드 이름이 어떻게 연결되는지를 명시하는 설정
+    -->
+    <resultMap id="purchaseOrderDetailResponseMap"
+               type="com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse">
+
+        <!-- PURCHASE_ORDER의 실제 PK -->
+        <id column="purchase_order_id" property="purchaseOrderId" />
+
+        <!-- 사용자가 화면에서 보는 발주번호 -->
+        <result column="order_no" property="orderNo" />
+
+        <!-- 공급업체 PK -->
+        <result column="supplier_id" property="supplierId" />
+
+        <!-- BUSINESS_PARTNER에서 JOIN하여 가져올 공급업체명 -->
+        <result column="supplier_name" property="supplierName" />
+
+        <!-- 예정 입고창고 PK -->
+        <result column="warehouse_id" property="warehouseId" />
+
+        <!-- WAREHOUSE에서 JOIN하여 가져올 창고명 -->
+        <result column="warehouse_name" property="warehouseName" />
+
+        <!-- 발주일 -->
+        <result column="order_date" property="orderDate" />
+
+        <!-- 납품희망일 -->
+        <result column="expected_delivery_date" property="expectedDeliveryDate" />
+
+        <!-- 승인 진행상태 -->
+        <result column="approval_status" property="approvalStatus" />
+
+        <!-- 입고 진행상태 -->
+        <result column="receipt_status" property="receiptStatus" />
+
+        <!-- 공급업체에 전달할 요청사항 -->
+        <result column="request_note" property="requestNote" />
+
+        <!-- 내부 직원용 메모 -->
+        <result column="internal_memo" property="internalMemo" />
+
+        <!-- 발주 전체 공급가액 -->
+        <result column="total_supply_amount" property="totalSupplyAmount" />
+
+        <!-- 발주 전체 세액 -->
+        <result column="total_tax_amount" property="totalTaxAmount" />
+
+        <!-- 발주 전체 최종금액 -->
+        <result column="total_amount" property="totalAmount" />
+
+        <!-- 최초 등록일시 -->
+        <result column="created_at" property="createdAt" />
+
+        <!-- 최종 수정일시 -->
+        <result column="updated_at" property="updatedAt" />
+
+        <!-- 승인 완료일시. 아직 승인 전이면 null 가능 -->
+        <result column="approved_at" property="approvedAt" />
+    </resultMap>
+
+    <!--
+        발주 상세조회 Item SELECT 결과와 PurchaseOrderItemDetailResponse Java 객체의 필드를 연결
+        발주 한 건에는 상품이 여러 줄 들어갈 수 있으므로 이 resultMap은 발주품목 한 줄을 Java 객체 하나로 만든다.
+    -->
+    <resultMap id="purchaseOrderItemDetailResponseMap"
+               type="com.foodlogistics.erp.purchase.dto.PurchaseOrderItemDetailResponse">
+
+        <!-- PURCHASE_ORDER_ITEM의 실제 PK -->
+        <id column="purchase_order_item_id" property="purchaseOrderItemId" />
+
+        <!-- 상품 PK -->
+        <result column="product_id" property="productId" />
+
+        <!-- PRODUCT에서 가져오는 상품코드 -->
+        <result column="product_code" property="productCode" />
+
+        <!-- PRODUCT에서 가져오는 상품명 -->
+        <result column="product_name" property="productName" />
+
+        <!-- 발주 당시 선택한 상품단위 PK -->
+        <result column="product_unit_id" property="productUnitId" />
+
+        <!-- UNIT에서 가져오는 EA, BOX 같은 단위코드 -->
+        <result column="unit_code" property="unitCode" />
+
+        <!-- UNIT에서 가져오는 개, 박스 같은 단위명 -->
+        <result column="unit_name" property="unitName" />
+
+        <!-- 사용자가 입력했던 발주수량 -->
+        <result column="ordered_qty" property="orderedQty" />
+
+        <!-- 발주 당시 저장된 단위 환산수량 -->
+        <result column="conversion_qty" property="conversionQty" />
+
+        <!-- 기준단위로 변환된 발주수량 -->
+        <result column="base_ordered_qty" property="baseOrderedQty" />
+
+        <!-- 현재까지 입고된 기준단위 수량 -->
+        <result column="received_qty" property="receivedQty" />
+
+        <!-- 발주 당시 매입단가 -->
+        <result column="unit_price" property="unitPrice" />
+
+        <!-- 발주 당시 과세유형 -->
+        <result column="tax_type" property="taxType" />
+
+        <!-- 품목 공급가액 -->
+        <result column="supply_amount" property="supplyAmount" />
+
+        <!-- 품목 세액 -->
+        <result column="tax_amount" property="taxAmount" />
+
+        <!-- 품목 최종금액 -->
+        <result column="total_amount" property="totalAmount" />
+    </resultMap>
+
+    <!--
+        현재 로그인 회사의 발주 목록 조회
+
+        검색 조건:
+        - 발주번호
+        - 공급업체
+        - 발주일 기간
+        - 승인상태
+        - 입고상태
+
+        페이지네이션:
+        - 사용하지 않음
+        - 검색조건에 해당하는 결과를 전부 반환
+    -->
+    <select id="findPurchaseOrders"
+            resultMap="purchaseOrderListResponseMap">
+
+        SELECT
+        po.purchase_order_id,
+        po.order_no,
+        bp.partner_name AS supplier_name,
+        w.warehouse_name AS warehouse_name,
+        po.order_date,
+        po.expected_delivery_date,
+        po.approval_status,
+        po.receipt_status,
+        po.total_amount
+
+        FROM purchase_order po
+
+        <!-- 발주에 연결된 거래처에서 공급업체명을 가져옴 -->
+        INNER JOIN business_partner bp
+        ON bp.partner_id = po.supplier_id
+        AND bp.company_id = po.company_id
+
+        <!-- 발주에 연결된 창고에서 창고명을 가져옴 -->
+        INNER JOIN warehouse w
+        ON w.warehouse_id = po.warehouse_id
+        AND w.company_id = po.company_id
+
+        <!-- 가장 중요한 멀티테넌트 조건. JWT에서 가져온 현재 로그인 회사의 발주만 조회 -->
+        WHERE po.company_id = #{companyId}
+
+        <!-- 발주번호를 입력한 경우에만 부분검색 -->
+        <if test="orderNo != null and orderNo != ''">
+            AND UPPER(po.order_no)
+            LIKE '%' || UPPER(#{orderNo}) || '%'
+        </if>
+
+        <!-- 공급업체명을 입력한 경우 이름에 해당 문자열이 포함된 공급업체의 발주를 조회 -->
+        <if test="supplierName != null and supplierName != ''">
+            AND UPPER(bp.partner_name)
+            LIKE '%' || UPPER(#{supplierName}) || '%'
+        </if>
+
+        <!-- 조회 시작일을 입력한 경우 -->
+        <if test="orderDateFrom != null">
+            AND po.order_date &gt;= #{orderDateFrom, jdbcType=DATE}
+        </if>
+
+        <!-- 조회 종료일을 입력한 경우 -->
+        <if test="orderDateTo != null">
+            AND po.order_date &lt;= #{orderDateTo, jdbcType=DATE}
+        </if>
+
+        <!-- 승인상태를 선택한 경우 -->
+        <if test="approvalStatus != null and approvalStatus != ''">
+            AND po.approval_status = #{approvalStatus}
+        </if>
+
+        <!-- 입고상태를 선택한 경우 -->
+        <if test="receiptStatus != null and receiptStatus != ''">
+            AND po.receipt_status = #{receiptStatus}
+        </if>
+
+        <!-- 최신 발주부터 위에 표시 -->
+        ORDER BY
+        po.order_date DESC,
+        po.purchase_order_id DESC
+
+    </select>
+
+    <select id="findPurchaseOrderDetail"
+            resultMap="purchaseOrderDetailResponseMap">
+
+        SELECT
+        po.purchase_order_id,
+        po.order_no,
+        po.supplier_id,
+        bp.partner_name AS supplier_name,
+        po.warehouse_id,
+        w.warehouse_name AS warehouse_name,
+        po.order_date,
+        po.expected_delivery_date,
+        po.approval_status,
+        po.receipt_status,
+        po.request_note,
+        po.internal_memo,
+        po.total_supply_amount,
+        po.total_tax_amount,
+        po.total_amount,
+        po.created_at,
+        po.updated_at,
+        po.approved_at
+
+        FROM purchase_order po
+
+        INNER JOIN business_partner bp
+        ON bp.partner_id = po.supplier_id
+        AND bp.company_id = po.company_id
+
+        INNER JOIN warehouse w
+        ON w.warehouse_id = po.warehouse_id
+        AND w.company_id = po.company_id
+
+        WHERE po.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+
+    </select>
+
+    <select id="findPurchaseOrderItems"
+            resultMap="purchaseOrderItemDetailResponseMap">
+
+        SELECT
+        poi.purchase_order_item_id,
+        poi.product_id,
+        p.product_code,
+        p.product_name,
+        poi.product_unit_id,
+        u.unit_code,
+        u.unit_name,
+        poi.ordered_qty,
+        poi.conversion_qty,
+        poi.base_ordered_qty,
+        poi.received_qty,
+        poi.unit_price,
+        poi.tax_type,
+        poi.supply_amount,
+        poi.tax_amount,
+        poi.total_amount
+
+        FROM purchase_order_item poi
+
+        INNER JOIN purchase_order po
+        ON po.purchase_order_id = poi.purchase_order_id
+        AND po.company_id = #{companyId}
+
+        INNER JOIN product p
+        ON p.product_id = poi.product_id
+        AND p.company_id = po.company_id
+
+        INNER JOIN product_unit pu
+        ON pu.product_unit_id = poi.product_unit_id
+        AND pu.product_id = poi.product_id
+
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+
+        WHERE poi.purchase_order_id = #{purchaseOrderId}
+
+        ORDER BY poi.purchase_order_item_id
+
+    </select>
+
+    <!-- 현재 회사에서 사용 가능한 공급업체인지 확인 -->
+    <select id="countAvailableSupplier" resultType="int">
+        SELECT COUNT(*)
+        FROM business_partner
+        WHERE partner_id = #{supplierId}
+        AND company_id = #{companyId}
+        AND supplier_yn = 'Y'
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 현재 회사에서 사용 가능한 창고인지 확인 -->
+    <select id="countAvailableWarehouse" resultType="int">
+        SELECT COUNT(*)
+        FROM warehouse
+        WHERE warehouse_id = #{warehouseId}
+        AND company_id = #{companyId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 상품과 상품단위가 현재 회사에서 사용 가능한지 확인하고, Service 계산에 필요한 conversion_qty와 tax_type을 조회 -->
+    <select id="findItemReference"
+            resultMap="purchaseOrderItemReferenceMap">
+        SELECT
+        p.product_id,
+        pu.product_unit_id,
+        pu.conversion_qty,
+        p.tax_type
+        FROM product p
+        INNER JOIN product_unit pu
+        ON pu.product_id = p.product_id
+        WHERE p.product_id = #{productId}
+        AND p.company_id = #{companyId}
+        AND p.use_yn = 'Y'
+        AND pu.product_unit_id = #{productUnitId}
+        AND pu.use_yn = 'Y'
+    </select>
+
+    <!-- 발주번호 ORDER_NO에 사용할 다음 순번을 Oracle Sequence에서 가져옴
+
+         첫 호출 예:
+         SEQ_PURCHASE_ORDER_NO.NEXTVAL -> 1
+
+         Service에서 이 숫자를 이용해 PO-20260903-000001 형식의 발주번호를 만듦
+    -->
+    <select id="nextPurchaseOrderNoSequence"
+            resultType="java.lang.Long">
+        SELECT seq_purchase_order_no.NEXTVAL
+        FROM dual
+    </select>
+
+    <!-- PURCHASE_ORDER 발주 Header를 저장합니다. -->
+    <insert id="insertPurchaseOrder"
+            parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam"
+            useGeneratedKeys="true"
+            keyProperty="purchaseOrderId"
+            keyColumn="PURCHASE_ORDER_ID">
+        INSERT INTO purchase_order
+        (
+        company_id,
+        order_no,
+        supplier_id,
+        warehouse_id,
+        order_date,
+        expected_delivery_date,
+        request_note,
+        internal_memo,
+        total_supply_amount,
+        total_tax_amount,
+        total_amount,
+        created_by
+        )
+        VALUES
+        (
+        #{companyId},
+        #{orderNo},
+        #{supplierId},
+        #{warehouseId},
+        #{orderDate, jdbcType=DATE},
+        #{expectedDeliveryDate, jdbcType=DATE},
+        #{requestNote, jdbcType=VARCHAR},
+        #{internalMemo, jdbcType=VARCHAR},
+        #{totalSupplyAmount},
+        #{totalTaxAmount},
+        #{totalAmount},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- PURCHASE_ORDER_ITEM 발주 품목 한 건을 저장. -->
+    <insert id="insertPurchaseOrderItem"
+            parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam">
+        INSERT INTO purchase_order_item
+        (
+        purchase_order_id,
+        product_id,
+        product_unit_id,
+        ordered_qty,
+        conversion_qty,
+        base_ordered_qty,
+        unit_price,
+        tax_type,
+        supply_amount,
+        tax_amount,
+        total_amount
+        )
+        VALUES
+        (
+        #{purchaseOrderId},
+        #{productId},
+        #{productUnitId},
+        #{orderedQty},
+        #{conversionQty},
+        #{baseOrderedQty},
+        #{unitPrice},
+        #{taxType},
+        #{supplyAmount},
+        #{taxAmount},
+        #{totalAmount}
+        )
+    </insert>
+
+</mapper>

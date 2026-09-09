@@ -39,3 +39,6 @@ out/
 # Application logs
 logs/
 *.log
+
+# Spring Boot 실행 로그는 Git에서 관리하지 않는다.
+logs/
