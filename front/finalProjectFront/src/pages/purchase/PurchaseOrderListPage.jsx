@@ -68,6 +68,10 @@ function createSearchParamsFromFilters(filters) {
   return params;
 }
 
+function hasSearchCondition(filters) {
+  return Object.values(filters).some((value) => String(value).trim() !== "");
+}
+
 function formatAmount(amount) {
   if (amount === null || amount === undefined) {
     return "-";
@@ -92,17 +96,31 @@ function PurchaseOrderListPage() {
 
   const [purchaseOrders, setPurchaseOrders] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
+
+  const currentUrlFilters = createFiltersFromSearchParams(searchParams);
+
+  const isAllSearch = searchParams.get("searchMode") === "all";
+
+  const hasSearchRequest = hasSearchCondition(currentUrlFilters) || isAllSearch;
 
   useEffect(() => {
     async function loadPurchaseOrders() {
       const currentFilters = createFiltersFromSearchParams(searchParams);
+      const currentIsAllSearch = searchParams.get("searchMode") === "all";
 
       setFilters(currentFilters);
-      setLoading(true);
       setError("");
+
+      if (!hasSearchCondition(currentFilters) && !currentIsAllSearch) {
+        setPurchaseOrders([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
 
       try {
         const data = await requestPurchaseOrders(currentFilters);
@@ -137,11 +155,18 @@ function PurchaseOrderListPage() {
 
     const nextSearchParams = createSearchParamsFromFilters(filters);
 
+    if (!hasSearchCondition(filters)) {
+      nextSearchParams.set("searchMode", "all");
+    }
+
     setSearchParams(nextSearchParams);
   }
 
   function handleReset() {
     setFilters(INITIAL_FILTERS);
+    setPurchaseOrders([]);
+    setError("");
+    setLoading(false);
     setSearchParams(new URLSearchParams());
   }
 
@@ -249,15 +274,21 @@ function PurchaseOrderListPage() {
         </div>
       </form>
 
-      <div className="purchase-order-result-summary">
-        조회 결과 {purchaseOrders.length}건
-      </div>
+      {!loading && !error && hasSearchRequest && (
+        <div className="purchase-order-result-summary">
+          조회 결과 {purchaseOrders.length}건
+        </div>
+      )}
+
+      {!loading && !error && !hasSearchRequest && (
+        <p>검색조건을 입력하거나 조회 버튼을 눌러 전체 발주를 조회해 주세요.</p>
+      )}
 
       {loading && <p>발주 목록을 불러오는 중입니다.</p>}
 
       {error && <p role="alert">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && !error && hasSearchRequest && (
         <>
           {purchaseOrders.length === 0 ? (
             <p>조회된 발주가 없습니다.</p>
