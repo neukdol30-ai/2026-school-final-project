@@ -11,70 +11,88 @@ function SalesOrderTable({
   hasSearchCondition,
 }) {
   return (
-    <div className="content-panel">
-      <h2>판매주문 목록 ({saleOrders.length}건)</h2>
+    <section className="sales-order-list-result">
+      <p className="sales-order-result-summary">
+        조회 결과 {saleOrders.length}건
+      </p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>주문번호</th>
-            <th>거래처</th>
-            <th>주문상태</th>
-            <th>출고상태</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {saleOrders.length === 0 ? (
+      <div className="sales-order-table-wrap">
+        <table className="sales-order-table">
+          <thead>
             <tr>
-              <td colSpan="5" className="empty-message">
-                {hasSearchCondition
-                  ? "검색 조건에 맞는 판매주문이 없습니다."
-                  : "등록된 판매주문이 없습니다."}
-              </td>
+              <th>주문번호</th>
+              <th>거래처</th>
+              <th>주문상태</th>
+              <th>출고상태</th>
+              <th>관리</th>
             </tr>
-          ) : (
-            saleOrders.map((salesOrder) => (
-              <tr key={salesOrder.salesOrderId}>
-                <td>
-                  <button
-                    className="sales-order-number-button"
-                    type="button"
-                    onClick={() => onSelect(salesOrder.salesOrderId)}
-                  >
-                    {salesOrder.orderNo}
-                  </button>
-                </td>
-                <td>{salesOrder.customerName}</td>
-                <td>{getOrderStatusLabel(salesOrder.orderStatus)}</td>
-                <td>{getShipmentStatusLabel(salesOrder.shipmentStatus)}</td>
+          </thead>
 
-                <td>
-                  {salesOrder.orderStatus === "DRAFT" ? (
-                    <button
-                      type="button"
-                      disabled={
-                        confirmingSalesOrderId === salesOrder.salesOrderId
-                      }
-                      onClick={() => onConfirm(salesOrder.salesOrderId)}
-                    >
-                      {confirmingSalesOrderId === salesOrder.salesOrderId
-                        ? "확정 중..."
-                        : "확정"}
-                    </button>
-                  ) : salesOrder.orderStatus === "CONFIRMED" ? (
-                    <span>확정 완료</span>
-                  ) : (
-                    <span>취소됨</span>
-                  )}
+          <tbody>
+            {saleOrders.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="sales-order-empty-row">
+                  {hasSearchCondition
+                    ? "검색 조건에 맞는 판매주문이 없습니다."
+                    : "등록된 판매주문이 없습니다."}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              saleOrders.map((salesOrder) => (
+                <tr key={salesOrder.salesOrderId}>
+                  <td>
+                    <button
+                      className="sales-order-number-button"
+                      type="button"
+                      onClick={() => onSelect(salesOrder.salesOrderId)}
+                    >
+                      {salesOrder.orderNo}
+                    </button>
+                  </td>
+
+                  <td>{salesOrder.customerName}</td>
+
+                  <td>
+                    <span
+                      className={`sales-order-status sales-order-order-status-${salesOrder.orderStatus.toLowerCase()}`}
+                    >
+                      {getOrderStatusLabel(salesOrder.orderStatus)}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`sales-order-status sales-order-shipment-status-${salesOrder.shipmentStatus.toLowerCase()}`}
+                    >
+                      {getShipmentStatusLabel(salesOrder.shipmentStatus)}
+                    </span>
+                  </td>
+
+                  <td>
+                    {salesOrder.orderStatus === "DRAFT" ? (
+                      <button
+                        type="button"
+                        className="sales-order-confirm-button"
+                        disabled={
+                          confirmingSalesOrderId === salesOrder.salesOrderId
+                        }
+                        onClick={() => onConfirm(salesOrder.salesOrderId)}
+                      >
+                        {confirmingSalesOrderId === salesOrder.salesOrderId
+                          ? "확정 중..."
+                          : "확정"}
+                      </button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 

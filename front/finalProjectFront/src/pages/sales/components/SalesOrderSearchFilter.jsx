@@ -6,26 +6,28 @@ function SalesOrderSearchFilter({
   onSearch,
   onReset,
 }) {
-  return (
-    <div className="content-panel">
-      <h2>판매주문 검색</h2>
+  function handleSubmit(event) {
+    event.preventDefault();
 
-      <div className="sales-order-filter">
-        <div>
-          <label htmlFor="keyword">주문번호 / 거래처</label>
+    onSearch();
+  }
+
+  return (
+    <form className="sales-order-search-form" onSubmit={handleSubmit}>
+      <div className="sales-order-search-fields">
+        <label>
+          <span>주문번호 / 거래처</span>
           <input
-            id="keyword"
             type="text"
             value={keyword}
             onChange={(event) => onKeywordChange(event.target.value)}
-            placeholder="주문번호 또는 거래처명을 입력하세요."
+            placeholder="주문번호 또는 거래처명 입력"
           />
-        </div>
+        </label>
 
-        <div>
-          <label htmlFor="orderStatus">주문상태</label>
+        <label>
+          <span>주문상태</span>
           <select
-            id="orderStatus"
             value={orderStatus}
             onChange={(event) => onOrderStatusChange(event.target.value)}
           >
@@ -34,17 +36,17 @@ function SalesOrderSearchFilter({
             <option value="CONFIRMED">주문확정</option>
             <option value="CANCELLED">취소</option>
           </select>
-        </div>
+        </label>
+      </div>
 
-        <button type="button" onClick={onSearch}>
-          검색
-        </button>
+      <div className="sales-order-search-actions">
+        <button type="submit">조회</button>
 
         <button type="button" onClick={onReset}>
           초기화
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 
