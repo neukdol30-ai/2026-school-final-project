@@ -67,4 +67,15 @@ public interface PurchaseOrderMapper {
             @Param("purchaseOrderId") Long purchaseOrderId
     );
 
+    // 발주 Header 한 건 수정
+    int updatePurchaseOrder(
+            PurchaseOrderUpdateParam updateParam
+    );
+
+    // 해당 발주의 기존 품목 전체 삭제
+    int deletePurchaseOrderItems(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
 }

@@ -3,6 +3,9 @@ package com.foodlogistics.erp.purchase.validator;
 import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderItemDetailResponse;
+import com.foodlogistics.erp.purchase.dto.PurchaseOrderUpdateRequest;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -22,13 +26,19 @@ public class PurchaseOrderValidator {
     // PRODUCT.tax_type에서 사용하는 면세 코드
     private static final String TAX_FREE = "TAX_FREE";
 
+    // 발주 수정이 가능한 승인상태
+    private static final String APPROVAL_STATUS_DRAFT = "DRAFT";
+
+    // 발주 수정이 가능한 입고상태
+    private static final String RECEIPT_STATUS_NOT_RECEIVED = "NOT_RECEIVED";
+
     // 공급업체와 창고를 실제 DB에서 확인하기 위해 사용
     private final PurchaseOrderMapper purchaseOrderMapper;
 
     // PURCHASE_ORDER.approval_status에서 DB가 허용하는 승인상태
     private static final Set<String> APPROVAL_STATUSES =
             Set.of(
-                    "DRAFT",
+                    APPROVAL_STATUS_DRAFT,
                     "PENDING",
                     "APPROVED",
                     "REJECTED"
@@ -37,7 +47,7 @@ public class PurchaseOrderValidator {
     // PURCHASE_ORDER.receipt_status에서 DB가 허용하는 입고진행상태
     private static final Set<String> RECEIPT_STATUSES =
             Set.of(
-                    "NOT_RECEIVED",
+                    RECEIPT_STATUS_NOT_RECEIVED,
                     "PARTIAL",
                     "RECEIVED",
                     "CLOSED"
@@ -116,21 +126,88 @@ public class PurchaseOrderValidator {
         }
     }
 
-    // 발주일과 납품희망일의 날짜 관계를 검사
+    // 발주 등록 요청의 날짜 관계를 검사
     public void validateDates(
             PurchaseOrderCreateRequest request
     ) {
 
-        // 납품희망일이 입력된 경우에만 검사
-        if (request.getExpectedDeliveryDate() != null
-                && request.getExpectedDeliveryDate()
-                .isBefore(request.getOrderDate())) {
+        validateDates(
+                request.getOrderDate(),
+                request.getExpectedDeliveryDate()
+        );
+    }
 
-            // 납품희망일이 발주일보다 과거이면 등록할 수 없음
+    // 발주 수정 요청의 날짜 관계를 검사
+    public void validateDates(
+            PurchaseOrderUpdateRequest request
+    ) {
+
+        validateDates(
+                request.getOrderDate(),
+                request.getExpectedDeliveryDate()
+        );
+    }
+
+    // 등록과 수정에서 공통으로 사용하는 실제 날짜 검증
+
+    private void validateDates(
+            LocalDate orderDate,
+            LocalDate expectedDeliveryDate
+    ) {
+
+        if (expectedDeliveryDate != null
+                && expectedDeliveryDate.isBefore(orderDate)) {
+
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "납품희망일은 발주일보다 빠를 수 없습니다."
             );
+        }
+    }
+
+    // 기존 발주가 수정 가능한 상태인지 검사
+    public void validateUpdatablePurchaseOrder(
+            PurchaseOrderDetailResponse purchaseOrder,
+            List<PurchaseOrderItemDetailResponse> items
+    ) {
+
+        if (!APPROVAL_STATUS_DRAFT.equals(
+                purchaseOrder.getApprovalStatus()
+        )) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중(DRAFT) 상태의 발주만 수정할 수 있습니다."
+            );
+        }
+
+        if (!RECEIPT_STATUS_NOT_RECEIVED.equals(
+                purchaseOrder.getReceiptStatus()
+        )) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "입고가 시작된 발주는 수정할 수 없습니다."
+            );
+        }
+
+        for (PurchaseOrderItemDetailResponse item : items) {
+
+            BigDecimal receivedQty =
+                    item.getReceivedQty();
+
+            if (receivedQty == null) {
+                throw new IllegalStateException(
+                        "발주 품목의 입고수량을 확인할 수 없습니다."
+                );
+            }
+
+            if (receivedQty.compareTo(BigDecimal.ZERO) > 0) {
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "이미 입고된 품목이 있는 발주는 수정할 수 없습니다."
+                );
+            }
         }
     }
 
@@ -173,6 +250,7 @@ public class PurchaseOrderValidator {
         if (orderDateFrom != null
                 && orderDateTo != null
                 && orderDateFrom.isAfter(orderDateTo)) {
+
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "발주일 조회 시작일은 종료일보다 늦을 수 없습니다."
@@ -182,6 +260,7 @@ public class PurchaseOrderValidator {
         // 승인상태가 들어왔다면 DB에 정의된 상태만 허용
         if (approvalStatus != null
                 && !APPROVAL_STATUSES.contains(approvalStatus)) {
+
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "올바르지 않은 발주 승인상태입니다."
@@ -191,6 +270,7 @@ public class PurchaseOrderValidator {
         // 입고상태가 들어왔다면 DB에 정의된 상태만 허용
         if (receiptStatus != null
                 && !RECEIPT_STATUSES.contains(receiptStatus)) {
+
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "올바르지 않은 발주 입고상태입니다."

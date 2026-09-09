@@ -8,6 +8,8 @@ import com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
+// Service에서 검증·계산한 발주 수정값을 PurchaseOrderMapper.xml의 UPDATE SQL까지 전달하는 내부 객체
+import com.foodlogistics.erp.purchase.mapper.PurchaseOrderUpdateParam;
 import com.foodlogistics.erp.purchase.validator.PurchaseOrderValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -343,6 +345,212 @@ public class PurchaseOrderService {
 
         // 6단계:
         // Header + Item이 합쳐진 최종 상세조회 DTO를 Controller로 반환
+        return response;
+    }
+
+    // 발주 한 건 수정
+    @Transactional
+    public PurchaseOrderDetailResponse updatePurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId,
+            PurchaseOrderUpdateRequest request
+    ) {
+
+        // 로그인 회사와 사용자 검증
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 수정 대상 발주 ID 검증
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        // 기존 발주 Header 조회
+        PurchaseOrderDetailResponse existingPurchaseOrder =
+                purchaseOrderMapper.findPurchaseOrderDetail(
+                                companyId,
+                                purchaseOrderId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        // 기존 발주품목 조회
+        List<PurchaseOrderItemDetailResponse> existingItems =
+                purchaseOrderMapper.findPurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        // DRAFT + NOT_RECEIVED + 미입고 상태인지 검사
+        purchaseOrderValidator.validateUpdatablePurchaseOrder(
+                existingPurchaseOrder,
+                existingItems
+        );
+
+        // 수정된 공급업체 검증
+        purchaseOrderValidator.validateSupplier(
+                companyId,
+                request.getSupplierId()
+        );
+
+        // 수정된 창고 검증
+        purchaseOrderValidator.validateWarehouse(
+                companyId,
+                request.getWarehouseId()
+        );
+
+        // 수정된 날짜 관계 검증
+        purchaseOrderValidator.validateDates(request);
+
+        // 수정 후 최종 품목 전체 검증 및 재계산
+        List<PurchaseOrderItemInsertParam> itemParams =
+                validateAndCalculateItems(
+                        companyId,
+                        request.getItems()
+                );
+
+        // Header 합계 재계산
+        BigDecimal totalSupplyAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        BigDecimal totalTaxAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        BigDecimal totalAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        for (PurchaseOrderItemInsertParam itemParam : itemParams) {
+
+            totalSupplyAmount =
+                    totalSupplyAmount.add(
+                            itemParam.getSupplyAmount()
+                    );
+
+            totalTaxAmount =
+                    totalTaxAmount.add(
+                            itemParam.getTaxAmount()
+                    );
+
+            totalAmount =
+                    totalAmount.add(
+                            itemParam.getTotalAmount()
+                    );
+        }
+
+        // Header UPDATE용 객체 생성
+        PurchaseOrderUpdateParam updateParam =
+                new PurchaseOrderUpdateParam();
+
+        updateParam.setPurchaseOrderId(
+                purchaseOrderId
+        );
+
+        updateParam.setCompanyId(
+                companyId
+        );
+
+        updateParam.setSupplierId(
+                request.getSupplierId()
+        );
+
+        updateParam.setWarehouseId(
+                request.getWarehouseId()
+        );
+
+        updateParam.setOrderDate(
+                request.getOrderDate()
+        );
+
+        updateParam.setExpectedDeliveryDate(
+                request.getExpectedDeliveryDate()
+        );
+
+        updateParam.setRequestNote(
+                request.getRequestNote()
+        );
+
+        updateParam.setInternalMemo(
+                request.getInternalMemo()
+        );
+
+        updateParam.setTotalSupplyAmount(
+                totalSupplyAmount
+        );
+
+        updateParam.setTotalTaxAmount(
+                totalTaxAmount
+        );
+
+        updateParam.setTotalAmount(
+                totalAmount
+        );
+
+        updateParam.setUpdatedBy(
+                appUserId
+        );
+
+        // 발주 Header 수정
+        int updatedHeaderCount =
+                purchaseOrderMapper.updatePurchaseOrder(
+                        updateParam
+                );
+
+        if (updatedHeaderCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주 상태가 변경되었거나 수정할 수 없는 발주입니다."
+            );
+        }
+
+        // 기존 발주품목 전체 삭제
+        int deletedItemCount =
+                purchaseOrderMapper.deletePurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        if (deletedItemCount != existingItems.size()) {
+            throw new IllegalStateException(
+                    "기존 발주 품목 삭제 결과가 일치하지 않습니다."
+            );
+        }
+
+        // 수정 후 최종 발주품목 전체 저장
+        saveItems(
+                purchaseOrderId,
+                itemParams
+        );
+
+        // 수정 완료된 Header 재조회
+        PurchaseOrderDetailResponse response =
+                purchaseOrderMapper.findPurchaseOrderDetail(
+                                companyId,
+                                purchaseOrderId
+                        )
+                        .orElseThrow(
+                                () -> new IllegalStateException(
+                                        "수정된 발주 정보를 확인할 수 없습니다."
+                                )
+                        );
+
+        // 수정 완료된 품목 재조회
+        List<PurchaseOrderItemDetailResponse> updatedItems =
+                purchaseOrderMapper.findPurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        response.setItems(
+                updatedItems
+        );
+
         return response;
     }
 

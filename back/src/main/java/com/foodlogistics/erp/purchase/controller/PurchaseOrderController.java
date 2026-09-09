@@ -1,10 +1,7 @@
 package com.foodlogistics.erp.purchase.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
+import com.foodlogistics.erp.purchase.dto.*;
 import com.foodlogistics.erp.purchase.service.PurchaseOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -165,4 +162,42 @@ public class PurchaseOrderController {
                 ApiResponse.ok(response)
         );
     }
+
+    // 발주 수정
+    // PUT /api/purchase-orders/{purchaseOrderId}
+    @PutMapping("/{purchaseOrderId}")
+    public ResponseEntity<ApiResponse<PurchaseOrderDetailResponse>>
+    updatePurchaseOrder(
+
+            // 로그인 후 Spring Security가 검증한 JWT
+            @AuthenticationPrincipal Jwt jwt,
+
+            // URL 경로에서 수정할 발주 ID를 받음
+            @PathVariable Long purchaseOrderId,
+
+            // React가 보낸 발주 수정 JSON을 DTO로 변환하고 Validation 수행
+            @Valid @RequestBody PurchaseOrderUpdateRequest request
+    ) {
+
+        // JWT에 들어 있는 현재 로그인 사용자 ID
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT에 들어 있는 현재 로그인 회사 ID
+        Number companyId = jwt.getClaim("companyId");
+
+        // 발주 수정 Service 호출
+        PurchaseOrderDetailResponse response =
+                purchaseOrderService.updatePurchaseOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId,
+                        request
+                );
+
+        // 수정된 발주 Header + Item 정보를 공통 응답 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
 }

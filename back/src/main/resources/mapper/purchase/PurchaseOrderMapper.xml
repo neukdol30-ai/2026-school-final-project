@@ -456,4 +456,55 @@
         )
     </insert>
 
+    <!-- 발주 Header 한 건 수정 -->
+    <update id="updatePurchaseOrder"
+            parameterType="com.foodlogistics.erp.purchase.mapper.PurchaseOrderUpdateParam">
+        UPDATE purchase_order
+        SET
+        supplier_id = #{supplierId},
+        warehouse_id = #{warehouseId},
+        order_date = #{orderDate, jdbcType=DATE},
+        expected_delivery_date = #{expectedDeliveryDate, jdbcType=DATE},
+        request_note = #{requestNote, jdbcType=VARCHAR},
+        internal_memo = #{internalMemo, jdbcType=VARCHAR},
+        total_supply_amount = #{totalSupplyAmount},
+        total_tax_amount = #{totalTaxAmount},
+        total_amount = #{totalAmount},
+        updated_by = #{updatedBy},
+        updated_at = SYSTIMESTAMP
+        WHERE purchase_order_id = #{purchaseOrderId}
+        AND company_id = #{companyId}
+        AND approval_status = 'DRAFT'
+        AND receipt_status = 'NOT_RECEIVED'
+        AND NOT EXISTS
+        (
+        SELECT 1
+        FROM purchase_order_item poi
+        WHERE poi.purchase_order_id = #{purchaseOrderId}
+        AND poi.received_qty > 0
+        )
+    </update>
+
+    <!-- 해당 발주의 기존 품목 전체 삭제 -->
+    <delete id="deletePurchaseOrderItems">
+        DELETE FROM purchase_order_item
+        WHERE purchase_order_id = #{purchaseOrderId}
+        AND EXISTS
+        (
+        SELECT 1
+        FROM purchase_order po
+        WHERE po.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+        AND po.approval_status = 'DRAFT'
+        AND po.receipt_status = 'NOT_RECEIVED'
+        )
+        AND NOT EXISTS
+        (
+        SELECT 1
+        FROM purchase_order_item received_poi
+        WHERE received_poi.purchase_order_id = #{purchaseOrderId}
+        AND received_poi.received_qty > 0
+        )
+    </delete>
+
 </mapper>
