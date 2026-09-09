@@ -351,7 +351,7 @@
         AND use_yn = 'Y'
     </select>
 
-    <!-- 상품과 상품단위가 현재 회사에서 사용 가능한지 확인하고, Service 계산에 필요한 conversion_qty와 tax_type을 조회 -->
+    <!-- 상품, 상품단위, 단위가 현재 사용 가능한지 확인하고, Service 계산에 필요한 conversion_qty와 tax_type을 조회 -->
     <select id="findItemReference"
             resultMap="purchaseOrderItemReferenceMap">
         SELECT
@@ -362,11 +362,14 @@
         FROM product p
         INNER JOIN product_unit pu
         ON pu.product_id = p.product_id
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
         WHERE p.product_id = #{productId}
         AND p.company_id = #{companyId}
         AND p.use_yn = 'Y'
         AND pu.product_unit_id = #{productUnitId}
         AND pu.use_yn = 'Y'
+        AND u.use_yn = 'Y'
     </select>
 
     <!-- 발주번호 ORDER_NO에 사용할 다음 순번을 Oracle Sequence에서 가져옴
