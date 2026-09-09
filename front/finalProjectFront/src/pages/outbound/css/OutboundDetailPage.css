@@ -1,0 +1,99 @@
+.outbound-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.outbound-detail-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.outbound-detail-page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #202830;
+}
+
+.outbound-detail-page-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.outbound-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.outbound-list-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  text-decoration: none;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+}
+
+.outbound-list-link:hover {
+  background-color: #f4f6f8;
+}
+
+/* 상세 안의 기본정보·품목 영역을 발주 상세처럼 흰 카드로 만든다. */
+.outbound-detail-page .content-panel {
+  margin: 0;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.outbound-api-error,
+.outbound-success-message {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  border-radius: 7px;
+}
+
+.outbound-api-error {
+  color: #c62828;
+  background-color: #fff3f3;
+  border: 1px solid #f2caca;
+}
+
+.outbound-success-message {
+  color: #20834a;
+  background-color: #effaf3;
+  border: 1px solid #b9e3c7;
+}
+
+.outbound-detail-page .empty-message {
+  margin: 0;
+  font-size: 13px;
+  color: #78838e;
+}
+
+@media (max-width: 650px) {
+  .outbound-detail-page-header {
+    flex-direction: column;
+  }
+
+  .outbound-detail-actions {
+    width: 100%;
+  }
+
+  .outbound-detail-actions > * {
+    flex: 1;
+  }
+}

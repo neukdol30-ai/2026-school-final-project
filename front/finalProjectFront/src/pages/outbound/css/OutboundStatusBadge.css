@@ -1,0 +1,17 @@
+.outbound-status {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px;
+}
+
+.outbound-status-draft {
+  background: #fff3cd;
+  color: #8a6200;
+}
+
+.outbound-status-confirmed {
+  background: #dcf3e4;
+  color: #16753b;
+}

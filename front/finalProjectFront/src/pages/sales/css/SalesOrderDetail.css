@@ -1,0 +1,249 @@
+.sales-order-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.sales-order-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e7eaed;
+}
+
+.sales-order-detail-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1769aa;
+  letter-spacing: 0.08em;
+}
+
+.sales-order-detail-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #202830;
+}
+
+.sales-order-detail-order-no {
+  margin: 7px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #65717c;
+}
+
+.sales-order-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sales-order-create-outbound-link,
+.sales-order-detail-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sales-order-create-outbound-link {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
+}
+
+.sales-order-create-outbound-link:hover {
+  background-color: #12578e;
+  border-color: #12578e;
+}
+
+.sales-order-detail-close-button {
+  color: #4e5965;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+}
+
+.sales-order-detail-close-button:hover {
+  background-color: #f4f6f8;
+}
+
+/* 거래처·주문상태 같은 기본정보를 카드 형태의 4열로 배치한다. */
+.sales-order-detail-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sales-order-summary-card {
+  min-width: 0;
+  padding: 15px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+.sales-order-summary-card span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #7b8792;
+}
+
+.sales-order-summary-card strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #27313a;
+  word-break: break-word;
+}
+
+.sales-order-status-badge {
+  width: fit-content;
+  min-height: 26px;
+  padding: 0 9px;
+  line-height: 26px;
+  border-radius: 999px;
+}
+
+/* 주문 상태 */
+.order-status-draft {
+  color: #9a6700 !important;
+  background-color: #fff3cd;
+}
+
+.order-status-confirmed {
+  color: #18794e !important;
+  background-color: #dff5e7;
+}
+
+.order-status-cancelled {
+  color: #b42318 !important;
+  background-color: #fee4e2;
+}
+
+/* 출고 상태 */
+.shipment-status-not_shipped {
+  color: #667085 !important;
+  background-color: #eaecf0;
+}
+
+.shipment-status-partial {
+  color: #9a6700 !important;
+  background-color: #fff3cd;
+}
+
+.shipment-status-shipped {
+  color: #18794e !important;
+  background-color: #dff5e7;
+}
+
+.sales-order-detail-items-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sales-order-detail-items-header h3 {
+  margin: 0;
+  font-size: 17px;
+  color: #27313a;
+}
+
+.sales-order-detail-items-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.sales-order-detail-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 열이 많은 표는 작은 화면에서 가로 스크롤로 확인한다. */
+.sales-order-detail-table {
+  width: 100%;
+  min-width: 720px;
+  font-size: 13px;
+  background-color: #ffffff;
+  border-collapse: collapse;
+}
+
+.sales-order-detail-table th,
+.sales-order-detail-table td {
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-bottom: 1px solid #e7eaed;
+}
+
+.sales-order-detail-table th {
+  font-weight: 600;
+  color: #4e5965;
+  background-color: #f7f8fa;
+  border-top: 1px solid #e4e8ec;
+}
+
+.sales-order-detail-table td {
+  color: #323b45;
+}
+
+.sales-order-detail-table tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+.sales-order-detail-table th:first-child,
+.sales-order-detail-table td:first-child {
+  width: 70px;
+  text-align: center;
+}
+
+.sales-order-detail-table .empty-message {
+  padding: 22px;
+  text-align: center;
+  color: #78838e;
+}
+
+@media (max-width: 1100px) {
+  .sales-order-detail-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .sales-order-detail-panel {
+    padding: 18px;
+  }
+
+  .sales-order-detail-header {
+    flex-direction: column;
+  }
+
+  .sales-order-detail-actions {
+    width: 100%;
+  }
+
+  .sales-order-create-outbound-link,
+  .sales-order-detail-close-button {
+    flex: 1;
+  }
+
+  .sales-order-detail-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

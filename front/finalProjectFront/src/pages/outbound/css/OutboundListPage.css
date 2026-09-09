@@ -1,0 +1,233 @@
+.outbound-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.outbound-list-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.outbound-list-page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #202830;
+}
+
+.outbound-list-page-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.outbound-create-link {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #1769aa;
+  border-radius: 6px;
+}
+
+.outbound-create-link:hover {
+  background-color: #12578e;
+}
+
+.outbound-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.outbound-search-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.outbound-search-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+.outbound-search-fields input,
+.outbound-search-fields select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #202830;
+  background-color: #ffffff;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+  outline: none;
+}
+
+.outbound-search-fields input:focus,
+.outbound-search-fields select:focus {
+  border-color: #1769aa;
+  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.outbound-search-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.outbound-search-actions button {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+}
+
+.outbound-search-actions button[type="submit"] {
+  color: #ffffff;
+  background-color: #1769aa;
+  border-color: #1769aa;
+}
+
+.outbound-search-actions button:hover:not(:disabled) {
+  background-color: #f4f6f8;
+}
+
+.outbound-search-actions button[type="submit"]:hover:not(:disabled) {
+  background-color: #12578e;
+  border-color: #12578e;
+}
+
+.outbound-search-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.outbound-result-summary {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #65717c;
+}
+
+.outbound-list-result {
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.outbound-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.outbound-table {
+  width: 100%;
+  min-width: 760px;
+  font-size: 13px;
+  background-color: #ffffff;
+  border-collapse: collapse;
+}
+
+.outbound-table th,
+.outbound-table td {
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7eaed;
+}
+
+.outbound-table th {
+  font-weight: 600;
+  color: #4e5965;
+  background-color: #f7f8fa;
+  border-top: 1px solid #e4e8ec;
+}
+
+.outbound-table td {
+  color: #323b45;
+}
+
+.outbound-table tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+.outbound-table th:last-child,
+.outbound-table td:last-child {
+  width: 88px;
+  text-align: center;
+}
+
+.outbound-detail-link {
+  font-weight: 600;
+  color: #1769aa;
+  text-decoration: none;
+}
+
+.outbound-detail-link:hover {
+  text-decoration: underline;
+}
+
+.outbound-empty-row {
+  padding: 22px !important;
+  text-align: center !important;
+  color: #78838e !important;
+}
+
+.outbound-list-message {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #65717c;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.outbound-list-message.error {
+  color: #c62828;
+  background-color: #fff3f3;
+  border-color: #f2caca;
+}
+
+.outbound-list-message.success {
+  color: #20834a;
+  background-color: #effaf3;
+  border-color: #b9e3c7;
+}
+
+@media (max-width: 800px) {
+  .outbound-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .outbound-list-page-header {
+    flex-direction: column;
+  }
+
+  .outbound-search-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,44 @@
+.outbound-result-panel h2 {
+  margin-top: 0;
+}
+
+.outbound-result-panel p {
+  align-items: center;
+  border-bottom: 1px solid #e4ebf3;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 14px 0;
+}
+
+.outbound-result-panel p:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.outbound-result-panel p span {
+  color: #6b7c93;
+}
+
+.outbound-result-panel p strong {
+  color: #15395b;
+}
+
+.outbound-result-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.outbound-detail-link {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #1976c3;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.outbound-detail-link:hover {
+  background: #125d9d;
+}
