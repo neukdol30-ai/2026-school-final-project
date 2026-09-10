@@ -1,17 +1,13 @@
 package com.foodlogistics.erp.masterdata.mapper;
 
+
 import com.foodlogistics.erp.masterdata.dto.SupplierOptionResponse;
-import com.foodlogistics.erp.masterdata.dto.WarehouseOptionResponse;
-import org.apache.ibatis.annotations.Arg;
-import org.apache.ibatis.annotations.ConstructorArgs;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 @Mapper
-public interface MasterDataQueryMapper {
+public interface SupplierQueryMapper {
 
     @Select("""
             SELECT
@@ -25,7 +21,9 @@ public interface MasterDataQueryMapper {
               AND (
                     #{keyword, jdbcType=VARCHAR} IS NULL
                     OR LOWER(partner_name)
-                       LIKE '%' || LOWER(#{keyword}) || '%'
+                    LIKE '%' || LOWER(
+                        #{keyword, jdbcType=VARCHAR}
+                    ) || '%'
                   )
             ORDER BY
                 partner_name ASC,
@@ -51,34 +49,4 @@ public interface MasterDataQueryMapper {
             @Param("keyword") String keyword
     );
 
-    @Select("""
-            SELECT
-                warehouse_id,
-                warehouse_code,
-                warehouse_name
-            FROM warehouse
-            WHERE company_id = #{companyId}
-              AND use_yn = 'Y'
-            ORDER BY
-                warehouse_name ASC,
-                warehouse_id ASC
-            """)
-    @ConstructorArgs({
-            @Arg(
-                    column = "warehouse_id",
-                    javaType = Long.class,
-                    id = true
-            ),
-            @Arg(
-                    column = "warehouse_code",
-                    javaType = String.class
-            ),
-            @Arg(
-                    column = "warehouse_name",
-                    javaType = String.class
-            )
-    })
-    List<WarehouseOptionResponse> findActiveWarehouses(
-            @Param("companyId") Long companyId
-    );
 }
