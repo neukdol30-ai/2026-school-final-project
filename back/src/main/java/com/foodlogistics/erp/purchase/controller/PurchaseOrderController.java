@@ -227,4 +227,28 @@ public class PurchaseOrderController {
         );
     }
 
+    // 실제 발주 승인
+    // POST /api/purchase-orders/{purchaseOrderId}/approve
+    @PostMapping("/{purchaseOrderId}/approve")
+    public ResponseEntity<ApiResponse<Void>>
+    approvePurchaseOrder(
+
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        Number appUserId = jwt.getClaim("appUserId");
+
+        Number companyId = jwt.getClaim("companyId");
+
+        purchaseOrderService.approvePurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
 }

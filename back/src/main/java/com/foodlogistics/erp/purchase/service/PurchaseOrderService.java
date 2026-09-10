@@ -605,6 +605,50 @@ public class PurchaseOrderService {
         );
     }
 
+    // 실제 발주 승인
+    // 하나의 발주 상태를 조회하고 변경하는 작업이므로 JPA를 사용
+    @Transactional
+    public void approvePurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId
+    ) {
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId,
+                                companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.PENDING) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "PENDING 상태의 발주만 승인할 수 있습니다."
+            );
+        }
+
+        purchaseOrder.approve(
+                appUserId
+        );
+    }
+
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드
     private List<PurchaseOrderItemInsertParam> validateAndCalculateItems(
             Long companyId,

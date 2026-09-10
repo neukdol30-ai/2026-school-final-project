@@ -80,9 +80,22 @@ public class PurchaseOrder {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    // 승인 요청 처리
     public void requestApproval(Long appUserId) {
         this.approvalStatus = PurchaseOrderApprovalStatus.PENDING;
         this.updatedBy = appUserId;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // 실제 발주 승인 처리
+    // Service에서 PENDING 상태임을 확인한 뒤 이 메서드를 호출한다.
+    public void approve(Long appUserId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        this.approvalStatus = PurchaseOrderApprovalStatus.APPROVED;
+        this.approvedBy = appUserId;
+        this.approvedAt = now;
+        this.updatedBy = appUserId;
+        this.updatedAt = now;
     }
 }
