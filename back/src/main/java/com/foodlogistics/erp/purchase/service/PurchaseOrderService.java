@@ -4,14 +4,18 @@ import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.purchase.calculator.PurchaseOrderCalculator;
 import com.foodlogistics.erp.purchase.dto.*;
+import com.foodlogistics.erp.purchase.entity.PurchaseOrder;
+import com.foodlogistics.erp.purchase.entity.PurchaseOrderApprovalStatus;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
 // Service에서 검증·계산한 발주 수정값을 PurchaseOrderMapper.xml의 UPDATE SQL까지 전달하는 내부 객체
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderUpdateParam;
+import com.foodlogistics.erp.purchase.repository.PurchaseOrderRepository;
 import com.foodlogistics.erp.purchase.validator.PurchaseOrderValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +41,10 @@ public class PurchaseOrderService {
 
     // MyBatis를 통해 발주 Header와 Item을 저장하고 기준정보를 조회
     private final PurchaseOrderMapper purchaseOrderMapper;
+
+    // 승인 요청처럼 단일 발주의 상태를 변경할 때 사용할 JPA repository
+    // @RequiredArgsConstructor가 이 final 필드를 생성자로 자동 주입합니다.
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     // 인증정보, 공급업체, 창고, 날짜, DB 기준정보를 검증
     private final PurchaseOrderValidator purchaseOrderValidator;
@@ -552,6 +560,49 @@ public class PurchaseOrderService {
         );
 
         return response;
+    }
+
+    // 발주 승인 요청
+    @Transactional
+    public void requestPurchaseOrderApproval(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId
+    ) {
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId,
+                                companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.DRAFT) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "DRAFT 상태의 발주만 승인 요청할 수 있습니다."
+            );
+        }
+
+        purchaseOrder.requestApproval(
+                appUserId
+        );
     }
 
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드
