@@ -1,8 +1,6 @@
 package com.foodlogistics.erp.stocktake.mapper;
 
-import com.foodlogistics.erp.stocktake.dto.StocktakeItemSaveDto;
-import com.foodlogistics.erp.stocktake.dto.StocktakeResponseDto;
-import com.foodlogistics.erp.stocktake.dto.StocktakeSaveDto;
+import com.foodlogistics.erp.stocktake.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -65,5 +63,16 @@ public interface StocktakeMapper {
     // 우리 회사 재고실사 목록 조회
     List<StocktakeResponseDto> findAllByCompanyId(
             @Param("companyId") Long companyId
+    );
+
+    // 재고실사 헤더 정보 한 건을 조회
+    StocktakeDetailResponseDto findDetailById(
+            @Param("companyId") Long companyId,
+            @Param("stocktakeId") Long stocktakeId
+    );
+
+    // 선택한 재고실사에 포함된 품목 목록을 조회
+    List<StocktakeItemResponseDto> findItemsByStocktakeId(
+            @Param("stocktakeId") Long stocktakeId
     );
 }

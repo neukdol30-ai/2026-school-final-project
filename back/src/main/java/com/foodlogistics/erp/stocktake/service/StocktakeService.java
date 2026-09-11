@@ -1,5 +1,7 @@
 package com.foodlogistics.erp.stocktake.service;
 
+import com.foodlogistics.erp.common.exception.BusinessException;
+import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.stocktake.dto.*;
 import com.foodlogistics.erp.stocktake.mapper.StocktakeMapper;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +49,7 @@ public class StocktakeService {
                         appUserId
                 );
 
-        // 실사 헤더를 먼저 저장해 stocktakeId를 생성한다.
+        // 실사 헤더를 먼저 저장해 stocktakeId를 생성
         stocktakeMapper.insertStocktake(stocktakeToSave);
 
         saveStocktakeItems(
@@ -64,6 +66,37 @@ public class StocktakeService {
             Long companyId
     ) {
         return stocktakeMapper.findAllByCompanyId(companyId);
+    }
+
+    // 재고실사 헤더와 품목 목록을 합쳐 상세 정보를 반환한다.
+    @Transactional(readOnly = true)
+    public StocktakeDetailResponseDto getStocktakeDetail(
+            Long companyId,
+            Long stocktakeId
+    ) {
+        StocktakeDetailResponseDto detail =
+                stocktakeMapper.findDetailById(companyId, stocktakeId);
+
+        if (detail == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "재고실사를 찾을 수 없습니다."
+            );
+        }
+
+        List<StocktakeItemResponseDto> items =
+                stocktakeMapper.findItemsByStocktakeId(stocktakeId);
+
+        return new StocktakeDetailResponseDto(
+                detail.stocktakeId(),
+                detail.stocktakeNo(),
+                detail.warehouseId(),
+                detail.warehouseName(),
+                detail.stocktakeDate(),
+                detail.status(),
+                detail.memo(),
+                items
+        );
     }
 
 

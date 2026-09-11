@@ -131,4 +131,51 @@
 
     </select>
 
+
+    <!-- 회사에 속한 재고실사 헤더 정보 한 건을 조회 -->
+    <select
+            id="findDetailById"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeDetailResponseDto"
+    >
+        SELECT
+        st.stocktake_id AS "stocktakeId",
+        st.stocktake_no AS "stocktakeNo",
+        st.warehouse_id AS "warehouseId",
+        w.warehouse_name AS "warehouseName",
+        st.stocktake_date AS "stocktakeDate",
+        st.status AS "status",
+        st.memo AS "memo"
+        FROM stocktake st
+        JOIN warehouse w
+        ON w.warehouse_id = st.warehouse_id
+        AND w.company_id = st.company_id
+        WHERE st.company_id = #{companyId}
+        AND st.stocktake_id = #{stocktakeId}
+    </select>
+
+    <!-- 선택한 재고실사에 포함된 품목 목록을 조회 -->
+    <select
+            id="findItemsByStocktakeId"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeItemResponseDto"
+    >
+        SELECT
+        sti.stocktake_item_id AS "stocktakeItemId",
+        sti.line_no AS "lineNo",
+        sti.product_id AS "productId",
+        p.product_name AS "productName",
+        sti.lot_id AS "lotId",
+        l.lot_no AS "lotNo",
+        sti.system_qty AS "systemQty",
+        sti.actual_qty AS "actualQty",
+        sti.difference_qty AS "differenceQty",
+        sti.reason AS "reason"
+        FROM stocktake_item sti
+        JOIN product p
+        ON p.product_id = sti.product_id
+        LEFT JOIN lot l
+        ON l.lot_id = sti.lot_id
+        WHERE sti.stocktake_id = #{stocktakeId}
+        ORDER BY sti.line_no
+    </select>
+
 </mapper>
