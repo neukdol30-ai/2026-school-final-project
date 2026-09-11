@@ -98,3 +98,34 @@ export async function requestPurchaseOrderDetail(purchaseOrderId) {
 
   return body.data;
 }
+
+// 새 발주를 Backend에 등록하는 함수
+export async function requestCreatePurchaseOrder(purchaseOrderData) {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    throw new Error("로그인 정보가 없습니다. 다시 로그인해주세요.");
+  }
+
+  const requestUrl = `${API_BASE_URL}/api/purchase-orders`;
+
+  const response = await fetch(requestUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+
+    body: JSON.stringify(purchaseOrderData),
+  });
+
+  const body = await response.json();
+
+  if (!response.ok || !body.success) {
+    const message = body.error?.message ?? "발주 등록에 실패했습니다.";
+
+    throw new Error(message);
+  }
+
+  return body.data;
+}

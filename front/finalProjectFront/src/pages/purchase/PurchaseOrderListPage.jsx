@@ -181,9 +181,23 @@ function PurchaseOrderListPage() {
     navigate(`/purchase-orders/${purchaseOrderId}`);
   }
 
+  function handleCreate() {
+    navigate("/purchase-orders/new");
+  }
+
   return (
     <div className="page purchase-order-list-page">
-      <h1>발주 목록</h1>
+      <div className="purchase-order-list-header">
+        <h1>발주 목록</h1>
+
+        <button
+          type="button"
+          className="purchase-order-create-button"
+          onClick={handleCreate}
+        >
+          발주 등록
+        </button>
+      </div>
 
       <form className="purchase-order-search-form" onSubmit={handleSearch}>
         <div className="purchase-order-search-fields">

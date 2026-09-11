@@ -6,6 +6,7 @@ import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 import PurchaseOrderListPage from "./pages/purchase/PurchaseOrderListPage.jsx";
 import PurchaseOrderDetailPage from "./pages/purchase/PurchaseOrderDetailPage.jsx";
+import PurchaseOrderCreatePage from "./pages/purchase/PurchaseOrderCreatePage.jsx";
 
 // React 애플리케이션의 Route 구조를 정의하는 컴포넌트다.
 function App() {
@@ -29,6 +30,12 @@ function App() {
 
           {/* /purchase-orders는 발주 여러 건을 보여주는 목록 화면이다. */}
           <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
+
+          {/* /purchase-orders/new는 새 발주를 작성하는 등록 화면이다. */}
+          <Route
+            path="/purchase-orders/new"
+            element={<PurchaseOrderCreatePage />}
+          />
 
           {/* :purchaseOrderId는 매번 값이 바뀌는 URL 부분이다.
               예: /purchase-orders/1에서 purchaseOrderId = "1" */}
