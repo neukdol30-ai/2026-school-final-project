@@ -182,6 +182,13 @@ function PurchaseOrderListPage() {
   }
 
   function handleCreate() {
+    const queryString = searchParams.toString();
+
+    if (queryString) {
+      navigate(`/purchase-orders/new?${queryString}`);
+      return;
+    }
+
     navigate("/purchase-orders/new");
   }
 

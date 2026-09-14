@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   requestProductUnits,
@@ -33,6 +33,7 @@ function createEmptyItem() {
 
 export default function PurchaseOrderCreatePage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [suppliers, setSuppliers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -89,6 +90,8 @@ export default function PurchaseOrderCreatePage() {
   }, []);
 
   function handleHeaderChange(event) {
+    setErrorMessage("");
+
     const { name, value } = event.target;
 
     setForm((previousForm) => ({
@@ -98,6 +101,8 @@ export default function PurchaseOrderCreatePage() {
   }
 
   function handleItemChange(index, field, value) {
+    setErrorMessage("");
+
     setForm((previousForm) => ({
       ...previousForm,
       items: previousForm.items.map((item, itemIndex) =>
@@ -112,6 +117,8 @@ export default function PurchaseOrderCreatePage() {
   }
 
   async function handleProductChange(index, productId) {
+    setErrorMessage("");
+
     setForm((previousForm) => ({
       ...previousForm,
       items: previousForm.items.map((item, itemIndex) =>
@@ -171,6 +178,8 @@ export default function PurchaseOrderCreatePage() {
   }
 
   function handleAddItem() {
+    setErrorMessage("");
+
     setForm((previousForm) => ({
       ...previousForm,
       items: [...previousForm.items, createEmptyItem()],
@@ -181,6 +190,8 @@ export default function PurchaseOrderCreatePage() {
     if (form.items.length <= 1) {
       return;
     }
+
+    setErrorMessage("");
 
     setForm((previousForm) => ({
       ...previousForm,
@@ -264,6 +275,10 @@ export default function PurchaseOrderCreatePage() {
     }
   }
 
+  function handleCancel() {
+    navigate(`/purchase-orders${location.search}`);
+  }
+
   return (
     <section className="page purchase-order-create-page">
       <div className="purchase-order-create-header">
@@ -280,7 +295,7 @@ export default function PurchaseOrderCreatePage() {
       {loadingMasterData ? (
         <p>기준정보를 불러오는 중입니다.</p>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <section className="purchase-order-create-section">
             <h2>발주 기본정보</h2>
 
@@ -487,11 +502,7 @@ export default function PurchaseOrderCreatePage() {
           </section>
 
           <div className="purchase-order-create-actions">
-            <button
-              type="button"
-              onClick={() => navigate("/purchase-orders")}
-              disabled={submitting}
-            >
+            <button type="button" onClick={handleCancel} disabled={submitting}>
               취소
             </button>
 
