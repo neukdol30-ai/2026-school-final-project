@@ -45,6 +45,24 @@ public enum ErrorCode {
             "이미 사용 중인 아이디입니다."
     ),
 
+    DUPLICATE_PARTNER_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PARTNER_CODE",
+            "이미 사용 중인 거래처 코드입니다."
+    ),
+
+    DUPLICATE_BUSINESS_NUMBER(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_BUSINESS_NUMBER",
+            "이미 등록된 사업자등록번호입니다."
+    ),
+
+    PARTNER_ROLE_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "PARTNER_ROLE_REQUIRED",
+            "공급업체 또는 판매처 중 하나 이상을 선택해야 합니다."
+    ),
+
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",
