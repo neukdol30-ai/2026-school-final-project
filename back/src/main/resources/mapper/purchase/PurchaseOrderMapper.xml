@@ -471,7 +471,10 @@
         total_tax_amount = #{totalTaxAmount},
         total_amount = #{totalAmount},
         updated_by = #{updatedBy},
-        updated_at = SYSTIMESTAMP
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
         WHERE purchase_order_id = #{purchaseOrderId}
         AND company_id = #{companyId}
         AND approval_status = 'DRAFT'
