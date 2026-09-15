@@ -16,6 +16,10 @@ import OutboundListPage from "./pages/outbound/OutboundListPage";
 import OutboundCreatePage from "./pages/outbound/OutboundCreatePage";
 import OutboundDetailPage from "./pages/outbound/OutboundDetailPage";
 
+import StocktakeListPage from "./pages/stocktake/StocktakeListPage";
+import StocktakeCreatePage from "./pages/stocktake/StocktakeCreatePage";
+import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
+
 function App() {
   return (
     <Routes>
@@ -41,7 +45,12 @@ function App() {
 
           <Route path="/inbounds" element={<EmptyPage title="입고관리" />} />
           <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
-          <Route path="/stocktakes" element={<EmptyPage title="재고실사" />} />
+          <Route path="/stocktakes" element={<StocktakeListPage />} />
+          <Route path="/stocktakes/new" element={<StocktakeCreatePage />} />
+          <Route
+            path="/stocktakes/:stocktakeId"
+            element={<StocktakeDetailPage />}
+          />
 
           <Route path="/sales-orders" element={<SalesOrderListPage />} />
           <Route path="/sales-orders/new" element={<SalesOrderCreatePage />} />

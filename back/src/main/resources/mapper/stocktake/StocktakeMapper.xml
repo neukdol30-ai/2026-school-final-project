@@ -6,6 +6,47 @@
 
 <mapper namespace="com.foodlogistics.erp.stocktake.mapper.StocktakeMapper">
 
+    <!-- 재고실사 등록 시 선택할 사용 중인 창고 목록 -->
+    <select id="findWarehouseOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeWarehouseOptionDto">
+        SELECT
+        warehouse_id AS "warehouseId",
+        warehouse_name AS "warehouseName"
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND use_yn = 'Y'
+        ORDER BY warehouse_name, warehouse_id
+    </select>
+
+    <!-- 재고실사 등록 시 선택할 사용 중인 상품 목록 -->
+    <select id="findProductOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeProductOptionDto">
+        SELECT
+        product_id AS "productId",
+        product_name AS "productName",
+        lot_managed_yn AS "lotManagedYn"
+        FROM product
+        WHERE company_id = #{companyId}
+        AND use_yn = 'Y'
+        ORDER BY product_name, product_id
+    </select>
+
+    <!-- 선택한 창고에 보관된 상품 LOT 목록 -->
+    <select id="findLotOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeLotOptionDto">
+        SELECT
+        l.lot_id AS "lotId",
+        l.lot_no AS "lotNo",
+        ls.quantity AS "quantity"
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND l.product_id = #{productId}
+        ORDER BY l.lot_id
+    </select>
+
     <!-- 회사에 속한 창고인지 확인 -->
     <select id="countUsableWarehouse" resultType="int">
         SELECT COUNT(*)

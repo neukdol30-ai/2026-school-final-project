@@ -68,6 +68,39 @@ public class StocktakeService {
         return stocktakeMapper.findAllByCompanyId(companyId);
     }
 
+    // 재고실사 등록 화면의 창고 선택 목록
+    @Transactional(readOnly = true)
+    public List<StocktakeWarehouseOptionDto> getWarehouseOptions(
+            Long companyId
+    ) {
+        return stocktakeMapper.findWarehouseOptions(companyId);
+    }
+
+    // 재고실사 등록 화면의 상품 선택 목록
+    @Transactional(readOnly = true)
+    public List<StocktakeProductOptionDto> getProductOptions(
+            Long companyId
+    ) {
+        return stocktakeMapper.findProductOptions(companyId);
+    }
+
+    // 선택한 창고·상품에 실제로 연결된 LOT 재고 선택 목록
+    @Transactional(readOnly = true)
+    public List<StocktakeLotOptionDto> getLotOptions(
+            Long companyId,
+            Long warehouseId,
+            Long productId
+    ) {
+        stocktakeValidator.validateUsableWarehouse(companyId, warehouseId);
+        stocktakeValidator.validateUsableProduct(companyId, productId);
+
+        return stocktakeMapper.findLotOptions(
+                companyId,
+                warehouseId,
+                productId
+        );
+    }
+
     // 재고실사 헤더와 품목 목록을 합쳐 상세 정보를 반환한다.
     @Transactional(readOnly = true)
     public StocktakeDetailResponseDto getStocktakeDetail(

@@ -2,7 +2,11 @@ package com.foodlogistics.erp.stocktake.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.stocktake.dto.StocktakeCreateRequestDto;
+import com.foodlogistics.erp.stocktake.dto.StocktakeDetailResponseDto;
+import com.foodlogistics.erp.stocktake.dto.StocktakeLotOptionDto;
+import com.foodlogistics.erp.stocktake.dto.StocktakeProductOptionDto;
 import com.foodlogistics.erp.stocktake.dto.StocktakeResponseDto;
+import com.foodlogistics.erp.stocktake.dto.StocktakeWarehouseOptionDto;
 import com.foodlogistics.erp.stocktake.service.StocktakeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,60 @@ public class StocktakeController {
         return ApiResponse.ok(
                 stocktakeService.getStocktakeList(
                         companyId.longValue()
+                )
+        );
+    }
+
+    @GetMapping("/options/warehouses")
+    public ApiResponse<List<StocktakeWarehouseOptionDto>> getWarehouseOptions(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.getWarehouseOptions(companyId.longValue())
+        );
+    }
+
+    @GetMapping("/options/products")
+    public ApiResponse<List<StocktakeProductOptionDto>> getProductOptions(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.getProductOptions(companyId.longValue())
+        );
+    }
+
+    @GetMapping("/options/lots")
+    public ApiResponse<List<StocktakeLotOptionDto>> getLotOptions(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam Long warehouseId,
+            @RequestParam Long productId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.getLotOptions(
+                        companyId.longValue(),
+                        warehouseId,
+                        productId
+                )
+        );
+    }
+
+    @GetMapping("/{stocktakeId}")
+    public ApiResponse<StocktakeDetailResponseDto> getStocktakeDetail(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long stocktakeId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.getStocktakeDetail(
+                        companyId.longValue(),
+                        stocktakeId
                 )
         );
     }

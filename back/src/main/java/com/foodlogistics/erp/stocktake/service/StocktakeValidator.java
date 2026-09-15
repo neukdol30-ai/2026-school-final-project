@@ -52,7 +52,7 @@ public class StocktakeValidator {
         }
     }
 
-    private void validateUsableProduct(
+    public void validateUsableProduct(
             Long companyId,
             Long productId
     ) {

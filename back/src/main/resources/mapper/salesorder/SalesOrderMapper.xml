@@ -156,15 +156,23 @@
 
     <update id="confirmSalesOrder">
 
-            UPDATE sales_order
-            SET
-                order_status = 'CONFIRMED',
-                confirmed_at = SYSTIMESTAMP,
-                confirmed_by = #{confirmedBy},
-                updated_at = SYSTIMESTAMP,
-                updated_by = #{confirmedBy}
-            WHERE sales_order_id = #{salesOrderId}
-                AND company_id = #{companyId}
-                AND order_status = 'DRAFT'
+        UPDATE sales_order
+        SET
+        order_status = 'CONFIRMED',
+        confirmed_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        confirmed_by = #{confirmedBy},
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{confirmedBy}
+        WHERE sales_order_id = #{salesOrderId}
+        AND company_id = #{companyId}
+        AND order_status = 'DRAFT'
     </update>
 </mapper>

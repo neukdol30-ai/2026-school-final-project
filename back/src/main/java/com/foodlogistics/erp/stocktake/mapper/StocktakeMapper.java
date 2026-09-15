@@ -10,6 +10,23 @@ import java.util.List;
 @Mapper
 public interface StocktakeMapper {
 
+    // 재고실사 등록 화면에서 선택할 사용 중인 창고 목록
+    List<StocktakeWarehouseOptionDto> findWarehouseOptions(
+            @Param("companyId") Long companyId
+    );
+
+    // 재고실사 등록 화면에서 선택할 사용 중인 상품 목록
+    List<StocktakeProductOptionDto> findProductOptions(
+            @Param("companyId") Long companyId
+    );
+
+    // 선택한 창고·상품의 LOT 재고 목록
+    List<StocktakeLotOptionDto> findLotOptions(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId
+    );
+
     // 이 회사에서 실제로 사용할 수 있는 창고인지 확인
     int countUsableWarehouse(
             @Param("companyId") Long companyId,
