@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.productunit.ProductUnitMapper">
+
+    <resultMap
+            id="productUnitResultMap"
+            type="com.foodlogistics.erp.productunit.ProductUnit">
+
+        <id
+                column="product_unit_id"
+                property="productUnitId"
+        />
+
+        <result column="product_id" property="productId"/>
+        <result column="unit_id" property="unitId"/>
+        <result column="unit_code" property="unitCode"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="conversion_qty" property="conversionQty"/>
+        <result column="is_base_yn" property="isBaseYn"/>
+        <result column="use_yn" property="useYn"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <sql id="productUnitColumns">
+        pu.product_unit_id,
+        pu.product_id,
+        pu.unit_id,
+        u.unit_code,
+        u.unit_name,
+        pu.conversion_qty,
+        pu.is_base_yn,
+        pu.use_yn,
+        pu.created_at,
+        pu.created_by,
+        pu.updated_at,
+        pu.updated_by
+    </sql>
+
+    <select id="findAll" resultMap="productUnitResultMap">
+        SELECT
+        <include refid="productUnitColumns"/>
+        FROM product_unit pu
+        INNER JOIN product p
+        ON p.product_id = pu.product_id
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+        WHERE p.company_id = #{companyId}
+        AND pu.product_id = #{productId}
+
+        <if test="useYn != null and useYn != ''">
+            AND pu.use_yn = #{useYn}
+        </if>
+
+        ORDER BY
+        pu.use_yn DESC,
+        CASE
+        WHEN pu.is_base_yn = 'Y' THEN 0
+        ELSE 1
+        END,
+        u.unit_name ASC,
+        pu.product_unit_id ASC
+    </select>
+
+    <select id="findById" resultMap="productUnitResultMap">
+        SELECT
+        <include refid="productUnitColumns"/>
+        FROM product_unit pu
+        INNER JOIN product p
+        ON p.product_id = pu.product_id
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+        WHERE p.company_id = #{companyId}
+        AND pu.product_id = #{productId}
+        AND pu.product_unit_id = #{productUnitId}
+    </select>
+
+    <select id="countByProductAndUnit" resultType="int">
+        SELECT COUNT(*)
+        FROM product_unit pu
+        INNER JOIN product p
+        ON p.product_id = pu.product_id
+        WHERE p.company_id = #{companyId}
+        AND pu.product_id = #{productId}
+        AND pu.unit_id = #{unitId}
+
+        <if test="excludeProductUnitId != null">
+            AND pu.product_unit_id
+            != #{excludeProductUnitId}
+        </if>
+    </select>
+
+    <select id="countBaseUnit" resultType="int">
+        SELECT COUNT(*)
+        FROM product_unit pu
+        INNER JOIN product p
+        ON p.product_id = pu.product_id
+        WHERE p.company_id = #{companyId}
+        AND pu.product_id = #{productId}
+        AND pu.is_base_yn = 'Y'
+
+        <if test="excludeProductUnitId != null">
+            AND pu.product_unit_id
+            != #{excludeProductUnitId}
+        </if>
+    </select>
+
+    <select id="countActiveUnitById" resultType="int">
+        SELECT COUNT(*)
+        FROM unit
+        WHERE unit_id = #{unitId}
+        AND use_yn = 'Y'
+    </select>
+
+    <insert
+            id="insert"
+            parameterType="com.foodlogistics.erp.productunit.ProductUnit"
+            useGeneratedKeys="true"
+            keyProperty="productUnitId"
+            keyColumn="product_unit_id">
+
+        INSERT INTO product_unit (
+        product_id,
+        unit_id,
+        conversion_qty,
+        is_base_yn,
+        use_yn,
+        created_by,
+        updated_by
+        ) VALUES (
+        #{productId},
+        #{unitId},
+        #{conversionQty},
+        #{isBaseYn},
+        #{useYn},
+        #{createdBy},
+        #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE product_unit
+        SET unit_id = #{productUnit.unitId},
+        conversion_qty =
+        #{productUnit.conversionQty},
+        is_base_yn =
+        #{productUnit.isBaseYn},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by =
+        #{productUnit.updatedBy}
+        WHERE product_unit_id =
+        #{productUnit.productUnitId}
+        AND product_id =
+        #{productUnit.productId}
+        AND EXISTS (
+        SELECT 1
+        FROM product p
+        WHERE p.product_id =
+        #{productUnit.productId}
+        AND p.company_id = #{companyId}
+        )
+    </update>
+
+    <update id="updateUseYn">
+        UPDATE product_unit
+        SET use_yn = #{useYn},
+        is_base_yn = CASE
+        WHEN #{useYn} = 'N' THEN 'N'
+        ELSE is_base_yn
+        END,
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE product_unit_id = #{productUnitId}
+        AND product_id = #{productId}
+        AND EXISTS (
+        SELECT 1
+        FROM product p
+        WHERE p.product_id = #{productId}
+        AND p.company_id = #{companyId}
+        )
+    </update>
+
+</mapper>

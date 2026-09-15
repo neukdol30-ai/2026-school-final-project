@@ -1,4 +1,35 @@
-2026-08-27 14:27:28.623 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - Starting FoodLogisticsErpApplicationTests using Java 25.0.1 with PID 13326 (started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project/back)
-2026-08-27 14:27:28.626 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - No active profile set, falling back to 1 default profile: "default"
-2026-08-27 14:27:28.740 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
-2026-08-27 14:27:29.220 INFO  [Test worker] [food-logistics-erp] c.f.e.FoodLogisticsErpApplicationTests - Started FoodLogisticsErpApplicationTests in 0.85 seconds (process running for 1.434)
+2026-09-15 17:46:57.869 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 60849 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project/back)
+2026-09-15 17:46:57.872 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-15 17:46:57.894 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-09-15 17:46:57.894 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-09-15 17:46:57.894 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-09-15 17:46:57.941 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-09-15 17:46:58.488 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-15 17:46:58.497 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:58.499 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-15 17:46:58.499 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-15 17:46:58.516 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 621 ms
+2026-09-15 17:46:58.600 WARN  [restartedMain] [food-logistics-erp] o.s.b.w.s.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'businessPartnerController' defined in file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main/com/foodlogistics/erp/businesspartner/BusinessPartnerController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'businessPartnerService' defined in file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main/com/foodlogistics/erp/businesspartner/BusinessPartnerService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'businessPartnerMapper' defined in file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main/com/foodlogistics/erp/businesspartner/BusinessPartnerMapper.class]: Cannot resolve reference to bean 'sqlSessionTemplate' while setting bean property 'sqlSessionTemplate'
+2026-09-15 17:46:58.601 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-09-15 17:46:58.668 INFO  [restartedMain] [food-logistics-erp] o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-09-15 17:46:58.674 ERROR [restartedMain] [food-logistics-erp] o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.
+
+Reason: Failed to determine a suitable driver class
+
+
+Action:
+
+Consider the following:
+	If you want an embedded database (H2, HSQL or Derby), please put it on the classpath.
+	If you have database settings to be loaded from a particular profile you may need to activate it (no profiles are currently active).
+

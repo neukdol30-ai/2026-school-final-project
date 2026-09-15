@@ -189,3 +189,49 @@ com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehou
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1862)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1811)
 	... 21 common frames omitted
+2026-09-15 16:48:57.192 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-15 16:48:57.193 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-15 16:48:57.513 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-15 16:48:57.514 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-15 16:48:57.514 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-15 16:48:57.515 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-15 16:48:57.522 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 324 ms
+2026-09-15 16:48:57.620 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-15 16:48:57.901 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-15 16:48:57.902 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-15 16:48:57.906 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.835 seconds (process running for 82135.265)
+2026-09-15 16:48:57.907 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-15 17:46:17.557 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 18 class path changes (6 additions, 0 deletions, 12 modifications)
+2026-09-15 17:46:17.570 INFO  [Thread-11] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-15 17:46:17.572 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:17.574 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-15 17:46:17.575 INFO  [Thread-11] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:17.747 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-15 17:46:17.748 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-15 17:46:18.070 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-15 17:46:18.079 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 328 ms
+2026-09-15 17:46:18.166 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-15 17:46:18.394 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:18.395 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-15 17:46:18.396 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.741 seconds (process running for 85575.802)
+2026-09-15 17:46:18.397 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-15 17:46:58.407 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 21 class path changes (5 additions, 0 deletions, 16 modifications)
+2026-09-15 17:46:58.417 INFO  [Thread-24] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-15 17:46:58.418 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:58.423 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-15 17:46:58.424 INFO  [Thread-24] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:58.492 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-15 17:46:58.493 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-15 17:46:58.639 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-15 17:46:58.644 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 150 ms
+2026-09-15 17:46:58.732 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-15 17:46:58.926 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-15 17:46:58.927 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-15 17:46:58.928 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.454 seconds (process running for 85616.333)
+2026-09-15 17:46:58.928 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged

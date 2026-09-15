@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.product.ProductMapper">
+
+    <resultMap
+            id="productResultMap"
+            type="com.foodlogistics.erp.product.Product">
+
+        <id column="product_id" property="productId"/>
+
+        <result column="company_id" property="companyId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="lot_managed_yn" property="lotManagedYn"/>
+        <result column="tax_type" property="taxType"/>
+        <result column="storage_type" property="storageType"/>
+        <result column="use_yn" property="useYn"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <sql id="productColumns">
+        product_id,
+        company_id,
+        product_code,
+        product_name,
+        lot_managed_yn,
+        tax_type,
+        storage_type,
+        use_yn,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by
+    </sql>
+
+    <select id="findAll" resultMap="productResultMap">
+        SELECT
+        <include refid="productColumns"/>
+        FROM product
+        WHERE company_id = #{companyId}
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            LOWER(product_code)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(product_name)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+
+        <if test="lotManagedYn != null and lotManagedYn != ''">
+            AND lot_managed_yn = #{lotManagedYn}
+        </if>
+
+        <if test="taxType != null and taxType != ''">
+            AND tax_type = #{taxType}
+        </if>
+
+        <if test="storageType != null and storageType != ''">
+            AND storage_type = #{storageType}
+        </if>
+
+        <if test="useYn != null and useYn != ''">
+            AND use_yn = #{useYn}
+        </if>
+
+        ORDER BY
+        use_yn DESC,
+        product_name ASC,
+        product_id ASC
+    </select>
+
+    <select id="findById" resultMap="productResultMap">
+        SELECT
+        <include refid="productColumns"/>
+        FROM product
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+    </select>
+
+    <select id="countByProductCode" resultType="int">
+        SELECT COUNT(*)
+        FROM product
+        WHERE company_id = #{companyId}
+        AND LOWER(TRIM(product_code))
+        = LOWER(TRIM(#{productCode}))
+
+        <if test="excludeProductId != null">
+            AND product_id != #{excludeProductId}
+        </if>
+    </select>
+
+    <insert
+            id="insert"
+            parameterType="com.foodlogistics.erp.product.Product"
+            useGeneratedKeys="true"
+            keyProperty="productId"
+            keyColumn="product_id">
+
+        INSERT INTO product (
+        company_id,
+        product_code,
+        product_name,
+        lot_managed_yn,
+        tax_type,
+        storage_type,
+        use_yn,
+        created_by,
+        updated_by
+        ) VALUES (
+        #{companyId},
+        #{productCode},
+        #{productName},
+        #{lotManagedYn},
+        #{taxType},
+        #{storageType},
+        #{useYn},
+        #{createdBy},
+        #{updatedBy}
+        )
+    </insert>
+
+    <update
+            id="update"
+            parameterType="com.foodlogistics.erp.product.Product">
+
+        UPDATE product
+        SET product_code = #{productCode},
+        product_name = #{productName},
+        lot_managed_yn = #{lotManagedYn},
+        tax_type = #{taxType},
+        storage_type = #{storageType},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE product_id = #{productId}
+        AND company_id = #{companyId}
+    </update>
+
+    <update id="updateUseYn">
+        UPDATE product
+        SET use_yn = #{useYn},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE product_id = #{productId}
+        AND company_id = #{companyId}
+    </update>
+
+</mapper>

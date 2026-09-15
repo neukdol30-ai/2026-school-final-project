@@ -1,8 +1,8 @@
-package com.foodlogistics.erp.warehouse;
+package com.foodlogistics.erp.product;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
-import com.foodlogistics.erp.warehouse.dto.WarehouseResponse;
-import com.foodlogistics.erp.warehouse.dto.WarehouseSaveRequest;
+import com.foodlogistics.erp.product.dto.ProductResponse;
+import com.foodlogistics.erp.product.dto.ProductSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,26 +14,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/management/warehouses")
+@RequestMapping("/api/management/products")
 @RequiredArgsConstructor
-public class WarehouseController {
+public class ProductController {
 
-    private final WarehouseService warehouseService;
+    private final ProductService productService;
 
     @GetMapping
     public ResponseEntity<
-            ApiResponse<List<WarehouseResponse>>
-            > getWarehouses(
+            ApiResponse<List<ProductResponse>>
+            > getProducts(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false)
             String keyword,
             @RequestParam(required = false)
+            String lotManagedYn,
+            @RequestParam(required = false)
+            String taxType,
+            @RequestParam(required = false)
+            String storageType,
+            @RequestParam(required = false)
             String useYn
     ) {
-        List<WarehouseResponse> response =
-                warehouseService.getWarehouses(
+        List<ProductResponse> response =
+                productService.getProducts(
                         getCompanyId(jwt),
                         keyword,
+                        lotManagedYn,
+                        taxType,
+                        storageType,
                         useYn
                 );
 
@@ -42,17 +51,17 @@ public class WarehouseController {
         );
     }
 
-    @GetMapping("/{warehouseId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<
-            ApiResponse<WarehouseResponse>
-            > getWarehouse(
+            ApiResponse<ProductResponse>
+            > getProduct(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long warehouseId
+            @PathVariable Long productId
     ) {
-        WarehouseResponse response =
-                warehouseService.getWarehouse(
+        ProductResponse response =
+                productService.getProduct(
                         getCompanyId(jwt),
-                        warehouseId
+                        productId
                 );
 
         return ResponseEntity.ok(
@@ -62,14 +71,14 @@ public class WarehouseController {
 
     @PostMapping
     public ResponseEntity<
-            ApiResponse<WarehouseResponse>
-            > createWarehouse(
+            ApiResponse<ProductResponse>
+            > createProduct(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody
-            WarehouseSaveRequest request
+            ProductSaveRequest request
     ) {
-        WarehouseResponse response =
-                warehouseService.createWarehouse(
+        ProductResponse response =
+                productService.createProduct(
                         getCompanyId(jwt),
                         getAppUserId(jwt),
                         request
@@ -80,20 +89,20 @@ public class WarehouseController {
                 .body(ApiResponse.ok(response));
     }
 
-    @PutMapping("/{warehouseId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<
-            ApiResponse<WarehouseResponse>
-            > updateWarehouse(
+            ApiResponse<ProductResponse>
+            > updateProduct(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long warehouseId,
+            @PathVariable Long productId,
             @Valid @RequestBody
-            WarehouseSaveRequest request
+            ProductSaveRequest request
     ) {
-        WarehouseResponse response =
-                warehouseService.updateWarehouse(
+        ProductResponse response =
+                productService.updateProduct(
                         getCompanyId(jwt),
                         getAppUserId(jwt),
-                        warehouseId,
+                        productId,
                         request
                 );
 
@@ -102,16 +111,16 @@ public class WarehouseController {
         );
     }
 
-    @PatchMapping("/{warehouseId}/deactivate")
+    @PatchMapping("/{productId}/deactivate")
     public ResponseEntity<ApiResponse<Void>>
-    deactivateWarehouse(
+    deactivateProduct(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long warehouseId
+            @PathVariable Long productId
     ) {
-        warehouseService.deactivateWarehouse(
+        productService.deactivateProduct(
                 getCompanyId(jwt),
                 getAppUserId(jwt),
-                warehouseId
+                productId
         );
 
         return ResponseEntity.ok(

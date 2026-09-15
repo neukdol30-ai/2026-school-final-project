@@ -57,6 +57,12 @@ public enum ErrorCode {
             "이미 사용 중인 단위 코드입니다."
     ),
 
+    DUPLICATE_PRODUCT_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PRODUCT_CODE",
+            "이미 사용 중인 상품 코드입니다."
+    ),
+
     DUPLICATE_PARTNER_CODE(
             HttpStatus.CONFLICT,
             "DUPLICATE_PARTNER_CODE",
@@ -67,6 +73,30 @@ public enum ErrorCode {
             HttpStatus.CONFLICT,
             "DUPLICATE_BUSINESS_NUMBER",
             "이미 등록된 사업자등록번호입니다."
+    ),
+
+    DUPLICATE_PRODUCT_UNIT(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PRODUCT_UNIT",
+            "이미 등록된 상품 단위입니다."
+    ),
+
+    BASE_UNIT_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "BASE_UNIT_ALREADY_EXISTS",
+            "해당 상품에는 이미 기준 단위가 존재합니다."
+    ),
+
+    BASE_UNIT_CONVERSION_INVALID(
+            HttpStatus.BAD_REQUEST,
+            "BASE_UNIT_CONVERSION_INVALID",
+            "기준 단위의 환산 수량은 1이어야 합니다."
+    ),
+
+    UNIT_NOT_AVAILABLE(
+            HttpStatus.BAD_REQUEST,
+            "UNIT_NOT_AVAILABLE",
+            "존재하지 않거나 사용할 수 없는 단위입니다."
     ),
 
     PARTNER_ROLE_REQUIRED(
