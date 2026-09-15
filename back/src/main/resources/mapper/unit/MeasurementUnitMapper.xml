@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.unit.MeasurementUnitMapper">
+
+    <resultMap
+            id="measurementUnitResultMap"
+            type="com.foodlogistics.erp.unit.MeasurementUnit">
+
+        <id column="unit_id" property="unitId"/>
+
+        <result column="unit_code" property="unitCode"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="description" property="description"/>
+        <result column="use_yn" property="useYn"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="measurementUnitColumns">
+        unit_id,
+        unit_code,
+        unit_name,
+        description,
+        use_yn,
+        created_at,
+        updated_at
+    </sql>
+
+    <select
+            id="findAll"
+            resultMap="measurementUnitResultMap">
+
+        SELECT
+        <include refid="measurementUnitColumns"/>
+        FROM unit
+        WHERE 1 = 1
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            LOWER(unit_code)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(unit_name)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+
+        <if test="useYn != null and useYn != ''">
+            AND use_yn = #{useYn}
+        </if>
+
+        ORDER BY
+        use_yn DESC,
+        unit_name ASC,
+        unit_id ASC
+    </select>
+
+    <select
+            id="findById"
+            resultMap="measurementUnitResultMap">
+
+        SELECT
+        <include refid="measurementUnitColumns"/>
+        FROM unit
+        WHERE unit_id = #{unitId}
+    </select>
+
+    <select
+            id="countByUnitCode"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM unit
+        WHERE LOWER(TRIM(unit_code))
+        = LOWER(TRIM(#{unitCode}))
+
+        <if test="excludeUnitId != null">
+            AND unit_id != #{excludeUnitId}
+        </if>
+    </select>
+
+    <insert
+            id="insert"
+            parameterType="com.foodlogistics.erp.unit.MeasurementUnit"
+            useGeneratedKeys="true"
+            keyProperty="unitId"
+            keyColumn="unit_id">
+
+        INSERT INTO unit (
+        unit_code,
+        unit_name,
+        description,
+        use_yn
+        ) VALUES (
+        #{unitCode},
+        #{unitName},
+        #{description},
+        #{useYn}
+        )
+    </insert>
+
+    <update
+            id="update"
+            parameterType="com.foodlogistics.erp.unit.MeasurementUnit">
+
+        UPDATE unit
+        SET unit_code = #{unitCode},
+        unit_name = #{unitName},
+        description = #{description},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        WHERE unit_id = #{unitId}
+    </update>
+
+    <update id="updateUseYn">
+        UPDATE unit
+        SET use_yn = #{useYn},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        WHERE unit_id = #{unitId}
+    </update>
+
+</mapper>

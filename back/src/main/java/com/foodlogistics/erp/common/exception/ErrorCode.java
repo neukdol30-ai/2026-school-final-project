@@ -45,6 +45,18 @@ public enum ErrorCode {
             "이미 사용 중인 아이디입니다."
     ),
 
+    DUPLICATE_WAREHOUSE_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_WAREHOUSE_CODE",
+            "이미 사용 중인 창고 코드입니다."
+    ),
+
+    DUPLICATE_UNIT_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_UNIT_CODE",
+            "이미 사용 중인 단위 코드입니다."
+    ),
+
     DUPLICATE_PARTNER_CODE(
             HttpStatus.CONFLICT,
             "DUPLICATE_PARTNER_CODE",
