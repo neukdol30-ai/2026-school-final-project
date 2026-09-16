@@ -4,7 +4,7 @@ import {
   getShipmentStatusLabel,
 } from "../js/salesOrderStatus";
 
-function SalesOrderDetail({ salesOrderDetail, onClose }) {
+function SalesOrderDetail({ salesOrderDetail, onClose, onCancel, cancelling }) {
   if (!salesOrderDetail) {
     return null;
   }
@@ -12,6 +12,10 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
   const canCreateOutbound =
     salesOrderDetail.orderStatus === "CONFIRMED" &&
     salesOrderDetail.items.some((item) => Number(item.remainingQty) > 0);
+  const canEdit = salesOrderDetail.orderStatus === "DRAFT";
+  const canCancel =
+    ["DRAFT", "CONFIRMED"].includes(salesOrderDetail.orderStatus) &&
+    salesOrderDetail.shipmentStatus === "NOT_SHIPPED";
 
   return (
     <section className="content-panel sales-order-detail-panel">
@@ -25,6 +29,15 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
         </div>
 
         <div className="sales-order-detail-actions">
+          {canEdit && (
+            <Link
+              className="sales-order-edit-link"
+              to={`/sales-orders/${salesOrderDetail.salesOrderId}/edit`}
+            >
+              수정
+            </Link>
+          )}
+
           {canCreateOutbound && (
             <Link
               className="sales-order-create-outbound-link"
@@ -32,6 +45,17 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
             >
               출고 등록
             </Link>
+          )}
+
+          {canCancel && (
+            <button
+              className="sales-order-cancel-button"
+              type="button"
+              onClick={() => onCancel(salesOrderDetail.salesOrderId)}
+              disabled={cancelling}
+            >
+              {cancelling ? "취소 중..." : "주문 취소"}
+            </button>
           )}
 
           <button

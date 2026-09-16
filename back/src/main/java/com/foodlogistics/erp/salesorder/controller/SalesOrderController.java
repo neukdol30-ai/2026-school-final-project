@@ -67,6 +67,26 @@ public class SalesOrderController {
                 )
         );
     }
+
+    // 작성중(DRAFT) 판매주문만 수정한다.
+    @PutMapping("/{salesOrderId}")
+    public ApiResponse<SalesOrderResponseDto> updateSalesOrder(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long salesOrderId,
+            @RequestBody @Valid SalesOrderCreateRequestDto request
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
+        return ApiResponse.ok(
+                salesOrderService.updateSalesOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        salesOrderId,
+                        request
+                )
+        );
+    }
     //판매주문 확정
     @PostMapping("/{salesOrderId}/confirm")
     public ApiResponse<SalesOrderResponseDto> confirmSalesOrder(
@@ -78,6 +98,24 @@ public class SalesOrderController {
 
         return ApiResponse.ok(
                 salesOrderService.confirmSalesOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        salesOrderId
+                )
+        );
+    }
+
+    // 미출고 상태의 판매주문만 취소한다.
+    @PostMapping("/{salesOrderId}/cancel")
+    public ApiResponse<SalesOrderResponseDto> cancelSalesOrder(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long salesOrderId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
+        return ApiResponse.ok(
+                salesOrderService.cancelSalesOrder(
                         companyId.longValue(),
                         appUserId.longValue(),
                         salesOrderId

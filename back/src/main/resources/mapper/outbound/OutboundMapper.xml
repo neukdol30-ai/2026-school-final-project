@@ -14,8 +14,11 @@
             ob.outbound_no AS "outboundNo",
             ob.sales_order_id AS "salesOrderId",
             so.order_no AS "salesOrderNo",
+            ob.warehouse_id AS "warehouseId",
             w.warehouse_name AS "warehouseName",
-            ob.status AS "status"
+            ob.status AS "status",
+            ob.cancel_reason AS "cancelReason",
+            ob.cancelled_at AS "cancelledAt"
         FROM outbound ob
         JOIN sales_order so
             ON so.sales_order_id = ob.sales_order_id
@@ -342,6 +345,58 @@
         )
     </insert>
 
+    <!-- 작성중 출고서의 판매주문·창고를 변경한다. -->
+    <update id="updateOutboundHeader">
+        UPDATE outbound
+        SET
+            sales_order_id = #{salesOrderId},
+            warehouse_id = #{warehouseId},
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE company_id = #{companyId}
+        AND outbound_id = #{outboundId}
+        AND status = 'DRAFT'
+    </update>
+
+    <!-- 자식 LOT 배정부터 먼저 삭제한다. -->
+    <delete id="deleteOutboundItemLots">
+        DELETE FROM outbound_item_lot oil
+        WHERE EXISTS (
+            SELECT 1
+            FROM outbound_item oi
+            JOIN outbound ob
+              ON ob.outbound_id = oi.outbound_id
+            WHERE oi.outbound_item_id = oil.outbound_item_id
+            AND ob.company_id = #{companyId}
+            AND ob.outbound_id = #{outboundId}
+            AND ob.status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- LOT 배정이 삭제된 작성중 출고 품목을 삭제한다. -->
+    <delete id="deleteOutboundItems">
+        DELETE FROM outbound_item oi
+        WHERE oi.outbound_id = #{outboundId}
+        AND EXISTS (
+            SELECT 1
+            FROM outbound ob
+            WHERE ob.outbound_id = oi.outbound_id
+            AND ob.company_id = #{companyId}
+            AND ob.status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- 재고 반영 전인 작성중 출고서만 삭제한다. -->
+    <delete id="deleteOutbound">
+        DELETE FROM outbound
+        WHERE company_id = #{companyId}
+        AND outbound_id = #{outboundId}
+        AND status = 'DRAFT'
+    </delete>
+
     <select id="findAllByCompanyId"
             resultType="com.foodlogistics.erp.outbound.dto.OutboundResponseDto">
 
@@ -350,8 +405,11 @@
             ob.outbound_no AS "outboundNo",
             ob.sales_order_id AS "salesOrderId",
             so.order_no AS "salesOrderNo",
+            ob.warehouse_id AS "warehouseId",
             w.warehouse_name AS "warehouseName",
-            ob.status AS "status"
+            ob.status AS "status",
+            ob.cancel_reason AS "cancelReason",
+            ob.cancelled_at AS "cancelledAt"
         FROM outbound ob
         JOIN sales_order so
             ON so.sales_order_id = ob.sales_order_id
@@ -375,6 +433,23 @@
         FROM outbound_item oi
         WHERE oi.outbound_id = #{outboundId}
         ORDER BY oi.line_no
+    </select>
+
+    <!-- 출고 품목별로 저장된 LOT 배정 수량. 초안 수정 화면에서 다시 표시한다. -->
+    <select id="findItemLotsByOutboundId"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundItemLotResponseDto">
+        SELECT
+            oi.outbound_item_id AS "outboundItemId",
+            oil.lot_id AS "lotId",
+            oil.base_lot_qty AS "baseLotQty"
+        FROM outbound_item oi
+        JOIN outbound_item_lot oil
+          ON oil.outbound_item_id = oi.outbound_item_id
+        JOIN outbound ob
+          ON ob.outbound_id = oi.outbound_id
+        WHERE ob.company_id = #{companyId}
+        AND ob.outbound_id = #{outboundId}
+        ORDER BY oi.line_no, oil.outbound_item_lot_id
     </select>
 
     <!-- 이 출고서가 실제 재고를 차감하고 확정된 건인지 안전하게 확인한다. -->

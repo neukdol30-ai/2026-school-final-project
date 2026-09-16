@@ -10,6 +10,7 @@ public record SalesOrderItemResponseDto (
         String lotManagedYn,
         BigDecimal conversionQty,
         BigDecimal orderedQty,
+        BigDecimal unitPrice,
         BigDecimal shippedQty,
         BigDecimal remainingQty
 ) {

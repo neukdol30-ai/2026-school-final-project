@@ -12,6 +12,7 @@
         SELECT
         so.sales_order_id AS "salesOrderId",
         so.order_no AS "orderNo",
+        so.customer_id AS "customerId",
         bp.partner_name AS "customerName",
         so.order_status AS "orderStatus",
         so.shipment_status AS "shipmentStatus"
@@ -29,6 +30,7 @@
         SELECT
         so.sales_order_id AS "salesOrderId",
         so.order_no AS "orderNo",
+        so.customer_id AS "customerId",
         bp.partner_name AS "customerName",
         so.order_status AS "orderStatus",
         so.shipment_status AS "shipmentStatus"
@@ -52,6 +54,7 @@
         p.lot_managed_yn AS "lotManagedYn",
         soi.conversion_qty AS "conversionQty",
         soi.ordered_qty AS "orderedQty",
+        soi.unit_price AS "unitPrice",
         soi.shipped_qty / soi.conversion_qty AS "shippedQty",
         (soi.base_ordered_qty - soi.shipped_qty)
             / soi.conversion_qty AS "remainingQty"
@@ -185,5 +188,59 @@
         WHERE sales_order_id = #{salesOrderId}
         AND company_id = #{companyId}
         AND order_status = 'DRAFT'
+    </update>
+
+    <!-- 초안 판매주문의 거래처와 금액 요약을 수정한다. -->
+    <update id="updateSalesOrder">
+        UPDATE sales_order
+        SET
+            customer_id = #{salesOrder.customerId},
+            total_supply_amount = #{salesOrder.totalSupplyAmount},
+            total_tax_amount = #{salesOrder.totalTaxAmount},
+            total_amount = #{salesOrder.totalAmount},
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE sales_order_id = #{salesOrder.salesOrderId}
+        AND company_id = #{salesOrder.companyId}
+        AND order_status = 'DRAFT'
+    </update>
+
+    <!-- 초안 판매주문의 기존 품목을 지운 뒤 새 품목으로 다시 저장한다. -->
+    <delete id="deleteSalesOrderItems">
+        DELETE FROM sales_order_item
+        WHERE sales_order_id = #{salesOrderId}
+        AND EXISTS (
+            SELECT 1
+            FROM sales_order so
+            WHERE so.sales_order_id = sales_order_item.sales_order_id
+            AND so.company_id = #{companyId}
+            AND so.order_status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- 출고된 수량이나 진행 중인 출고서가 없는 주문만 취소한다. -->
+    <update id="cancelSalesOrder">
+        UPDATE sales_order so
+        SET
+            order_status = 'CANCELLED',
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{cancelledBy}
+        WHERE so.sales_order_id = #{salesOrderId}
+        AND so.company_id = #{companyId}
+        AND so.order_status IN ('DRAFT', 'CONFIRMED')
+        AND so.shipment_status = 'NOT_SHIPPED'
+        AND NOT EXISTS (
+            SELECT 1
+            FROM outbound ob
+            WHERE ob.sales_order_id = so.sales_order_id
+            AND ob.company_id = so.company_id
+            AND ob.status IN ('DRAFT', 'CONFIRMED')
+        )
     </update>
 </mapper>

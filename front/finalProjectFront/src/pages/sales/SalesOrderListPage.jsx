@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import SalesOrderTable from "./components/SalesOrderTable";
 import SalesOrderDetail from "./components/SalesOrderDetail";
 import {
+  cancelSalesOrder,
   confirmSalesOrder,
   getSalesOrderDetail,
   getSalesOrders,
@@ -27,6 +28,7 @@ function SalesOrderListPage() {
 
   const [successMessage, setSuccessMessage] = useState("");
   const [confirmingSalesOrderId, setConfirmingSalesOrderId] = useState(null);
+  const [cancellingSalesOrderId, setCancellingSalesOrderId] = useState(null);
   const [salesOrderDetail, setSalesOrderDetail] = useState(null);
 
   useEffect(() => {
@@ -102,6 +104,46 @@ function SalesOrderListPage() {
     }
   }
 
+  async function handleCancelSalesOrder(salesOrderId) {
+    const shouldCancel = window.confirm(
+      "미출고 판매주문을 취소할까요? 진행 중인 출고서가 있으면 취소할 수 없습니다.",
+    );
+
+    if (!shouldCancel) {
+      return;
+    }
+
+    try {
+      setError("");
+      setSuccessMessage("");
+      setCancellingSalesOrderId(salesOrderId);
+
+      const cancelledSalesOrder = await cancelSalesOrder(salesOrderId);
+
+      setSalesOrders((currentSalesOrders) =>
+        currentSalesOrders.map((salesOrder) =>
+          salesOrder.salesOrderId === salesOrderId
+            ? cancelledSalesOrder
+            : salesOrder,
+        ),
+      );
+      setSalesOrderDetail((currentDetail) =>
+        currentDetail?.salesOrderId === salesOrderId
+          ? {
+              ...currentDetail,
+              orderStatus: cancelledSalesOrder.orderStatus,
+              shipmentStatus: cancelledSalesOrder.shipmentStatus,
+            }
+          : currentDetail,
+      );
+      setSuccessMessage("판매주문이 취소되었습니다.");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setCancellingSalesOrderId(null);
+    }
+  }
+
   function handleSearchSalesOrder() {
     setAppliedKeyword(keyword);
     setAppliedOrderStatus(orderStatus);
@@ -157,6 +199,10 @@ function SalesOrderListPage() {
         <SalesOrderDetail
           salesOrderDetail={salesOrderDetail}
           onClose={() => setSalesOrderDetail(null)}
+          onCancel={handleCancelSalesOrder}
+          cancelling={
+            cancellingSalesOrderId === salesOrderDetail.salesOrderId
+          }
         />
       )}
 

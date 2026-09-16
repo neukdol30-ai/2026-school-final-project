@@ -93,6 +93,24 @@ public interface StocktakeMapper {
             @Param("stocktakeId") Long stocktakeId
     );
 
+    int updateStocktakeHeader(
+            @Param("companyId") Long companyId,
+            @Param("stocktakeId") Long stocktakeId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("memo") String memo,
+            @Param("updatedBy") Long updatedBy
+    );
+
+    int deleteStocktakeItems(
+            @Param("companyId") Long companyId,
+            @Param("stocktakeId") Long stocktakeId
+    );
+
+    int deleteStocktake(
+            @Param("companyId") Long companyId,
+            @Param("stocktakeId") Long stocktakeId
+    );
+
     // 확정 처리에서 재고를 조정할 품목(차이 수량) 목록
     List<StocktakeConfirmItemDto> findConfirmItemsByStocktakeId(
             @Param("stocktakeId") Long stocktakeId

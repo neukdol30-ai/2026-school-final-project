@@ -1,5 +1,7 @@
 package com.foodlogistics.erp.outbound.dto;
 
+import java.time.LocalDateTime;
+
 public record OutboundResponseDto(
 
         Long outboundId,
@@ -10,8 +12,14 @@ public record OutboundResponseDto(
 
         String salesOrderNo,
 
+        Long warehouseId,
+
         String warehouseName,
 
-        String status
+        String status,
+
+        String cancelReason,
+
+        LocalDateTime cancelledAt
 ) {
 }

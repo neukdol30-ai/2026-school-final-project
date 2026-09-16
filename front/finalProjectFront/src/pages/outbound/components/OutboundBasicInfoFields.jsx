@@ -8,6 +8,7 @@ function OutboundBasicInfoFields({
   onWarehouseIdChange,
   salesOrderLoading,
   loadedSalesOrder,
+  salesOrderDisabled = false,
 }) {
   return (
     <>
@@ -23,7 +24,7 @@ function OutboundBasicInfoFields({
               id="salesOrderId"
               value={salesOrderId}
               onChange={(event) => onSalesOrderChange(event.target.value)}
-              disabled={optionsLoading || salesOrderLoading}
+              disabled={optionsLoading || salesOrderLoading || salesOrderDisabled}
             >
               <option value="">
                 {optionsLoading

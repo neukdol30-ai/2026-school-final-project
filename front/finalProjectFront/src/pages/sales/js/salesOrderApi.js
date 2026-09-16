@@ -56,6 +56,21 @@ export async function createSalesOrder(requestData) {
     "판매주문 등록에 실패했습니다.",
   );
 }
+
+// 작성중 판매주문 수정
+export async function updateSalesOrder(salesOrderId, requestData) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    },
+    "판매주문 수정에 실패했습니다.",
+  );
+}
 //판매주문 확정
 export async function confirmSalesOrder(salesOrderId) {
   return requestApi(
@@ -64,5 +79,16 @@ export async function confirmSalesOrder(salesOrderId) {
       method: "POST",
     },
     "판매주문 확정에 실패했습니다.",
+  );
+}
+
+// 미출고 판매주문 취소
+export async function cancelSalesOrder(salesOrderId) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}/cancel`,
+    {
+      method: "POST",
+    },
+    "판매주문 취소에 실패했습니다.",
   );
 }

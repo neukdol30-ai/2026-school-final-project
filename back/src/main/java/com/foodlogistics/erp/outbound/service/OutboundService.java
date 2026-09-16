@@ -58,6 +58,56 @@ public class OutboundService {
 
     }
 
+    // 작성중 출고서는 재고에 아직 반영되지 않았으므로 품목·LOT 배정을 다시 저장할 수 있다.
+    @Transactional
+    public OutboundResponseDto updateOutbound(
+            Long companyId,
+            Long appUserId,
+            Long outboundId,
+            OutboundCreateRequestDto request
+    ) {
+        OutboundResponseDto existingOutbound = outboundMapper.findById(
+                companyId,
+                outboundId
+        );
+
+        if (existingOutbound == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "존재하지 않는 출고서입니다."
+            );
+        }
+
+        if (!"DRAFT".equals(existingOutbound.status())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 출고서만 수정할 수 있습니다."
+            );
+        }
+
+        outboundValidator.validateUsableWarehouse(companyId, request.warehouseId());
+        List<OutboundItemSaveDto> itemsToSave = prepareItemsToSave(companyId, request);
+
+        if (outboundMapper.updateOutboundHeader(
+                companyId,
+                outboundId,
+                request.salesOrderId(),
+                request.warehouseId(),
+                appUserId
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 출고서만 수정할 수 있습니다."
+            );
+        }
+
+        outboundMapper.deleteOutboundItemLots(companyId, outboundId);
+        outboundMapper.deleteOutboundItems(companyId, outboundId);
+        saveOutboundItems(outboundId, itemsToSave, appUserId);
+
+        return outboundMapper.findById(companyId, outboundId);
+    }
+
     @Transactional(readOnly = true)
     public List<OutboundResponseDto> getOutboundList(Long companyId) {
         return outboundMapper.findAllByCompanyId(companyId);
@@ -103,10 +153,46 @@ public class OutboundService {
         List<OutboundItemResponseDto> items =
                 outboundMapper.findItemsByOutboundId(outboundId);
 
+        List<OutboundItemLotResponseDto> lotAssignments =
+                outboundMapper.findItemLotsByOutboundId(companyId, outboundId);
+
         return new OutboundDetailResponseDto(
                 outbound,
-                items
+                items,
+                lotAssignments
         );
+    }
+
+    @Transactional
+    public void deleteOutbound(Long companyId, Long outboundId) {
+        OutboundResponseDto existingOutbound = outboundMapper.findById(
+                companyId,
+                outboundId
+        );
+
+        if (existingOutbound == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "존재하지 않는 출고서입니다."
+            );
+        }
+
+        if (!"DRAFT".equals(existingOutbound.status())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "확정된 출고서는 삭제할 수 없습니다. 출고 취소를 사용해 주세요."
+            );
+        }
+
+        outboundMapper.deleteOutboundItemLots(companyId, outboundId);
+        outboundMapper.deleteOutboundItems(companyId, outboundId);
+
+        if (outboundMapper.deleteOutbound(companyId, outboundId) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 출고서만 삭제할 수 있습니다."
+            );
+        }
     }
 
     @Transactional

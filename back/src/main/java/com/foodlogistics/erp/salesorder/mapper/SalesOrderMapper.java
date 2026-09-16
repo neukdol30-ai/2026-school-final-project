@@ -47,4 +47,20 @@ public interface SalesOrderMapper {
             @Param("companyId") Long companyId,
             @Param("confirmedBy") Long confirmedBy
     );
+
+    int updateSalesOrder(
+            @Param("salesOrder") SalesOrderSaveDto salesOrder,
+            @Param("updatedBy") Long updatedBy
+    );
+
+    int deleteSalesOrderItems(
+            @Param("companyId") Long companyId,
+            @Param("salesOrderId") Long salesOrderId
+    );
+
+    int cancelSalesOrder(
+            @Param("companyId") Long companyId,
+            @Param("salesOrderId") Long salesOrderId,
+            @Param("cancelledBy") Long cancelledBy
+    );
 }

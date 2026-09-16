@@ -136,6 +136,7 @@ function OutboundListPage() {
               <option value="">전체</option>
               <option value="DRAFT">작성중</option>
               <option value="CONFIRMED">확정</option>
+              <option value="CANCELLED">취소</option>
             </select>
           </label>
         </div>

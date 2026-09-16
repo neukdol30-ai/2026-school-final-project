@@ -61,6 +61,57 @@ public class StocktakeService {
         return stocktakeToSave.getStocktakeId();
     }
 
+    // 확정 전 문서는 헤더와 품목을 새로 계산해 수정할 수 있다.
+    @Transactional
+    public Long updateStocktake(
+            Long companyId,
+            Long appUserId,
+            Long stocktakeId,
+            StocktakeCreateRequestDto request
+    ) {
+        StocktakeDetailHeaderDto existing = stocktakeMapper.findDetailById(
+                companyId,
+                stocktakeId
+        );
+
+        if (existing == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "재고실사를 찾을 수 없습니다."
+            );
+        }
+
+        if (!"DRAFT".equals(existing.status())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 재고실사만 수정할 수 있습니다."
+            );
+        }
+
+        stocktakeValidator.validateUsableWarehouse(companyId, request.warehouseId());
+        stocktakeValidator.validateItems(companyId, request.items());
+
+        List<StocktakeItemSaveDto> itemsToSave = prepareItemsToSave(companyId, request);
+
+        if (stocktakeMapper.updateStocktakeHeader(
+                companyId,
+                stocktakeId,
+                request.warehouseId(),
+                request.memo(),
+                appUserId
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 재고실사만 수정할 수 있습니다."
+            );
+        }
+
+        stocktakeMapper.deleteStocktakeItems(companyId, stocktakeId);
+        saveStocktakeItems(stocktakeId, itemsToSave, appUserId);
+
+        return stocktakeId;
+    }
+
     @Transactional(readOnly = true)
     public List<StocktakeResponseDto> getStocktakeList(
             Long companyId
@@ -189,6 +240,37 @@ public class StocktakeService {
         }
 
         return getStocktakeDetail(companyId, stocktakeId);
+    }
+
+    @Transactional
+    public void deleteStocktake(Long companyId, Long stocktakeId) {
+        StocktakeDetailHeaderDto existing = stocktakeMapper.findDetailById(
+                companyId,
+                stocktakeId
+        );
+
+        if (existing == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "재고실사를 찾을 수 없습니다."
+            );
+        }
+
+        if (!"DRAFT".equals(existing.status())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "확정된 재고실사는 삭제할 수 없습니다."
+            );
+        }
+
+        stocktakeMapper.deleteStocktakeItems(companyId, stocktakeId);
+
+        if (stocktakeMapper.deleteStocktake(companyId, stocktakeId) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 재고실사만 삭제할 수 있습니다."
+            );
+        }
     }
 
     private void applyStocktakeAdjustment(

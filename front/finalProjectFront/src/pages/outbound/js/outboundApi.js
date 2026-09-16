@@ -64,6 +64,21 @@ export async function getOutboundWarehouses() {
   );
 }
 
+// 작성중 출고서의 품목과 LOT 배정을 수정한다.
+export async function updateOutbound(outboundId, requestData) {
+  return requestApi(
+    `${OUTBOUND_API_URL}/${outboundId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    },
+    "출고서 수정에 실패했습니다.",
+  );
+}
+
 // 확정 출고를 취소하고 재고·판매주문 출고수량을 원복한다.
 export async function cancelOutbound(outboundId, cancelReason) {
   return requestApi(
@@ -98,5 +113,15 @@ export async function getOutboundDetail(outboundId) {
     `${OUTBOUND_API_URL}/${outboundId}`,
     {},
     "출고서 상세 정보를 불러오지 못했습니다.",
+  );
+}
+
+export async function deleteOutbound(outboundId) {
+  return requestApi(
+    `${OUTBOUND_API_URL}/${outboundId}`,
+    {
+      method: "DELETE",
+    },
+    "출고서 삭제에 실패했습니다.",
   );
 }

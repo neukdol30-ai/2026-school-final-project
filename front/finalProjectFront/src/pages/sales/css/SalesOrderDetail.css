@@ -59,6 +59,37 @@
   border-radius: 6px;
 }
 
+.sales-order-edit-link,
+.sales-order-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sales-order-edit-link {
+  color: #1769aa;
+  background-color: #eff7fd;
+  border: 1px solid #b7d8ef;
+}
+
+.sales-order-cancel-button {
+  color: #c62828;
+  background-color: #ffffff;
+  border: 1px solid #f0c8c8;
+}
+
+.sales-order-cancel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .sales-order-create-outbound-link {
   color: #ffffff;
   text-decoration: none;

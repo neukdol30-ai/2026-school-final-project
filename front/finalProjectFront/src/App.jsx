@@ -11,6 +11,7 @@ import PurchaseOrderDetailPage from "./pages/purchase/PurchaseOrderDetailPage.js
 
 import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
 import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
+import SalesOrderEditPage from "./pages/sales/SalesOrderEditPage";
 
 import OutboundListPage from "./pages/outbound/OutboundListPage";
 import OutboundCreatePage from "./pages/outbound/OutboundCreatePage";
@@ -20,7 +21,6 @@ import StocktakeListPage from "./pages/stocktake/StocktakeListPage";
 import StocktakeCreatePage from "./pages/stocktake/StocktakeCreatePage";
 import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
 
-import InventoryPage from "./pages/inventory/InventoryPage";
 
 function App() {
   return (
@@ -46,9 +46,13 @@ function App() {
           />
 
           <Route path="/inbounds" element={<EmptyPage title="입고관리" />} />
-          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
           <Route path="/stocktakes" element={<StocktakeListPage />} />
           <Route path="/stocktakes/new" element={<StocktakeCreatePage />} />
+          <Route
+            path="/stocktakes/:stocktakeId/edit"
+            element={<StocktakeCreatePage />}
+          />
           <Route
             path="/stocktakes/:stocktakeId"
             element={<StocktakeDetailPage />}
@@ -56,9 +60,17 @@ function App() {
 
           <Route path="/sales-orders" element={<SalesOrderListPage />} />
           <Route path="/sales-orders/new" element={<SalesOrderCreatePage />} />
+          <Route
+            path="/sales-orders/:salesOrderId/edit"
+            element={<SalesOrderEditPage />}
+          />
 
           <Route path="/outbounds" element={<OutboundListPage />} />
           <Route path="/outbounds/new" element={<OutboundCreatePage />} />
+          <Route
+            path="/outbounds/:outboundId/edit"
+            element={<OutboundCreatePage />}
+          />
           <Route
             path="/outbounds/:outboundId"
             element={<OutboundDetailPage />}

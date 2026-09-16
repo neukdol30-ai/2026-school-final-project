@@ -178,4 +178,32 @@ public interface OutboundMapper {
     List<OutboundItemResponseDto> findItemsByOutboundId(
             @Param("outboundId") Long outboundId
     );
+
+    List<OutboundItemLotResponseDto> findItemLotsByOutboundId(
+            @Param("companyId") Long companyId,
+            @Param("outboundId") Long outboundId
+    );
+
+    int updateOutboundHeader(
+            @Param("companyId") Long companyId,
+            @Param("outboundId") Long outboundId,
+            @Param("salesOrderId") Long salesOrderId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("updatedBy") Long updatedBy
+    );
+
+    int deleteOutboundItemLots(
+            @Param("companyId") Long companyId,
+            @Param("outboundId") Long outboundId
+    );
+
+    int deleteOutboundItems(
+            @Param("companyId") Long companyId,
+            @Param("outboundId") Long outboundId
+    );
+
+    int deleteOutbound(
+            @Param("companyId") Long companyId,
+            @Param("outboundId") Long outboundId
+    );
 }

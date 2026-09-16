@@ -1,21 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function createEmptyItem() {
+  return {
+    productUnitId: "",
+    orderedQty: "",
+    unitPrice: "",
+  };
+}
 
 function SalesOrderCreateForm({
   onCreate,
   createLoading,
   validationErrors = [],
+  initialData = null,
+  title = "판매주문 등록",
+  description = "고객과 주문 품목을 입력하세요. 출고 창고는 출고 단계에서 정합니다.",
+  submitLabel = "판매주문 등록",
 }) {
-  const [customerId, setCustomerId] = useState("");
+  const [customerId, setCustomerId] = useState(initialData?.customerId ?? "");
 
-  const [items, setItems] = useState([
-    {
-      productUnitId: "",
-      orderedQty: "",
-      unitPrice: "",
-    },
-  ]);
+  const [items, setItems] = useState(initialData?.items ?? [createEmptyItem()]);
 
   const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    setCustomerId(initialData.customerId ?? "");
+    setItems(initialData.items?.length ? initialData.items : [createEmptyItem()]);
+  }, [initialData]);
 
   function getValidationErrorMessage(fieldName) {
     const validationError = validationErrors.find(
@@ -36,11 +51,7 @@ function SalesOrderCreateForm({
   function handleAddItem() {
     setItems((currentItems) => [
       ...currentItems,
-      {
-        productUnitId: "",
-        orderedQty: "",
-        unitPrice: "",
-      },
+      createEmptyItem(),
     ]);
   }
 
@@ -76,13 +87,7 @@ function SalesOrderCreateForm({
     if (created) {
       setCustomerId("");
 
-      setItems([
-        {
-          productUnitId: "",
-          orderedQty: "",
-          unitPrice: "",
-        },
-      ]);
+      setItems([createEmptyItem()]);
     }
   }
 
@@ -91,10 +96,8 @@ function SalesOrderCreateForm({
   return (
     <div className="content-panel sales-order-entry-panel">
       <div className="sales-order-entry-title">
-        <h2>판매주문 등록</h2>
-        <p>
-          고객과 주문 품목을 입력하세요. 출고 창고는 출고 단계에서 정합니다.
-        </p>
+          <h2>{title}</h2>
+          <p>{description}</p>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -266,7 +269,7 @@ function SalesOrderCreateForm({
             type="submit"
             disabled={createLoading}
           >
-            {createLoading ? "등록 중..." : "판매주문 등록"}
+            {createLoading ? "저장 중..." : submitLabel}
           </button>
         </div>
       </form>

@@ -108,6 +108,26 @@ public class StocktakeController {
         return ApiResponse.ok(stocktakeId);
     }
 
+    // 작성중(DRAFT) 재고실사만 수정한다.
+    @PutMapping("/{stocktakeId}")
+    public ApiResponse<Long> updateStocktake(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long stocktakeId,
+            @RequestBody @Valid StocktakeCreateRequestDto request
+    ) {
+        Number appUserId = jwt.getClaim("appUserId");
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.updateStocktake(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        stocktakeId,
+                        request
+                )
+        );
+    }
+
     @PostMapping("/{stocktakeId}/confirm")
     public ApiResponse<StocktakeDetailResponseDto> confirmStocktake(
             @AuthenticationPrincipal Jwt jwt,
@@ -123,5 +143,18 @@ public class StocktakeController {
                         stocktakeId
                 )
         );
+    }
+
+    // 재고에 반영되기 전인 작성중 실사 문서만 삭제한다.
+    @DeleteMapping("/{stocktakeId}")
+    public ApiResponse<Long> deleteStocktake(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long stocktakeId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        stocktakeService.deleteStocktake(companyId.longValue(), stocktakeId);
+
+        return ApiResponse.ok(stocktakeId);
     }
 }

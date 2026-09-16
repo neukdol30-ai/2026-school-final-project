@@ -52,11 +52,67 @@ public class SalesOrderService {
         return new SalesOrderDetailResponseDto(
                 salesOrder.salesOrderId(),
                 salesOrder.orderNo(),
+                salesOrder.customerId(),
                 salesOrder.customerName(),
                 salesOrder.orderStatus(),
                 salesOrder.shipmentStatus(),
                 items
         );
+    }
+
+    // 초안 판매주문은 헤더와 품목을 모두 다시 계산해 교체한다.
+    @Transactional
+    public SalesOrderResponseDto updateSalesOrder(
+            Long companyId,
+            Long appUserId,
+            Long salesOrderId,
+            SalesOrderCreateRequestDto request
+    ) {
+        SalesOrderResponseDto existingSalesOrder = salesOrderMapper.findById(
+                companyId,
+                salesOrderId
+        );
+
+        if (existingSalesOrder == null) {
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+
+        if (!"DRAFT".equals(existingSalesOrder.orderStatus())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 판매주문만 수정할 수 있습니다."
+            );
+        }
+
+        salesOrderValidator.validateUsableCustomer(companyId, request.customerId());
+
+        List<SalesOrderItemSaveDto> itemsToSave = prepareItemsToSave(
+                companyId,
+                request
+        );
+        SalesOrderAmountSummary amountSummary = salesOrderCalculator.summarize(itemsToSave);
+        SalesOrderSaveDto salesOrderToSave = new SalesOrderSaveDto(
+                companyId,
+                existingSalesOrder.orderNo(),
+                request.customerId(),
+                amountSummary.totalSupplyAmount(),
+                amountSummary.totalTaxAmount(),
+                amountSummary.totalAmount(),
+                appUserId
+        );
+        salesOrderToSave.setSalesOrderId(salesOrderId);
+
+        if (salesOrderMapper.updateSalesOrder(salesOrderToSave, appUserId) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 판매주문만 수정할 수 있습니다."
+            );
+        }
+
+        salesOrderMapper.deleteSalesOrderItems(companyId, salesOrderId);
+        saveSalesOrderItems(salesOrderId, itemsToSave, appUserId);
+
+        return salesOrderMapper.findById(companyId, salesOrderId);
     }
 
     @Transactional
@@ -197,5 +253,34 @@ public class SalesOrderService {
         );
 
         return confirmedSalesOrder;
+    }
+
+    @Transactional
+    public SalesOrderResponseDto cancelSalesOrder(
+            Long companyId,
+            Long appUserId,
+            Long salesOrderId
+    ) {
+        SalesOrderResponseDto existingSalesOrder = salesOrderMapper.findById(
+                companyId,
+                salesOrderId
+        );
+
+        if (existingSalesOrder == null) {
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+
+        if (salesOrderMapper.cancelSalesOrder(
+                companyId,
+                salesOrderId,
+                appUserId
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "미출고이며 진행 중인 출고서가 없는 판매주문만 취소할 수 있습니다."
+            );
+        }
+
+        return salesOrderMapper.findById(companyId, salesOrderId);
     }
 }

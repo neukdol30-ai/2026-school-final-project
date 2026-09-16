@@ -110,6 +110,26 @@ public class OutboundController {
         );
     }
 
+    // 작성중 출고서만 품목과 LOT 배정을 수정한다.
+    @PutMapping("/{outboundId}")
+    public ApiResponse<OutboundResponseDto> updateOutbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long outboundId,
+            @RequestBody @Valid OutboundCreateRequestDto request
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
+        return ApiResponse.ok(
+                outboundService.updateOutbound(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        outboundId,
+                        request
+                )
+        );
+    }
+
     @PostMapping("/{outboundId}/cancel")
     public ApiResponse<OutboundResponseDto> cancelOutbound(
             @AuthenticationPrincipal Jwt jwt,
@@ -127,5 +147,18 @@ public class OutboundController {
                         request
                 )
         );
+    }
+
+    // 재고에 반영되기 전인 작성중 출고서만 삭제한다.
+    @DeleteMapping("/{outboundId}")
+    public ApiResponse<Long> deleteOutbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long outboundId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        outboundService.deleteOutbound(companyId.longValue(), outboundId);
+
+        return ApiResponse.ok(outboundId);
     }
 }

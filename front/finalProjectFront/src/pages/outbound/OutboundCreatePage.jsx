@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   createOutbound,
+  getOutboundDetail,
   getOutboundLots,
   getOutboundWarehouses,
+  updateOutbound,
 } from "./js/outboundApi";
 import "./css/OutboundCreatePage.css";
 import OutboundBasicInfoFields from "./components/OutboundBasicInfoFields";
@@ -16,6 +18,9 @@ import {
 
 function OutboundCreatePage() {
   const [searchParams] = useSearchParams();
+  const { outboundId } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = Boolean(outboundId);
   const initialSalesOrderId = searchParams.get("salesOrderId");
   const [salesOrderId, setSalesOrderId] = useState(
     () => initialSalesOrderId ?? "",
@@ -49,7 +54,18 @@ function OutboundCreatePage() {
         setSalesOrderOptions(confirmedOrders);
         setWarehouseOptions(warehouses);
 
-        if (initialSalesOrderId) {
+        if (isEditMode) {
+          const detail = await getOutboundDetail(outboundId);
+
+          if (detail.outbound.status !== "DRAFT") {
+            setFormError("작성중인 출고서만 수정할 수 있습니다.");
+            return;
+          }
+
+          setSalesOrderId(String(detail.outbound.salesOrderId));
+          setWarehouseId(String(detail.outbound.warehouseId));
+          await loadSalesOrder(detail.outbound.salesOrderId, detail);
+        } else if (initialSalesOrderId) {
           const hasSelectedOrder = confirmedOrders.some(
             (salesOrder) =>
               String(salesOrder.salesOrderId) === initialSalesOrderId,
@@ -69,7 +85,7 @@ function OutboundCreatePage() {
     }
 
     fetchOutboundOptions();
-  }, [initialSalesOrderId]);
+  }, [initialSalesOrderId, isEditMode, outboundId]);
 
   useEffect(() => {
     if (!warehouseId || !loadedSalesOrder) {
@@ -128,7 +144,7 @@ function OutboundCreatePage() {
     };
   }, [warehouseId, loadedSalesOrder]);
 
-  async function loadSalesOrder(selectedSalesOrderId) {
+  async function loadSalesOrder(selectedSalesOrderId, draftDetail = null) {
     try {
       setSalesOrderLoading(true);
       setFormError("");
@@ -141,9 +157,34 @@ function OutboundCreatePage() {
         return;
       }
 
-      const availableItems = salesOrder.items.filter(
-        (item) => Number(item.remainingQty) > 0,
-      );
+      const availableItems = draftDetail
+        ? draftDetail.items.map((savedItem) => {
+            const salesItem = salesOrder.items.find(
+              (item) =>
+                String(item.salesOrderItemId) ===
+                String(savedItem.salesOrderItemId),
+            );
+
+            if (!salesItem) {
+              throw new Error("출고서에 연결된 판매주문 품목을 찾을 수 없습니다.");
+            }
+
+            return {
+              ...salesItem,
+              shippedQty: savedItem.shippedQty,
+              lotAssignments: draftDetail.lotAssignments
+                .filter(
+                  (lot) =>
+                    String(lot.outboundItemId) ===
+                    String(savedItem.outboundItemId),
+                )
+                .map((lot) => ({
+                  lotId: String(lot.lotId),
+                  baseLotQty: String(lot.baseLotQty),
+                })),
+            };
+          })
+        : salesOrder.items.filter((item) => Number(item.remainingQty) > 0);
 
       if (availableItems.length === 0) {
         setFormError("출고 가능한 판매주문 품목이 없습니다.");
@@ -163,7 +204,7 @@ function OutboundCreatePage() {
           lotManagedYn: item.lotManagedYn,
           conversionQty: String(item.conversionQty),
           lotOptions: [],
-          lotAssignments: [],
+          lotAssignments: item.lotAssignments ?? [],
         })),
       );
     } catch (error) {
@@ -282,6 +323,11 @@ function OutboundCreatePage() {
       return;
     }
 
+    if (items.length === 0) {
+      setFormError("출고 품목은 한 건 이상 필요합니다.");
+      return;
+    }
+
     const hasEmptyItem = items.some(
       (item) => !item.shippedQty,
     );
@@ -327,7 +373,14 @@ function OutboundCreatePage() {
     try {
       setCreateLoading(true);
 
-      const outbound = await createOutbound(requestData);
+      const outbound = isEditMode
+        ? await updateOutbound(outboundId, requestData)
+        : await createOutbound(requestData);
+
+      if (isEditMode) {
+        navigate(`/outbounds/${outbound.outboundId}`);
+        return;
+      }
 
       setCreatedOutbound(outbound);
       setSuccessMessage("출고서가 작성중 상태로 등록되었습니다.");
@@ -347,8 +400,12 @@ function OutboundCreatePage() {
     <section className="page outbound-create-page">
       <div className="page-header outbound-create-header">
         <div>
-          <h1>출고 등록</h1>
-          <p>확정된 판매주문을 기준으로 출고서를 작성합니다.</p>
+          <h1>{isEditMode ? "출고 수정" : "출고 등록"}</h1>
+          <p>
+            {isEditMode
+              ? "작성중 출고서의 수량과 LOT 배정을 수정합니다."
+              : "확정된 판매주문을 기준으로 출고서를 작성합니다."}
+          </p>
         </div>
       </div>
 
@@ -376,6 +433,7 @@ function OutboundCreatePage() {
           onWarehouseIdChange={handleWarehouseChange}
           salesOrderLoading={salesOrderLoading}
           loadedSalesOrder={loadedSalesOrder}
+          salesOrderDisabled={isEditMode}
         />
 
         <OutboundItemList
@@ -398,7 +456,13 @@ function OutboundCreatePage() {
             className="outbound-submit-button"
             disabled={createLoading}
           >
-            {createLoading ? "등록 중..." : "출고서 등록"}
+            {createLoading
+              ? isEditMode
+                ? "수정 중..."
+                : "등록 중..."
+              : isEditMode
+                ? "출고서 수정"
+                : "출고서 등록"}
           </button>
         </div>
       </form>

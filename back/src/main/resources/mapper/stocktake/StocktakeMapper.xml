@@ -313,4 +313,41 @@
         )
     </insert>
 
+    <!-- 작성중 재고실사의 창고와 메모를 변경한다. -->
+    <update id="updateStocktakeHeader">
+        UPDATE stocktake
+        SET
+            warehouse_id = #{warehouseId},
+            memo = #{memo},
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE company_id = #{companyId}
+        AND stocktake_id = #{stocktakeId}
+        AND status = 'DRAFT'
+    </update>
+
+    <!-- 작성중 재고실사의 기존 품목을 삭제한다. -->
+    <delete id="deleteStocktakeItems">
+        DELETE FROM stocktake_item
+        WHERE stocktake_id = #{stocktakeId}
+        AND EXISTS (
+            SELECT 1
+            FROM stocktake st
+            WHERE st.stocktake_id = stocktake_item.stocktake_id
+            AND st.company_id = #{companyId}
+            AND st.status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- 재고 반영 전인 작성중 실사 문서만 삭제한다. -->
+    <delete id="deleteStocktake">
+        DELETE FROM stocktake
+        WHERE company_id = #{companyId}
+        AND stocktake_id = #{stocktakeId}
+        AND status = 'DRAFT'
+    </delete>
+
 </mapper>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   cancelOutbound,
   confirmOutbound,
+  deleteOutbound,
   getOutboundDetail,
 } from "./js/outboundApi";
 import "./css/OutboundDetailPage.css";
@@ -12,12 +13,14 @@ import OutboundItemTable from "./components/OutboundItemTable";
 
 function OutboundDetailPage() {
   const { outboundId } = useParams();
+  const navigate = useNavigate();
 
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -85,6 +88,30 @@ function OutboundDetailPage() {
     }
   }
 
+  async function handleDelete() {
+    const shouldDelete = window.confirm(
+      "작성중인 출고서를 삭제할까요? 아직 재고에는 반영되지 않았습니다.",
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setError("");
+      setSuccessMessage("");
+
+      await deleteOutbound(outboundId);
+
+      navigate("/outbounds", { replace: true });
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   async function loadOutboundDetail() {
     try {
       setLoading(true);
@@ -110,10 +137,26 @@ function OutboundDetailPage() {
 
         <div className="outbound-detail-actions">
           {detail?.outbound.status === "DRAFT" && (
-            <OutboundConfirmButton
-              onConfirm={handleConfirm}
-              confirming={confirming}
-            />
+            <>
+              <Link
+                className="outbound-edit-link"
+                to={`/outbounds/${outboundId}/edit`}
+              >
+                수정
+              </Link>
+              <button
+                type="button"
+                className="outbound-delete-button"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "삭제 중..." : "삭제"}
+              </button>
+              <OutboundConfirmButton
+                onConfirm={handleConfirm}
+                confirming={confirming}
+              />
+            </>
           )}
 
           {detail?.outbound.status === "CONFIRMED" && (
