@@ -297,3 +297,98 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found):
 2026-09-16 15:28:07.301 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
 2026-09-16 15:28:07.302 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.444 seconds (process running for 485.637)
 2026-09-16 15:28:07.302 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-16 15:47:08.587 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 71547 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 15:47:08.588 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 15:47:08.766 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 15:47:08.768 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:47:08.768 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 15:47:08.768 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 15:47:08.773 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 183 ms
+2026-09-16 15:47:09.009 WARN  [restartedMain] [food-logistics-erp] o.s.b.w.s.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sqlSessionFactory' defined in class path resource [org/mybatis/spring/boot/autoconfigure/MybatisAutoConfiguration.class]: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/resources/main/mapper/product/ProductMapper.xml]'
+2026-09-16 15:47:09.010 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-09-16 15:47:09.015 INFO  [restartedMain] [food-logistics-erp] o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-09-16 15:47:09.031 ERROR [restartedMain] [food-logistics-erp] o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sqlSessionFactory' defined in class path resource [org/mybatis/spring/boot/autoconfigure/MybatisAutoConfiguration.class]: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/resources/main/mapper/product/ProductMapper.xml]'
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:657)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1360)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1192)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.foodlogistics.erp.FoodLogisticsErpApplication.main(FoodLogisticsErpApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/resources/main/mapper/product/ProductMapper.xml]'
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:183)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiateWithFactoryMethod(SimpleInstantiationStrategy.java:72)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:152)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:653)
+	... 24 common frames omitted
+Caused by: java.io.IOException: Failed to parse mapping resource: 'file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/resources/main/mapper/product/ProductMapper.xml]'
+	at org.mybatis.spring.SqlSessionFactoryBean.buildSqlSessionFactory(SqlSessionFactoryBean.java:695)
+	at org.mybatis.spring.SqlSessionFactoryBean.afterPropertiesSet(SqlSessionFactoryBean.java:572)
+	at org.mybatis.spring.SqlSessionFactoryBean.getObject(SqlSessionFactoryBean.java:712)
+	at org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.sqlSessionFactory(MybatisAutoConfiguration.java:189)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:155)
+	... 27 common frames omitted
+Caused by: org.apache.ibatis.builder.BuilderException: Error parsing Mapper XML. The XML location is 'file [/Users/kousei/IdeaProjects/2026-school-final-project/back/build/resources/main/mapper/product/ProductMapper.xml]'. Cause: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.foodlogistics.erp.product.Product'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.foodlogistics.erp.product.Product
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement(XMLMapperBuilder.java:125)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.parse(XMLMapperBuilder.java:98)
+	at org.mybatis.spring.SqlSessionFactoryBean.buildSqlSessionFactory(SqlSessionFactoryBean.java:693)
+	... 33 common frames omitted
+Caused by: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.foodlogistics.erp.product.Product'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.foodlogistics.erp.product.Product
+	at org.apache.ibatis.builder.BaseBuilder.resolveClass(BaseBuilder.java:103)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElement(XMLMapperBuilder.java:222)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElement(XMLMapperBuilder.java:214)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElements(XMLMapperBuilder.java:206)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement(XMLMapperBuilder.java:121)
+	... 35 common frames omitted
+Caused by: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.foodlogistics.erp.product.Product'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.foodlogistics.erp.product.Product
+	at org.apache.ibatis.type.TypeAliasRegistry.resolveAlias(TypeAliasRegistry.java:128)
+	at org.apache.ibatis.builder.BaseBuilder.resolveAlias(BaseBuilder.java:132)
+	at org.apache.ibatis.builder.BaseBuilder.resolveClass(BaseBuilder.java:101)
+	... 39 common frames omitted
+Caused by: java.lang.ClassNotFoundException: Cannot find class: com.foodlogistics.erp.product.Product
+	at org.apache.ibatis.io.ClassLoaderWrapper.classForName(ClassLoaderWrapper.java:226)
+	at org.apache.ibatis.io.ClassLoaderWrapper.classForName(ClassLoaderWrapper.java:103)
+	at org.apache.ibatis.io.Resources.classForName(Resources.java:322)
+	at org.apache.ibatis.type.TypeAliasRegistry.resolveAlias(TypeAliasRegistry.java:124)
+	... 41 common frames omitted
+2026-09-16 15:47:10.541 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 71547 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 15:47:10.541 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 15:47:10.812 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 15:47:10.813 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:47:10.814 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 15:47:10.814 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 15:47:10.818 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 274 ms
+2026-09-16 15:47:10.933 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 15:47:11.268 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:47:11.269 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 15:47:11.271 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.787 seconds (process running for 1629.601)
+2026-09-16 15:47:11.272 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-16 15:50:41.376 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-16 15:50:41.377 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-16 15:50:41.380 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2026-09-16 15:50:41.545 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2026-09-16 15:50:41.621 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection oracle.jdbc.driver.T4CConnection@16b93199
+2026-09-16 15:50:41.622 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
