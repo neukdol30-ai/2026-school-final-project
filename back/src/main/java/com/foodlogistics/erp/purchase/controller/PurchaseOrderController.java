@@ -251,4 +251,34 @@ public class PurchaseOrderController {
                 ApiResponse.ok()
         );
     }
+
+    // 실제 발주 반려
+    // POST /api/purchase-orders/{purchaseOrderId}/reject
+    @PostMapping("/{purchaseOrderId}/reject")
+    public ResponseEntity<ApiResponse<Void>>
+    rejectPurchaseOrder(
+
+            // Spring Security가 먼저 Bearer JWT를 검증한 후, 검증된 JWT 객체를 이 매개변수에 전달
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId,
+            @Valid @RequestBody PurchaseOrderRejectRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        purchaseOrderService.rejectPurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId,
+                request
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
 }
