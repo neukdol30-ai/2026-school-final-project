@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,9 @@ public class PurchaseOrderValidator {
 
     // 공급업체와 창고를 실제 DB에서 확인하기 위해 사용
     private final PurchaseOrderMapper purchaseOrderMapper;
+
+    // 프로젝트의 날짜 업무 규칙에서 사용할 한국 표준시간
+    private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
 
     // PURCHASE_ORDER.approval_status에서 DB가 허용하는 승인상태
     private static final Set<String> APPROVAL_STATUSES =
@@ -129,41 +133,130 @@ public class PurchaseOrderValidator {
         }
     }
 
-    // 발주 등록 요청의 날짜 관계를 검사
-    public void validateDates(
+    // 신규 발주 등록 시 날짜 업무 규칙을 검사
+    public void validateDatesForCreate(
             PurchaseOrderCreateRequest request
     ) {
 
-        validateDates(
-                request.getOrderDate(),
-                request.getExpectedDeliveryDate()
-        );
+        // React에서 받은 발주일을 꺼냄
+        LocalDate orderDate = request.getOrderDate();
+
+        LocalDate expectedDeliveryDate = request.getExpectedDeliveryDate();
+
+        // 신규 등록용 발주일 범위를 검사
+        validateOrderDateForCreate(orderDate);
+
+        validateExpectedDeliveryDate(orderDate, expectedDeliveryDate);
     }
 
-    // 발주 수정 요청의 날짜 관계를 검사
-    public void validateDates(
+    // 기존 발주 수정 시 날짜 업무 규칙을 검사
+    public void validateDatesForUpdate(
+            LocalDate existingOrderDate,
             PurchaseOrderUpdateRequest request
     ) {
 
-        validateDates(
-                request.getOrderDate(),
-                request.getExpectedDeliveryDate()
-        );
+        // DB에 기존부터 저장되어 있던 발주일
+        if (existingOrderDate == null) {
+            throw new IllegalStateException(
+                    "기존 발주일을 확인할 수 없습니다."
+            );
+        }
+
+        // 수정 요청으로 들어온 새로운 발주일
+        LocalDate requestedOrderDate = request.getOrderDate();
+
+        LocalDate expectedDeliveryDate = request.getExpectedDeliveryDate();
+
+        validateOrderDateForUpdate(existingOrderDate, requestedOrderDate);
+
+        validateExpectedDeliveryDate(requestedOrderDate, expectedDeliveryDate);
     }
 
-    // 등록과 수정에서 공통으로 사용하는 실제 날짜 검증
+    // 신규 등록 시 발주일 허용 범위를 검사
+    private void validateOrderDateForCreate(
+            LocalDate orderDate
+    ) {
+        // DTO의 @NotNull에서도 검사하지만, Validator 내부에서도 잘못된 호출을 방어
+        if (orderDate == null) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주일을 입력해 주십시오."
+            );
+        }
 
-    private void validateDates(
+        // 서버 기본 시간대가 아니라 한국시간 기준 오늘 날짜를 구함
+        LocalDate today = LocalDate.now(KOREA_ZONE_ID);
+
+        // 발주일의 가장 오래된 허용 날짜
+        // 예: 오늘 2026-09-16 -> 2026-08-16
+        LocalDate minimumOrderDate = today.minusMonths(1);
+
+        // 오늘보다 1개월보다 더 과거이면 신규 등록 차단
+        if (orderDate.isBefore(minimumOrderDate)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주일은 한국시간 기준 최근 1개월 이내의 날짜만 입력할 수 있습니다."
+            );
+        }
+
+        // 아직 오지 않은 미래 날짜의 발주는 차단
+        if (orderDate.isAfter(today)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주일은 한국시간 기준 오늘보다 미래로 지정할 수 없습니다."
+            );
+        }
+    }
+
+    // 기존 발주 수정 시 발주일이 변경되지 않았는지 검사
+    private void validateOrderDateForUpdate(
+            LocalDate existingOrderDate,
+            LocalDate requestedOrderDate
+    ) {
+        if (requestedOrderDate == null) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주일을 입력해 주십시오."
+            );
+        }
+
+        if (!existingOrderDate.equals(requestedOrderDate)) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "등록된 발주의 발주일은 변경할 수 없습니다."
+            );
+        }
+    }
+
+    // 발주일과 납품희망일의 관계를 검사
+    private void validateExpectedDeliveryDate(
             LocalDate orderDate,
             LocalDate expectedDeliveryDate
     ) {
 
-        if (expectedDeliveryDate != null
-                && expectedDeliveryDate.isBefore(orderDate)) {
+        // 납품희망일은 선택값이므로 입력하지 않았다면 검사 종료
+        if (expectedDeliveryDate == null) {
+            return;
+        }
 
+        // 발주보다 먼저 납품받는 날짜는 업무상 허용하지 않음
+        if (expectedDeliveryDate.isBefore(orderDate)) {
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "납품희망일은 발주일보다 빠를 수 없습니다."
+            );
+        }
+
+        // Java LocalDate 기준 발주일에서 정확히 1개월 뒤 날짜를 계산
+        LocalDate maximumExpectedDeliveryDate = orderDate.plusMonths(1);
+
+        // 발주일에서 1개월보다 더 뒤의 납품희망일은 차단
+        if (expectedDeliveryDate.isAfter(
+                maximumExpectedDeliveryDate
+        )) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "납품희망일은 발주일로부터 1개월을 초과할 수 없습니다."
             );
         }
     }

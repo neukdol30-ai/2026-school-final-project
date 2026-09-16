@@ -10,13 +10,43 @@ import {
 import { requestCreatePurchaseOrder } from "../../api/purchaseOrderApi.js";
 import "./PurchaseOrderCreatePage.css";
 
-function getTodayString() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+const KOREA_TIME_ZONE = "Asia/Seoul";
+
+function getKstTodayString() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: KOREA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
 
   return `${year}-${month}-${day}`;
+}
+
+function addMonthsToDateString(dateString, monthsToAdd) {
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  const totalMonths = year * 12 + (month - 1) + monthsToAdd;
+
+  const targetYear = Math.floor(totalMonths / 12);
+
+  const targetMonthIndex = ((totalMonths % 12) + 12) % 12;
+
+  const lastDayOfTargetMonth = new Date(
+    Date.UTC(targetYear, targetMonthIndex + 1, 0),
+  ).getUTCDate();
+
+  const targetDay = Math.min(day, lastDayOfTargetMonth);
+
+  const formattedMonth = String(targetMonthIndex + 1).padStart(2, "0");
+
+  const formattedDay = String(targetDay).padStart(2, "0");
+
+  return `${targetYear}-${formattedMonth}-${formattedDay}`;
 }
 
 function createEmptyItem() {
@@ -45,12 +75,20 @@ export default function PurchaseOrderCreatePage() {
   const [form, setForm] = useState({
     supplierId: "",
     warehouseId: "",
-    orderDate: getTodayString(),
+    orderDate: getKstTodayString(),
     expectedDeliveryDate: "",
     requestNote: "",
     internalMemo: "",
     items: [createEmptyItem()],
   });
+
+  const kstToday = getKstTodayString();
+
+  const minimumOrderDate = addMonthsToDateString(kstToday, -1);
+
+  const maximumExpectedDeliveryDate = form.orderDate
+    ? addMonthsToDateString(form.orderDate, 1)
+    : "";
 
   useEffect(() => {
     let cancelled = false;
@@ -212,6 +250,24 @@ export default function PurchaseOrderCreatePage() {
       return "발주일을 입력해 주세요.";
     }
 
+    if (form.orderDate < minimumOrderDate) {
+      return "발주일은 한국시간 기준 최근 1개월 이내의 날짜만 입력할 수 있습니다.";
+    }
+
+    if (form.orderDate > kstToday) {
+      return "발주일은 한국시간 기준 오늘보다 미래로 지정할 수 없습니다.";
+    }
+
+    if (form.expectedDeliveryDate) {
+      if (form.expectedDeliveryDate < form.orderDate) {
+        return "납품희망일은 발주일보다 빠를 수 없습니다.";
+      }
+
+      if (form.expectedDeliveryDate > maximumExpectedDeliveryDate) {
+        return "납품희망일은 발주일로부터 1개월을 초과할 수 없습니다.";
+      }
+    }
+
     for (let index = 0; index < form.items.length; index += 1) {
       const item = form.items[index];
 
@@ -344,6 +400,8 @@ export default function PurchaseOrderCreatePage() {
                   type="date"
                   name="orderDate"
                   value={form.orderDate}
+                  min={minimumOrderDate}
+                  max={kstToday}
                   onChange={handleHeaderChange}
                 />
               </label>
@@ -354,6 +412,8 @@ export default function PurchaseOrderCreatePage() {
                   type="date"
                   name="expectedDeliveryDate"
                   value={form.expectedDeliveryDate}
+                  min={form.orderDate || undefined}
+                  max={maximumExpectedDeliveryDate || undefined}
                   onChange={handleHeaderChange}
                 />
               </label>

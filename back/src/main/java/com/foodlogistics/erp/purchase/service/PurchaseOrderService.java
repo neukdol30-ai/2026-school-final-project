@@ -82,8 +82,10 @@ public class PurchaseOrderService {
         );
 
         // 4단계:
-        // 납품희망일이 발주일보다 과거인지 검사
-        purchaseOrderValidator.validateDates(request);
+        // 새 발주를 등록할 때 적용하는 날짜 업무 규칙을 검사
+        purchaseOrderValidator.validateDatesForCreate(
+                request
+        );
 
         // 5단계:
         // 각 품목의 검증과 계산이 끝난 INSERT용 객체를 보관할 List
@@ -414,8 +416,12 @@ public class PurchaseOrderService {
                 request.getWarehouseId()
         );
 
-        // 수정된 날짜 관계 검증
-        purchaseOrderValidator.validateDates(request);
+        // 수정된 날짜 업무 규칙을 검사
+        purchaseOrderValidator.validateDatesForUpdate(
+                // DB에 기존부터 저장되어 있던 발주일을 Validator에 전달
+                existingPurchaseOrder.getOrderDate(),
+                request
+        );
 
         // 수정 후 최종 품목 전체 검증 및 재계산
         List<PurchaseOrderItemInsertParam> itemParams =
