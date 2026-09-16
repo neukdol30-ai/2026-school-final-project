@@ -82,6 +82,15 @@ public class PurchaseOrder {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
+
+    @Column(name = "rejected_by")
+    private Long rejectedBy;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
     // 승인 요청 처리
     public void requestApproval(Long appUserId) {
         this.approvalStatus = PurchaseOrderApprovalStatus.PENDING;
@@ -101,4 +110,16 @@ public class PurchaseOrder {
         this.updatedBy = appUserId;
         this.updatedAt = now;
     }
+
+    public void reject(Long appUserId, String rejectionReason) {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        this.approvalStatus = PurchaseOrderApprovalStatus.REJECTED;
+        this.rejectionReason = rejectionReason;
+        this.rejectedBy = appUserId;
+        this.rejectedAt = now;
+        this.updatedBy = appUserId;
+        this.updatedAt = now;
+    }
+
 }
