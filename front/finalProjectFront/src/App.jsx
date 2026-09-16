@@ -4,6 +4,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
+import ProductManagementPage from "./pages/product/ProductManagementPage.jsx";
 
 function App() {
 
@@ -14,7 +15,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout/>}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/products" element={<EmptyPage title="상품관리" />} />
+            <Route path="/products" element={<ProductManagementPage />}/>
             <Route path="/partners" element={<EmptyPage title="거래처관리" />} />
             <Route path="/warehouses" element={<EmptyPage title="창고관리" />} />
             <Route path="/units" element={<EmptyPage title="단위관리" />} />
