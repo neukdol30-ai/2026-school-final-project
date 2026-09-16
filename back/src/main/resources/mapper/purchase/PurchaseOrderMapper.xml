@@ -110,6 +110,16 @@
 
         <!-- 승인 완료일시. 아직 승인 전이면 null 가능 -->
         <result column="approved_at" property="approvedAt" />
+
+        <!-- 발주가 반려될 때 저장된 반려사유 -->
+        <result column="rejection_reason" property="rejectionReason" />
+
+        <!-- 실제 반려 처리한 APP_USER의 PK -->
+        <result column="rejected_by" property="rejectedBy" />
+
+        <!-- 실제 발주가 반려된 날짜와 시간 -->
+        <result column="rejected_at" property="rejectedAt" />
+
     </resultMap>
 
     <!--
@@ -271,7 +281,10 @@
         po.total_amount,
         po.created_at,
         po.updated_at,
-        po.approved_at
+        po.approved_at,
+        po.rejection_reason,
+        po.rejected_by,
+        po.rejected_at
 
         FROM purchase_order po
 
@@ -470,6 +483,7 @@
         total_supply_amount = #{totalSupplyAmount},
         total_tax_amount = #{totalTaxAmount},
         total_amount = #{totalAmount},
+        approval_status = 'DRAFT',
         updated_by = #{updatedBy},
         updated_at = CAST(
         SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
@@ -477,7 +491,7 @@
         )
         WHERE purchase_order_id = #{purchaseOrderId}
         AND company_id = #{companyId}
-        AND approval_status = 'DRAFT'
+        AND approval_status IN ('DRAFT', 'REJECTED')
         AND receipt_status = 'NOT_RECEIVED'
         AND NOT EXISTS
         (
@@ -498,7 +512,7 @@
         FROM purchase_order po
         WHERE po.purchase_order_id = #{purchaseOrderId}
         AND po.company_id = #{companyId}
-        AND po.approval_status = 'DRAFT'
+        AND po.approval_status IN ('DRAFT', 'REJECTED')
         AND po.receipt_status = 'NOT_RECEIVED'
         )
         AND NOT EXISTS

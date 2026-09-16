@@ -26,8 +26,11 @@ public class PurchaseOrderValidator {
     // PRODUCT.tax_type에서 사용하는 면세 코드
     private static final String TAX_FREE = "TAX_FREE";
 
-    // 발주 수정이 가능한 승인상태
+    // 발주 수정이 가능한 작성중 상태 코드
     private static final String APPROVAL_STATUS_DRAFT = "DRAFT";
+
+    // 반려된 뒤 내용을 수정할 수 있도록 반려 상태 코드도 별도로 관리
+    private static final String APPROVAL_STATUS_REJECTED = "REJECTED";
 
     // 발주 수정이 가능한 입고상태
     private static final String RECEIPT_STATUS_NOT_RECEIVED = "NOT_RECEIVED";
@@ -41,7 +44,7 @@ public class PurchaseOrderValidator {
                     APPROVAL_STATUS_DRAFT,
                     "PENDING",
                     "APPROVED",
-                    "REJECTED"
+                    APPROVAL_STATUS_REJECTED
             );
 
     // PURCHASE_ORDER.receipt_status에서 DB가 허용하는 입고진행상태
@@ -171,13 +174,16 @@ public class PurchaseOrderValidator {
             List<PurchaseOrderItemDetailResponse> items
     ) {
 
-        if (!APPROVAL_STATUS_DRAFT.equals(
-                purchaseOrder.getApprovalStatus()
-        )) {
+        // 현재 발주의 승인상태를 변수에 보관
+        String approvalStatus = purchaseOrder.getApprovalStatus();
+
+        // DRAFT(작성중)도 아니고 REJECTED(반려)도 아니면 수정 차단
+        if (!APPROVAL_STATUS_DRAFT.equals(approvalStatus)
+                && !APPROVAL_STATUS_REJECTED.equals(approvalStatus)) {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "작성중(DRAFT) 상태의 발주만 수정할 수 있습니다."
+                    "DRAFT(작성중) 또는 REJECTED(반려) 상태의 발주만 수정할 수 있습니다."
             );
         }
 

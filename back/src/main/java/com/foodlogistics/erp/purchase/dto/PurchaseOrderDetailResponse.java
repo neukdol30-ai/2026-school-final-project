@@ -72,6 +72,15 @@ public class PurchaseOrderDetailResponse {
     // 아직 승인되지 않았다면 null 가능
     private LocalDateTime approvedAt;
 
+    // 발주가 반려되었을 때 입력한 반려사유(반려된 적이 없는 발주는 null 가능)
+    private String rejectionReason;
+
+    // 실제 반려한 APP_USER의 PK(아직 반려된 적 없다면 null 가능)
+    private Long rejectedBy;
+
+    // 실제 발주가 반려된 날짜와 시간(아직 반려된 적 없다면 null 가능)
+    private LocalDateTime rejectedAt;
+
     // 이 발주서에 포함된 상품 여러 건
     private List<PurchaseOrderItemDetailResponse> items;
 }
