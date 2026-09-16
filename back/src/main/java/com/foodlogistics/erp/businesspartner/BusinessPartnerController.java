@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ public class BusinessPartnerController {
     private final BusinessPartnerService businessPartnerService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_READ')")
     public ResponseEntity<
             ApiResponse<List<BusinessPartnerResponse>>
             > getPartners(
@@ -54,6 +56,7 @@ public class BusinessPartnerController {
     }
 
     @GetMapping("/{partnerId}")
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_READ')")
     public ResponseEntity<
             ApiResponse<BusinessPartnerResponse>
             > getPartner(
@@ -72,6 +75,7 @@ public class BusinessPartnerController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_CREATE')")
     public ResponseEntity<
             ApiResponse<BusinessPartnerResponse>
             > createPartner(
@@ -92,6 +96,7 @@ public class BusinessPartnerController {
     }
 
     @PutMapping("/{partnerId}")
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_UPDATE')")
     public ResponseEntity<
             ApiResponse<BusinessPartnerResponse>
             > updatePartner(
@@ -114,6 +119,9 @@ public class BusinessPartnerController {
     }
 
     @PatchMapping("/{partnerId}/deactivate")
+    @PreAuthorize(
+            "hasAuthority('BUSINESS_PARTNER_DEACTIVATE')"
+    )
     public ResponseEntity<ApiResponse<Void>>
     deactivatePartner(
             @AuthenticationPrincipal Jwt jwt,

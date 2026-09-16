@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class MeasurementUnitController {
     private final MeasurementUnitService measurementUnitService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('UNIT_READ')")
     public ResponseEntity<
             ApiResponse<List<MeasurementUnitResponse>>
             > getUnits(
@@ -39,6 +41,7 @@ public class MeasurementUnitController {
     }
 
     @GetMapping("/{unitId}")
+    @PreAuthorize("hasAuthority('UNIT_READ')")
     public ResponseEntity<
             ApiResponse<MeasurementUnitResponse>
             > getUnit(
@@ -53,6 +56,7 @@ public class MeasurementUnitController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('UNIT_CREATE')")
     public ResponseEntity<
             ApiResponse<MeasurementUnitResponse>
             > createUnit(
@@ -70,6 +74,7 @@ public class MeasurementUnitController {
     }
 
     @PutMapping("/{unitId}")
+    @PreAuthorize("hasAuthority('UNIT_UPDATE')")
     public ResponseEntity<
             ApiResponse<MeasurementUnitResponse>
             > updateUnit(
@@ -89,6 +94,7 @@ public class MeasurementUnitController {
     }
 
     @PatchMapping("/{unitId}/deactivate")
+    @PreAuthorize("hasAuthority('UNIT_DEACTIVATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateUnit(
             @PathVariable Long unitId

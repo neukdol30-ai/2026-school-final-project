@@ -1,237 +1,263 @@
-2026-09-15 13:42:52.452 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 9 class path changes (0 additions, 9 deletions, 0 modifications)
-2026-09-15 13:42:52.465 INFO  [Thread-7] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-09-15 13:42:52.467 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
-2026-09-15 13:42:52.471 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-09-15 13:42:52.472 INFO  [Thread-7] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
-2026-09-15 13:42:52.544 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 13:42:52.544 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 13:42:52.713 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 13:42:52.714 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 13:42:52.714 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 13:42:52.714 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 13:42:52.719 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 174 ms
-2026-09-15 13:42:52.785 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 13:42:52.912 WARN  [restartedMain] [food-logistics-erp] o.s.b.w.s.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-2026-09-15 13:42:52.912 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Stopping service [Tomcat]
-2026-09-15 13:42:52.915 INFO  [restartedMain] [food-logistics-erp] o.s.b.a.l.ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-15 13:42:52.922 ERROR [restartedMain] [food-logistics-erp] o.s.boot.SpringApplication - Application run failed
-org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1815)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121)
-	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994)
-	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
-	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
-	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
-	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
-	at com.foodlogistics.erp.FoodLogisticsErpApplication.main(FoodLogisticsErpApplication.java:10)
+2026-09-16 10:17:21.940 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 10:17:21.949 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 10:17:41.487 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 62542 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 10:17:41.488 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 10:17:41.526 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-09-16 10:17:41.527 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-09-16 10:17:41.527 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-09-16 10:17:41.620 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-09-16 10:17:42.156 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 10:17:42.163 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:17:42.164 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 10:17:42.164 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 10:17:42.177 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 649 ms
+2026-09-16 10:17:42.360 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 10:17:42.750 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:17:42.756 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 10:17:42.759 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 1.497 seconds (process running for 1.84)
+2026-09-16 10:22:47.807 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-16 10:22:47.807 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-16 10:22:47.810 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2026-09-16 10:22:48.002 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-16 10:22:48.261 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@24419096
+2026-09-16 10:22:48.262 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-16 10:29:53.264 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 10:29:53.275 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 10:29:53.280 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-09-16 10:29:53.334 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-09-16 10:29:55.079 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 63099 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 10:29:55.080 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 10:29:55.101 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-09-16 10:29:55.102 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-09-16 10:29:55.102 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-09-16 10:29:55.148 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-09-16 10:29:55.697 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 10:29:55.704 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:29:55.705 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 10:29:55.705 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 10:29:55.723 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 621 ms
+2026-09-16 10:29:55.916 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 10:29:56.367 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:29:56.375 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 10:29:56.379 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 1.58 seconds (process running for 1.97)
+2026-09-16 10:29:59.214 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-16 10:29:59.214 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-16 10:29:59.215 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-16 10:29:59.380 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-16 10:29:59.568 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@10a963ca
+2026-09-16 10:29:59.569 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-16 10:37:49.255 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 1 deletion, 0 modifications)
+2026-09-16 10:37:49.271 INFO  [Thread-1] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 10:37:49.273 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:49.276 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 10:37:49.276 INFO  [Thread-1] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:49.284 INFO  [Thread-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-09-16 10:37:49.371 INFO  [Thread-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-09-16 10:37:49.466 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 63099 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 10:37:49.466 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 10:37:49.673 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 10:37:49.674 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:49.675 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 10:37:49.675 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 10:37:49.684 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 216 ms
+2026-09-16 10:37:49.755 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 10:37:50.200 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:50.202 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 10:37:50.204 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.762 seconds (process running for 475.797)
+2026-09-16 10:37:50.207 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-16 10:37:51.597 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
+2026-09-16 10:37:51.599 INFO  [Thread-7] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 10:37:51.599 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:51.601 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 10:37:51.601 INFO  [Thread-7] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:51.656 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 63099 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 10:37:51.656 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 10:37:51.772 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 10:37:51.772 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:51.772 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 10:37:51.772 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 10:37:51.776 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 119 ms
+2026-09-16 10:37:51.843 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 10:37:52.054 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 10:37:52.055 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 10:37:52.056 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.417 seconds (process running for 477.649)
+2026-09-16 10:37:52.057 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-09-16 10:37:53.500 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 10:37:53.501 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 15:01:14.288 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 70968 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 15:01:14.289 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 15:01:14.309 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-09-16 15:01:14.309 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-09-16 15:01:14.309 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-09-16 15:01:14.365 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-09-16 15:01:14.893 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 15:01:14.900 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:01:14.901 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 15:01:14.901 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 15:01:14.915 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 606 ms
+2026-09-16 15:01:15.113 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 15:01:15.540 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:01:15.550 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 15:01:15.555 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 1.511 seconds (process running for 1.852)
+2026-09-16 15:01:17.573 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-16 15:01:17.574 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-16 15:01:17.575 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-16 15:01:17.754 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-16 15:01:18.073 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@11c87866
+2026-09-16 15:01:18.074 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-16 15:01:29.280 ERROR [http-nio-8080-exec-4] [food-logistics-erp] c.f.e.c.e.GlobalExceptionHandler - Unexpected server exception
+org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): com.foodlogistics.erp.product.ProductMapper.findAll
+	at org.apache.ibatis.binding.MapperMethod$SqlCommand.<init>(MapperMethod.java:229)
+	at org.apache.ibatis.binding.MapperMethod.<init>(MapperMethod.java:53)
+	at org.apache.ibatis.binding.MapperProxy.lambda$cachedInvoker$0(MapperProxy.java:96)
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1724)
+	at org.apache.ibatis.util.MapUtil.computeIfAbsent(MapUtil.java:36)
+	at org.apache.ibatis.binding.MapperProxy.cachedInvoker(MapperProxy.java:94)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy3/jdk.proxy3.$Proxy95.findAll(Unknown Source)
+	at com.foodlogistics.erp.product.ProductService.getProducts(ProductService.java:39)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
-	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
-Caused by: java.lang.IllegalStateException: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.validateMethodMapping(AbstractHandlerMethodMapping.java:644)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.register(AbstractHandlerMethodMapping.java:604)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.registerHandlerMethod(AbstractHandlerMethodMapping.java:327)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:459)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:80)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lambda$detectHandlerMethods$1(AbstractHandlerMethodMapping.java:294)
-	at java.base/java.util.LinkedHashMap.forEach(LinkedHashMap.java:987)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.detectHandlerMethods(AbstractHandlerMethodMapping.java:292)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.processCandidateBean(AbstractHandlerMethodMapping.java:261)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.initHandlerMethods(AbstractHandlerMethodMapping.java:220)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.afterPropertiesSet(AbstractHandlerMethodMapping.java:208)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.afterPropertiesSet(RequestMappingHandlerMapping.java:158)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1862)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1811)
-	... 21 common frames omitted
-2026-09-15 13:42:54.375 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 13:42:54.375 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 13:42:54.508 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 13:42:54.509 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 13:42:54.509 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 13:42:54.509 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 13:42:54.514 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 137 ms
-2026-09-15 13:42:54.574 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 13:42:54.730 WARN  [restartedMain] [food-logistics-erp] o.s.b.w.s.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-2026-09-15 13:42:54.731 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Stopping service [Tomcat]
-2026-09-15 13:42:54.732 INFO  [restartedMain] [food-logistics-erp] o.s.b.a.l.ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-15 13:42:54.732 ERROR [restartedMain] [food-logistics-erp] o.s.boot.SpringApplication - Application run failed
-org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1815)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121)
-	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994)
-	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
-	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
-	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
-	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
-	at com.foodlogistics.erp.FoodLogisticsErpApplication.main(FoodLogisticsErpApplication.java:10)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719)
+	at com.foodlogistics.erp.product.ProductService$$SpringCGLIB$$0.getProducts(<generated>)
+	at com.foodlogistics.erp.product.ProductController.getProducts(ProductController.java:42)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
-	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
-Caused by: java.lang.IllegalStateException: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.validateMethodMapping(AbstractHandlerMethodMapping.java:644)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.register(AbstractHandlerMethodMapping.java:604)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.registerHandlerMethod(AbstractHandlerMethodMapping.java:327)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:459)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:80)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lambda$detectHandlerMethods$1(AbstractHandlerMethodMapping.java:294)
-	at java.base/java.util.LinkedHashMap.forEach(LinkedHashMap.java:987)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.detectHandlerMethods(AbstractHandlerMethodMapping.java:292)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.processCandidateBean(AbstractHandlerMethodMapping.java:261)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.initHandlerMethods(AbstractHandlerMethodMapping.java:220)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.afterPropertiesSet(AbstractHandlerMethodMapping.java:208)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.afterPropertiesSet(RequestMappingHandlerMapping.java:158)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1862)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1811)
-	... 21 common frames omitted
-2026-09-15 13:52:52.126 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 13:52:52.127 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 13:52:52.275 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 13:52:52.275 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 13:52:52.275 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 13:52:52.275 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 13:52:52.279 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 150 ms
-2026-09-15 13:52:52.342 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 13:52:52.485 WARN  [restartedMain] [food-logistics-erp] o.s.b.w.s.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-2026-09-15 13:52:52.485 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Stopping service [Tomcat]
-2026-09-15 13:52:52.487 INFO  [restartedMain] [food-logistics-erp] o.s.b.a.l.ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-15 13:52:52.488 ERROR [restartedMain] [food-logistics-erp] o.s.boot.SpringApplication - Application run failed
-org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/webmvc/autoconfigure/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1815)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121)
-	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994)
-	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
-	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
-	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
-	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
-	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
-	at com.foodlogistics.erp.FoodLogisticsErpApplication.main(FoodLogisticsErpApplication.java:10)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.proceed(AuthorizationManagerBeforeMethodInterceptor.java:271)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.attemptAuthorization(AuthorizationManagerBeforeMethodInterceptor.java:266)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:197)
+	at org.springframework.security.config.annotation.method.configuration.DeferringMethodInterceptor.invoke(DeferringMethodInterceptor.java:44)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719)
+	at com.foodlogistics.erp.product.ProductController$$SpringCGLIB$$0.getProducts(<generated>)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
-	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
-Caused by: java.lang.IllegalStateException: Ambiguous mapping. Cannot map 'warehouseController' method 
-com.foodlogistics.erp.warehouse.WarehouseController#getWarehouses(Jwt, String, String)
-to {GET [/api/warehouses]}: There is already 'masterDataQueryController' bean method
-com.foodlogistics.erp.masterdata.controller.MasterDataQueryController#getWarehouses(Jwt) mapped.
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.validateMethodMapping(AbstractHandlerMethodMapping.java:644)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.register(AbstractHandlerMethodMapping.java:604)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.registerHandlerMethod(AbstractHandlerMethodMapping.java:327)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:459)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.registerHandlerMethod(RequestMappingHandlerMapping.java:80)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lambda$detectHandlerMethods$1(AbstractHandlerMethodMapping.java:294)
-	at java.base/java.util.LinkedHashMap.forEach(LinkedHashMap.java:987)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.detectHandlerMethods(AbstractHandlerMethodMapping.java:292)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.processCandidateBean(AbstractHandlerMethodMapping.java:261)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.initHandlerMethods(AbstractHandlerMethodMapping.java:220)
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.afterPropertiesSet(AbstractHandlerMethodMapping.java:208)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.afterPropertiesSet(RequestMappingHandlerMapping.java:158)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1862)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1811)
-	... 21 common frames omitted
-2026-09-15 16:48:57.192 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 16:48:57.193 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 16:48:57.513 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 16:48:57.514 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 16:48:57.514 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 16:48:57.515 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 16:48:57.522 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 324 ms
-2026-09-15 16:48:57.620 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 16:48:57.901 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2026-09-15 16:48:57.902 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-09-15 16:48:57.906 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.835 seconds (process running for 82135.265)
-2026-09-15 16:48:57.907 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
-2026-09-15 17:46:17.557 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 18 class path changes (6 additions, 0 deletions, 12 modifications)
-2026-09-15 17:46:17.570 INFO  [Thread-11] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-09-15 17:46:17.572 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:17.574 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-09-15 17:46:17.575 INFO  [Thread-11] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:17.747 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 17:46:17.748 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 17:46:18.070 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 17:46:18.071 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 17:46:18.079 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 328 ms
-2026-09-15 17:46:18.166 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 17:46:18.394 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:18.395 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-09-15 17:46:18.396 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.741 seconds (process running for 85575.802)
-2026-09-15 17:46:18.397 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
-2026-09-15 17:46:58.407 INFO  [File Watcher] [food-logistics-erp] o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 21 class path changes (5 additions, 0 deletions, 16 modifications)
-2026-09-15 17:46:58.417 INFO  [Thread-24] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-09-15 17:46:58.418 INFO  [tomcat-shutdown] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:58.423 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-09-15 17:46:58.424 INFO  [Thread-24] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:58.492 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 9182 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
-2026-09-15 17:46:58.493 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
-2026-09-15 17:46:58.639 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-09-15 17:46:58.640 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15 17:46:58.644 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 150 ms
-2026-09-15 17:46:58.732 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
-2026-09-15 17:46:58.926 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2026-09-15 17:46:58.927 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-09-15 17:46:58.928 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 0.454 seconds (process running for 85616.333)
-2026-09-15 17:46:58.928 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:892)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:622)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:132)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:59)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:111)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:376)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.AuthenticationFilter.doFilterInternal(AuthenticationFilter.java:194)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:207)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter.doFilterInternal(OAuth2ProtectedResourceMetadataFilter.java:97)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:111)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:111)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:111)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:111)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:535)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:86)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:71)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:347)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:406)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:71)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:1307)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:2036)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:74)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:949)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:483)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:74)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-09-16 15:01:29.285 WARN  [http-nio-8080-exec-4] [food-logistics-erp] o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): com.foodlogistics.erp.product.ProductMapper.findAll]
+2026-09-16 15:20:00.620 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-16 15:20:00.625 INFO  [tomcat-shutdown] [food-logistics-erp] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-09-16 15:20:00.634 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-09-16 15:20:00.685 INFO  [SpringApplicationShutdownHook] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-09-16 15:20:02.228 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Starting FoodLogisticsErpApplication using Java 25.0.1 with PID 71547 (/Users/kousei/IdeaProjects/2026-school-final-project/back/build/classes/java/main started by kousei in /Users/kousei/IdeaProjects/2026-school-final-project)
+2026-09-16 15:20:02.229 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - The following 1 profile is active: "security-test"
+2026-09-16 15:20:02.250 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in /Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/ojdbc11-23.9.0.25.07.jar referenced one or more files that do not exist: file:/Users/kousei/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc11/23.9.0.25.07/4fe3479be8322eaac43f1cd0fb5818e93048201d/oraclepki.jar
+2026-09-16 15:20:02.250 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-09-16 15:20:02.250 INFO  [restartedMain] [food-logistics-erp] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-09-16 15:20:02.322 INFO  [background-preinit] [food-logistics-erp] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-09-16 15:20:02.849 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-16 15:20:02.857 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:20:02.857 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-16 15:20:02.858 INFO  [restartedMain] [food-logistics-erp] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-16 15:20:02.876 INFO  [restartedMain] [food-logistics-erp] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 626 ms
+2026-09-16 15:20:03.138 INFO  [restartedMain] [food-logistics-erp] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name erpUserDetailsService
+2026-09-16 15:20:03.532 INFO  [restartedMain] [food-logistics-erp] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-16 15:20:03.537 INFO  [restartedMain] [food-logistics-erp] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-16 15:20:03.540 INFO  [restartedMain] [food-logistics-erp] c.f.erp.FoodLogisticsErpApplication - Started FoodLogisticsErpApplication in 1.529 seconds (process running for 1.876)
+2026-09-16 15:20:08.192 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-16 15:20:08.192 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-16 15:20:08.193 INFO  [http-nio-8080-exec-1] [food-logistics-erp] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-16 15:20:08.244 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-16 15:20:08.444 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@67cd4fe0
+2026-09-16 15:20:08.445 INFO  [http-nio-8080-exec-1] [food-logistics-erp] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.

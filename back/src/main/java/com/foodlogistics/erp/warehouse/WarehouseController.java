@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('WAREHOUSE_READ')")
     public ResponseEntity<
             ApiResponse<List<WarehouseResponse>>
             > getWarehouses(
@@ -43,6 +45,7 @@ public class WarehouseController {
     }
 
     @GetMapping("/{warehouseId}")
+    @PreAuthorize("hasAuthority('WAREHOUSE_READ')")
     public ResponseEntity<
             ApiResponse<WarehouseResponse>
             > getWarehouse(
@@ -61,6 +64,7 @@ public class WarehouseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('WAREHOUSE_CREATE')")
     public ResponseEntity<
             ApiResponse<WarehouseResponse>
             > createWarehouse(
@@ -81,6 +85,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{warehouseId}")
+    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
     public ResponseEntity<
             ApiResponse<WarehouseResponse>
             > updateWarehouse(
@@ -103,6 +108,7 @@ public class WarehouseController {
     }
 
     @PatchMapping("/{warehouseId}/deactivate")
+    @PreAuthorize("hasAuthority('WAREHOUSE_DEACTIVATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateWarehouse(
             @AuthenticationPrincipal Jwt jwt,

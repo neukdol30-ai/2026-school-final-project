@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ public class ProductUnitController {
     private final ProductUnitService productUnitService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<
             ApiResponse<List<ProductUnitResponse>>
             > getProductUnits(
@@ -44,6 +46,7 @@ public class ProductUnitController {
     }
 
     @GetMapping("/{productUnitId}")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<
             ApiResponse<ProductUnitResponse>
             > getProductUnit(
@@ -64,6 +67,10 @@ public class ProductUnitController {
     }
 
     @PostMapping
+    @PreAuthorize(
+            "hasAnyAuthority(" +
+                    "'PRODUCT_CREATE', 'PRODUCT_UPDATE')"
+    )
     public ResponseEntity<
             ApiResponse<ProductUnitResponse>
             > createProductUnit(
@@ -86,6 +93,7 @@ public class ProductUnitController {
     }
 
     @PutMapping("/{productUnitId}")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<
             ApiResponse<ProductUnitResponse>
             > updateProductUnit(
@@ -110,6 +118,7 @@ public class ProductUnitController {
     }
 
     @PatchMapping("/{productUnitId}/deactivate")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateProductUnit(
             @AuthenticationPrincipal Jwt jwt,
