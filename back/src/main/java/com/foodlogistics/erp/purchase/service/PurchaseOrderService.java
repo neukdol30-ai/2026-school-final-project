@@ -649,6 +649,54 @@ public class PurchaseOrderService {
         );
     }
 
+    // 발주 반려 업무 전체를 처리
+    @Transactional
+    public void rejectPurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId,
+            PurchaseOrderRejectRequest request
+    ) {
+        // 1단계: JWT에서 전달받은 회사 ID와 사용자 ID가 정상인지 검사
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 2단계: URL로 받은 발주 PK가 null, 0, 음수가 아닌지 검사
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        // 3단계: 현재 로그인 회사의 발주를 JPA Repository로 조회
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId, companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다.")
+                        );
+
+        // 4단계: 발주 반려는 PENDING(승인대기) 상태에서만 허용합니다.
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.PENDING) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "PENDING(승인대기) 상태의 발주만 반려할 수 있습니다."
+            );
+        }
+
+        // 5단계: DTO에 들어 있는 반려사유를 꺼내 Entity의 reject() 메서드에 전달합니다.
+        purchaseOrder.reject(
+                appUserId,
+                request.getRejectionReason()
+        );
+    }
+
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드
     private List<PurchaseOrderItemInsertParam> validateAndCalculateItems(
             Long companyId,
