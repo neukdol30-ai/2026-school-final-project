@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { confirmOutbound, getOutboundDetail } from "./js/outboundApi";
+import {
+  cancelOutbound,
+  confirmOutbound,
+  getOutboundDetail,
+} from "./js/outboundApi";
 import "./css/OutboundDetailPage.css";
 import OutboundConfirmButton from "./components/OutboundConfirmButton";
 import OutboundSummary from "./components/OutboundSummary";
@@ -13,6 +17,7 @@ function OutboundDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [confirming, setConfirming] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -40,6 +45,43 @@ function OutboundDetailPage() {
       setError(error.message);
     } finally {
       setConfirming(false);
+    }
+  }
+
+  async function handleCancel() {
+    const cancelReason = window.prompt("출고 취소 사유를 입력해 주세요.");
+
+    if (cancelReason === null) {
+      return;
+    }
+
+    if (!cancelReason.trim()) {
+      setError("출고 취소 사유를 입력해 주세요.");
+      return;
+    }
+
+    const shouldCancel = window.confirm(
+      "출고를 취소하면 판매주문 출고수량과 LOT·전체 재고가 원복됩니다. 취소할까요?",
+    );
+
+    if (!shouldCancel) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      setError("");
+      setSuccessMessage("");
+
+      await cancelOutbound(outboundId, cancelReason.trim());
+
+      setSuccessMessage("출고서가 취소되어 판매주문과 재고가 원복되었습니다.");
+
+      await loadOutboundDetail();
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setCancelling(false);
     }
   }
 
@@ -72,6 +114,17 @@ function OutboundDetailPage() {
               onConfirm={handleConfirm}
               confirming={confirming}
             />
+          )}
+
+          {detail?.outbound.status === "CONFIRMED" && (
+            <button
+              type="button"
+              className="outbound-cancel-button"
+              onClick={handleCancel}
+              disabled={cancelling}
+            >
+              {cancelling ? "취소 중..." : "출고 취소"}
+            </button>
           )}
 
           <Link className="outbound-list-link" to="/outbounds">

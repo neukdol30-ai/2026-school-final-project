@@ -9,13 +9,17 @@ import java.util.List;
 @Mapper
 public interface SalesOrderMapper {
 
-    List<SalesOrderResponseDto> findAll();
+    List<SalesOrderResponseDto> findAllByCompanyId(
+            @Param("companyId") Long companyId
+    );
 
     SalesOrderResponseDto findById(
+            @Param("companyId") Long companyId,
             @Param("salesOrderId") Long salesOrderId
     );
 
     List<SalesOrderItemResponseDto> findItemsBySalesOrderId(
+            @Param("companyId") Long companyId,
             @Param("salesOrderId") Long salesOrderId
     );
 

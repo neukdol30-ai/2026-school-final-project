@@ -107,4 +107,21 @@ public class StocktakeController {
 
         return ApiResponse.ok(stocktakeId);
     }
+
+    @PostMapping("/{stocktakeId}/confirm")
+    public ApiResponse<StocktakeDetailResponseDto> confirmStocktake(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long stocktakeId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
+        return ApiResponse.ok(
+                stocktakeService.confirmStocktake(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        stocktakeId
+                )
+        );
+    }
 }

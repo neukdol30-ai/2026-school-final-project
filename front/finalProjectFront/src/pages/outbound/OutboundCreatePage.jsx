@@ -1,27 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { createOutbound } from "./js/outboundApi";
+import {
+  createOutbound,
+  getOutboundLots,
+  getOutboundWarehouses,
+} from "./js/outboundApi";
 import "./css/OutboundCreatePage.css";
 import OutboundBasicInfoFields from "./components/OutboundBasicInfoFields";
 import OutboundItemList from "./components/OutboundItemList";
 import OutboundCreateResult from "./components/OutboundCreateResult";
-import { getSalesOrderDetail } from "../sales/js/salesOrderApi";
-
-function createEmptyItem() {
-  return {
-    salesOrderItemId: "",
-    productUnitId: "",
-    shippedQty: "",
-  };
-}
+import {
+  getSalesOrderDetail,
+  getSalesOrders,
+} from "../sales/js/salesOrderApi";
 
 function OutboundCreatePage() {
   const [searchParams] = useSearchParams();
+  const initialSalesOrderId = searchParams.get("salesOrderId");
   const [salesOrderId, setSalesOrderId] = useState(
-    () => searchParams.get("salesOrderId") ?? "",
+    () => initialSalesOrderId ?? "",
   );
   const [warehouseId, setWarehouseId] = useState("");
-  const [items, setItems] = useState([createEmptyItem()]);
+  const [items, setItems] = useState([]);
+  const [salesOrderOptions, setSalesOrderOptions] = useState([]);
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [lotOptionsLoading, setLotOptionsLoading] = useState(false);
 
   const [createLoading, setCreateLoading] = useState(false);
   const [formError, setFormError] = useState("");
@@ -30,23 +34,107 @@ function OutboundCreatePage() {
   const [salesOrderLoading, setSalesOrderLoading] = useState(false);
   const [loadedSalesOrder, setLoadedSalesOrder] = useState(null);
 
-  function handleSalesOrderIdChange(value) {
-    setSalesOrderId(value);
-    setLoadedSalesOrder(null);
-  }
+  useEffect(() => {
+    async function fetchOutboundOptions() {
+      try {
+        const [salesOrders, warehouses] = await Promise.all([
+          getSalesOrders(),
+          getOutboundWarehouses(),
+        ]);
 
-  async function handleLoadSalesOrder() {
-    if (!salesOrderId) {
-      setFormError("조회할 판매주문 ID를 입력해 주세요.");
+        const confirmedOrders = salesOrders.filter(
+          (salesOrder) => salesOrder.orderStatus === "CONFIRMED",
+        );
+
+        setSalesOrderOptions(confirmedOrders);
+        setWarehouseOptions(warehouses);
+
+        if (initialSalesOrderId) {
+          const hasSelectedOrder = confirmedOrders.some(
+            (salesOrder) =>
+              String(salesOrder.salesOrderId) === initialSalesOrderId,
+          );
+
+          if (hasSelectedOrder) {
+            await loadSalesOrder(initialSalesOrderId);
+          } else {
+            setFormError("출고 가능한 확정 판매주문이 아닙니다.");
+          }
+        }
+      } catch (error) {
+        setFormError(error.message);
+      } finally {
+        setOptionsLoading(false);
+      }
+    }
+
+    fetchOutboundOptions();
+  }, [initialSalesOrderId]);
+
+  useEffect(() => {
+    if (!warehouseId || !loadedSalesOrder) {
       return;
     }
 
+    const lotManagedItems = loadedSalesOrder.items.filter(
+      (item) => item.lotManagedYn === "Y",
+    );
+
+    if (lotManagedItems.length === 0) {
+      return;
+    }
+
+    let isActive = true;
+
+    async function loadLotOptions() {
+      try {
+        setLotOptionsLoading(true);
+
+        const lotOptionsByProductId = new Map(
+          await Promise.all(
+            lotManagedItems.map(async (item) => [
+              String(item.productId),
+              await getOutboundLots(warehouseId, item.productId),
+            ]),
+          ),
+        );
+
+        if (!isActive) {
+          return;
+        }
+
+        setItems((currentItems) =>
+          currentItems.map((item) => ({
+            ...item,
+            lotOptions:
+              lotOptionsByProductId.get(String(item.productId)) ?? [],
+          })),
+        );
+      } catch (error) {
+        if (isActive) {
+          setFormError(error.message);
+        }
+      } finally {
+        if (isActive) {
+          setLotOptionsLoading(false);
+        }
+      }
+    }
+
+    loadLotOptions();
+
+    return () => {
+      isActive = false;
+    };
+  }, [warehouseId, loadedSalesOrder]);
+
+  async function loadSalesOrder(selectedSalesOrderId) {
     try {
       setSalesOrderLoading(true);
       setFormError("");
       setSuccessMessage("");
 
-      const salesOrder = await getSalesOrderDetail(salesOrderId);
+      const salesOrder = await getSalesOrderDetail(selectedSalesOrderId);
 
       if (salesOrder.orderStatus !== "CONFIRMED") {
         setFormError("확정된 판매주문만 출고서를 등록할 수 있습니다.");
@@ -70,6 +158,12 @@ function OutboundCreatePage() {
           productUnitId: String(item.productUnitId),
           shippedQty: "",
           remainingQty: String(item.remainingQty),
+          productId: String(item.productId),
+          productName: item.productName,
+          lotManagedYn: item.lotManagedYn,
+          conversionQty: String(item.conversionQty),
+          lotOptions: [],
+          lotAssignments: [],
         })),
       );
     } catch (error) {
@@ -79,16 +173,35 @@ function OutboundCreatePage() {
     }
   }
 
+  function handleSalesOrderChange(value) {
+    setSalesOrderId(value);
+    setLoadedSalesOrder(null);
+    setItems([]);
+
+    if (!value) {
+      return;
+    }
+
+    loadSalesOrder(value);
+  }
+
+  function handleWarehouseChange(value) {
+    setWarehouseId(value);
+    setItems((currentItems) =>
+      currentItems.map((item) => ({
+        ...item,
+        lotOptions: [],
+        lotAssignments: [],
+      })),
+    );
+  }
+
   function handleItemChange(index, fieldName, value) {
     setItems((currentItems) =>
       currentItems.map((item, itemIndex) =>
         itemIndex === index ? { ...item, [fieldName]: value } : item,
       ),
     );
-  }
-
-  function handleAddItem() {
-    setItems((currentItems) => [...currentItems, createEmptyItem()]);
   }
 
   function handleRemoveItem(index) {
@@ -102,6 +215,56 @@ function OutboundCreatePage() {
     );
   }
 
+  function handleLotAssignmentChange(itemIndex, lotIndex, fieldName, value) {
+    setItems((currentItems) =>
+      currentItems.map((item, currentItemIndex) => {
+        if (currentItemIndex !== itemIndex) {
+          return item;
+        }
+
+        return {
+          ...item,
+          lotAssignments: item.lotAssignments.map((lot, currentLotIndex) =>
+            currentLotIndex === lotIndex
+              ? { ...lot, [fieldName]: value }
+              : lot,
+          ),
+        };
+      }),
+    );
+  }
+
+  function handleAddLotAssignment(itemIndex) {
+    setItems((currentItems) =>
+      currentItems.map((item, currentItemIndex) =>
+        currentItemIndex === itemIndex
+          ? {
+              ...item,
+              lotAssignments: [
+                ...item.lotAssignments,
+                { lotId: "", baseLotQty: "" },
+              ],
+            }
+          : item,
+      ),
+    );
+  }
+
+  function handleRemoveLotAssignment(itemIndex, lotIndex) {
+    setItems((currentItems) =>
+      currentItems.map((item, currentItemIndex) =>
+        currentItemIndex === itemIndex
+          ? {
+              ...item,
+              lotAssignments: item.lotAssignments.filter(
+                (_, currentLotIndex) => currentLotIndex !== lotIndex,
+              ),
+            }
+          : item,
+      ),
+    );
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -110,17 +273,40 @@ function OutboundCreatePage() {
     setCreatedOutbound(null);
 
     if (!salesOrderId || !warehouseId) {
-      setFormError("판매주문 ID와 출고 창고 ID를 입력해 주세요.");
+      setFormError("판매주문과 출고 창고를 선택해 주세요.");
+      return;
+    }
+
+    if (!loadedSalesOrder) {
+      setFormError("확정 판매주문을 선택해 품목을 불러와 주세요.");
       return;
     }
 
     const hasEmptyItem = items.some(
-      (item) =>
-        !item.salesOrderItemId || !item.productUnitId || !item.shippedQty,
+      (item) => !item.shippedQty,
     );
 
     if (hasEmptyItem) {
       setFormError("모든 출고 품목 정보를 입력해 주세요.");
+      return;
+    }
+
+    const hasInvalidLotAssignment = items.some((item) => {
+      if (item.lotManagedYn !== "Y") {
+        return false;
+      }
+
+      if (item.lotAssignments.length === 0) {
+        return true;
+      }
+
+      return item.lotAssignments.some(
+        (lot) => !lot.lotId || !lot.baseLotQty,
+      );
+    });
+
+    if (hasInvalidLotAssignment) {
+      setFormError("LOT 관리 상품은 출고할 LOT와 LOT 출고 수량을 입력해 주세요.");
       return;
     }
 
@@ -131,6 +317,10 @@ function OutboundCreatePage() {
         salesOrderItemId: Number(item.salesOrderItemId),
         productUnitId: Number(item.productUnitId),
         shippedQty: Number(item.shippedQty),
+        lotAssignments: item.lotAssignments.map((lot) => ({
+          lotId: Number(lot.lotId),
+          baseLotQty: Number(lot.baseLotQty),
+        })),
       })),
     };
 
@@ -145,7 +335,7 @@ function OutboundCreatePage() {
       setSalesOrderId("");
       setLoadedSalesOrder(null);
       setWarehouseId("");
-      setItems([createEmptyItem()]);
+      setItems([]);
     } catch (error) {
       setFormError(error.message);
     } finally {
@@ -179,19 +369,25 @@ function OutboundCreatePage() {
         <OutboundBasicInfoFields
           salesOrderId={salesOrderId}
           warehouseId={warehouseId}
-          onSalesOrderIdChange={handleSalesOrderIdChange}
-          onWarehouseIdChange={setWarehouseId}
-          onLoadSalesOrder={handleLoadSalesOrder}
+          salesOrderOptions={salesOrderOptions}
+          warehouseOptions={warehouseOptions}
+          optionsLoading={optionsLoading}
+          onSalesOrderChange={handleSalesOrderChange}
+          onWarehouseIdChange={handleWarehouseChange}
           salesOrderLoading={salesOrderLoading}
           loadedSalesOrder={loadedSalesOrder}
         />
 
         <OutboundItemList
           items={items}
-          onAddItem={handleAddItem}
           onRemoveItem={handleRemoveItem}
           onItemChange={handleItemChange}
+          onLotAssignmentChange={handleLotAssignmentChange}
+          onAddLotAssignment={handleAddLotAssignment}
+          onRemoveLotAssignment={handleRemoveLotAssignment}
           isSalesOrderLoaded={Boolean(loadedSalesOrder)}
+          warehouseSelected={Boolean(warehouseId)}
+          lotOptionsLoading={lotOptionsLoading}
         />
 
         <div className="outbound-form-actions">

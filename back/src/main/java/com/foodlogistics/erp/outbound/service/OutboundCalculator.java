@@ -4,12 +4,18 @@ package com.foodlogistics.erp.outbound.service;
 import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.outbound.dto.OutboundItemCreateRequestDto;
+import com.foodlogistics.erp.outbound.dto.OutboundItemLotCreateRequestDto;
+import com.foodlogistics.erp.outbound.dto.OutboundItemLotSaveDto;
 import com.foodlogistics.erp.outbound.dto.OutboundItemOrderInfoDto;
 import com.foodlogistics.erp.outbound.dto.OutboundItemSaveDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class OutboundCalculator {
@@ -25,13 +31,74 @@ public class OutboundCalculator {
 
         validateRemainingQuantity(baseShippedQty,orderInfo);
 
+        List<OutboundItemLotSaveDto> lotAssignments =
+                prepareLotAssignments(item, orderInfo, baseShippedQty);
+
         return new OutboundItemSaveDto(
                 item.salesOrderItemId(),
                 item.productUnitId(),
+                orderInfo.productId(),
+                orderInfo.lotManagedYn(),
                 item.shippedQty(),
                 orderInfo.conversionQty(),
-                baseShippedQty
+                baseShippedQty,
+                lotAssignments
         );
+    }
+
+    private List<OutboundItemLotSaveDto> prepareLotAssignments(
+            OutboundItemCreateRequestDto item,
+            OutboundItemOrderInfoDto orderInfo,
+            BigDecimal baseShippedQty
+    ) {
+        List<OutboundItemLotCreateRequestDto> requestedLots =
+                item.lotAssignments();
+
+        if ("N".equals(orderInfo.lotManagedYn())) {
+            if (requestedLots != null && !requestedLots.isEmpty()) {
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "LOT 비관리 상품에는 LOT를 배정할 수 없습니다."
+                );
+            }
+
+            return List.of();
+        }
+
+        if (requestedLots == null || requestedLots.isEmpty()) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "LOT 관리 상품은 출고할 LOT와 수량을 배정해야 합니다."
+            );
+        }
+
+        Set<Long> usedLotIds = new HashSet<>();
+        List<OutboundItemLotSaveDto> lotsToSave = new ArrayList<>();
+        BigDecimal totalLotQty = BigDecimal.ZERO;
+
+        for (OutboundItemLotCreateRequestDto requestedLot : requestedLots) {
+            if (!usedLotIds.add(requestedLot.lotId())) {
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "같은 LOT를 한 출고 품목에 두 번 배정할 수 없습니다."
+                );
+            }
+
+            lotsToSave.add(new OutboundItemLotSaveDto(
+                    requestedLot.lotId(),
+                    requestedLot.baseLotQty()
+            ));
+            totalLotQty = totalLotQty.add(requestedLot.baseLotQty());
+        }
+
+        if (totalLotQty.compareTo(baseShippedQty) != 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "LOT 출고 수량의 합계는 기준단위 출고 수량과 같아야 합니다."
+            );
+        }
+
+        return lotsToSave;
     }
 
     private BigDecimal calculateBaseQuantity(

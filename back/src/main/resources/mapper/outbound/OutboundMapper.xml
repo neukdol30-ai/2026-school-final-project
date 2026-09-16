@@ -21,7 +21,37 @@
             ON so.sales_order_id = ob.sales_order_id
         JOIN warehouse w
             ON w.warehouse_id = ob.warehouse_id
-        WHERE ob.outbound_id = #{outboundId}
+        WHERE ob.company_id = #{companyId}
+        AND ob.outbound_id = #{outboundId}
+    </select>
+
+    <!-- 출고 등록 화면에서 선택할 사용 중인 창고 목록 -->
+    <select id="findWarehouseOptions"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundWarehouseOptionDto">
+        SELECT
+        warehouse_id AS "warehouseId",
+        warehouse_name AS "warehouseName"
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND use_yn = 'Y'
+        ORDER BY warehouse_name, warehouse_id
+    </select>
+
+    <!-- 선택한 창고에 실제 재고가 남아 있는 LOT만 출고 후보로 보여 준다. -->
+    <select id="findLotOptions"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundLotOptionDto">
+        SELECT
+        l.lot_id AS "lotId",
+        l.lot_no AS "lotNo",
+        ls.quantity AS "quantity"
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND l.product_id = #{productId}
+        AND ls.quantity > 0
+        ORDER BY l.lot_id
     </select>
 
 
@@ -29,8 +59,12 @@
             resultType="com.foodlogistics.erp.outbound.dto.OutboundItemConfirmInfoDto">
 
         SELECT
+        oi.outbound_item_id AS "outboundItemId",
         ob.sales_order_id AS "salesOrderId",
         oi.sales_order_item_id AS "salesOrderItemId",
+        ob.warehouse_id AS "warehouseId",
+        soi.product_id AS "productId",
+        p.lot_managed_yn AS "lotManagedYn",
         oi.base_shipped_qty AS "baseShippedQty",
         soi.base_ordered_qty AS "baseOrderedQty",
         soi.shipped_qty AS "shippedQty",
@@ -40,9 +74,30 @@
         ON oi.outbound_id = ob.outbound_id
         JOIN sales_order_item soi
         ON soi.sales_order_item_id = oi.sales_order_item_id
-        WHERE ob.outbound_id = #{outboundId}
+        JOIN product p
+        ON p.product_id = soi.product_id
+        AND p.company_id = ob.company_id
+        WHERE ob.company_id = #{companyId}
+        AND ob.outbound_id = #{outboundId}
         ORDER BY oi.line_no
 
+    </select>
+
+    <!-- 출고 초안에 저장한 LOT별 배정 수량 -->
+    <select id="findLotConfirmInfosByOutboundId"
+            resultType="com.foodlogistics.erp.outbound.dto.OutboundLotConfirmInfoDto">
+        SELECT
+        oi.outbound_item_id AS "outboundItemId",
+        oil.lot_id AS "lotId",
+        oil.base_lot_qty AS "baseLotQty"
+        FROM outbound ob
+        JOIN outbound_item oi
+        ON oi.outbound_id = ob.outbound_id
+        JOIN outbound_item_lot oil
+        ON oil.outbound_item_id = oi.outbound_item_id
+        WHERE ob.company_id = #{companyId}
+        AND ob.outbound_id = #{outboundId}
+        ORDER BY oi.line_no, oil.outbound_item_lot_id
     </select>
 
     <update id="increaseSalesOrderItemShippedQty">
@@ -60,6 +115,23 @@
         WHERE sales_order_item_id = #{salesOrderItemId}
         AND version = #{version}
         AND shipped_qty + #{baseShippedQty} &lt;= base_ordered_qty
+    </update>
+
+    <!-- 출고 취소 시 판매주문 품목의 누적 출고수량과 버전을 원복한다. -->
+    <update id="decreaseSalesOrderItemShippedQty">
+        UPDATE sales_order_item
+        SET
+        shipped_qty = shipped_qty - #{baseShippedQty},
+        version = version + 1,
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE sales_order_item_id = #{salesOrderItemId}
+        AND version = #{version}
+        AND shipped_qty >= #{baseShippedQty}
     </update>
 
     <update id="confirmOutbound">
@@ -82,6 +154,29 @@
         WHERE outbound_id = #{outboundId}
         AND company_id = #{companyId}
         AND status = 'DRAFT'
+    </update>
+
+    <!-- 확정된 출고서를 취소 상태로 바꾸고 취소 정보를 기록한다. -->
+    <update id="cancelOutbound">
+        UPDATE outbound
+        SET
+        status = 'CANCELLED',
+        cancelled_by = #{cancelledBy},
+        cancelled_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        cancel_reason = #{cancelReason},
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{cancelledBy}
+        WHERE outbound_id = #{outboundId}
+        AND company_id = #{companyId}
+        AND status = 'CONFIRMED'
     </update>
 
     <!--
@@ -137,6 +232,7 @@
         so.sales_order_id AS "salesOrderId",
         so.order_status AS "orderStatus",
         soi.product_id AS "productId",
+        p.lot_managed_yn AS "lotManagedYn",
         soi.base_ordered_qty AS "baseOrderedQty",
         soi.shipped_qty AS "shippedQty",
         pu.conversion_qty AS "conversionQty"
@@ -160,7 +256,21 @@
         FROM warehouse w
         WHERE w.warehouse_id = #{warehouseId}
         AND w.company_id = #{companyId}
+        AND w.use_yn = 'Y'
 
+    </select>
+
+    <!-- LOT가 해당 회사·창고·상품에 속하고, 요청 수량 이상 남았는지 확인 -->
+    <select id="countAvailableLotStock" resultType="int">
+        SELECT COUNT(*)
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND ls.lot_id = #{lotId}
+        AND l.product_id = #{productId}
+        AND ls.quantity >= #{baseLotQty}
     </select>
 
     <insert id="insertOutbound"
@@ -188,7 +298,10 @@
 
     </insert>
 
-    <insert id="insertOutboundItem">
+    <insert id="insertOutboundItem"
+            useGeneratedKeys="true"
+            keyProperty="item.outboundItemId"
+            keyColumn="OUTBOUND_ITEM_ID">
 
         INSERT INTO outbound_item (
         outbound_id,
@@ -211,6 +324,22 @@
         #{createdBy}
         )
 
+    </insert>
+
+    <!-- LOT 관리 상품의 출고 초안에는 LOT별 배정 수량을 함께 저장한다. -->
+    <insert id="insertOutboundItemLot">
+        INSERT INTO outbound_item_lot (
+        outbound_item_id,
+        lot_id,
+        base_lot_qty,
+        created_by
+        )
+        VALUES (
+        #{outboundItemId},
+        #{lot.lotId},
+        #{lot.baseLotQty},
+        #{createdBy}
+        )
     </insert>
 
     <select id="findAllByCompanyId"
@@ -247,5 +376,130 @@
         WHERE oi.outbound_id = #{outboundId}
         ORDER BY oi.line_no
     </select>
+
+    <!-- 이 출고서가 실제 재고를 차감하고 확정된 건인지 안전하게 확인한다. -->
+    <select id="countOutboundStockHistory" resultType="int">
+        SELECT COUNT(*)
+        FROM stock_history
+        WHERE company_id = #{companyId}
+        AND source_id = #{outboundId}
+        AND movement_type = 'OUTBOUND'
+        AND source_type = 'OUTBOUND'
+        AND change_qty &lt; 0
+    </select>
+
+    <!-- LOT 관리 상품의 선택한 LOT 재고를 음수가 되지 않게 조건부 차감한다. -->
+    <update id="decreaseLotStockQuantity">
+        UPDATE lot_stock
+        SET quantity = quantity - #{baseLotQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND lot_id = #{lotId}
+        AND quantity >= #{baseLotQty}
+        AND EXISTS (
+        SELECT 1
+        FROM lot l
+        WHERE l.lot_id = lot_stock.lot_id
+        AND l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+        )
+    </update>
+
+    <!-- LOT 여부와 관계없이 창고·상품별 전체 재고를 음수가 되지 않게 차감한다. -->
+    <update id="decreaseStockQuantity">
+        UPDATE stock
+        SET quantity = quantity - #{baseShippedQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+        AND quantity >= #{baseShippedQty}
+    </update>
+
+    <!-- 출고 취소 시 LOT 재고를 이전 출고수량만큼 복구한다. -->
+    <update id="increaseLotStockQuantity">
+        UPDATE lot_stock
+        SET quantity = quantity + #{baseLotQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND lot_id = #{lotId}
+        AND EXISTS (
+        SELECT 1
+        FROM lot l
+        WHERE l.lot_id = lot_stock.lot_id
+        AND l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+        )
+    </update>
+
+    <!-- 출고 취소 시 창고·상품별 전체 재고를 이전 출고수량만큼 복구한다. -->
+    <update id="increaseStockQuantity">
+        UPDATE stock
+        SET quantity = quantity + #{baseShippedQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+    </update>
+
+    <!-- 출고 확정으로 감소한 기준단위 수량을 재고 이력에 남긴다. -->
+    <insert id="insertOutboundStockHistory">
+        INSERT INTO stock_history (
+        company_id,
+        warehouse_id,
+        product_id,
+        lot_id,
+        movement_type,
+        change_qty,
+        source_type,
+        source_id,
+        created_by,
+        created_at
+        )
+        VALUES (
+        #{companyId},
+        #{warehouseId},
+        #{productId},
+        #{lotId},
+        'OUTBOUND',
+        #{changeQty},
+        'OUTBOUND',
+        #{outboundId},
+        #{createdBy},
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        )
+    </insert>
+
+    <!-- 출고 취소는 양수 수량이므로 OUTBOUND와 구분된 취소 이력으로 저장한다. -->
+    <insert id="insertOutboundCancelStockHistory">
+        INSERT INTO stock_history (
+        company_id,
+        warehouse_id,
+        product_id,
+        lot_id,
+        movement_type,
+        change_qty,
+        source_type,
+        source_id,
+        created_by,
+        created_at
+        )
+        VALUES (
+        #{companyId},
+        #{warehouseId},
+        #{productId},
+        #{lotId},
+        'OUTBOUND_CANCEL',
+        #{changeQty},
+        'OUTBOUND_CANCEL',
+        #{outboundId},
+        #{createdBy},
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        )
+    </insert>
 
 </mapper>

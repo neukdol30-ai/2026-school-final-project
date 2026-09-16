@@ -3,7 +3,9 @@ package com.foodlogistics.erp.outbound.service;
 import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.outbound.dto.OutboundItemCreateRequestDto;
+import com.foodlogistics.erp.outbound.dto.OutboundItemLotSaveDto;
 import com.foodlogistics.erp.outbound.dto.OutboundItemOrderInfoDto;
+import com.foodlogistics.erp.outbound.dto.OutboundItemSaveDto;
 import com.foodlogistics.erp.outbound.mapper.OutboundMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -83,5 +85,31 @@ public class OutboundValidator {
             );
         }
         return orderInfo;
+    }
+
+    // LOT 관리 상품은 현재 선택한 창고에 해당 LOT 재고가 실제로 있어야 한다.
+    public void validateLotAssignments(
+            Long companyId,
+            Long warehouseId,
+            OutboundItemSaveDto item
+    ) {
+        if (!"Y".equals(item.getLotManagedYn())) {
+            return;
+        }
+
+        for (OutboundItemLotSaveDto lot : item.getLotAssignments()) {
+            if (outboundMapper.countAvailableLotStock(
+                    companyId,
+                    warehouseId,
+                    item.getProductId(),
+                    lot.lotId(),
+                    lot.baseLotQty()
+            ) == 0) {
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "선택한 LOT가 출고 창고에 없거나 재고가 부족합니다."
+                );
+            }
+        }
     }
 }

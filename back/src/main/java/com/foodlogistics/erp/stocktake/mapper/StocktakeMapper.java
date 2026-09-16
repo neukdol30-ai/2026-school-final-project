@@ -83,7 +83,7 @@ public interface StocktakeMapper {
     );
 
     // 재고실사 헤더 정보 한 건을 조회
-    StocktakeDetailResponseDto findDetailById(
+    StocktakeDetailHeaderDto findDetailById(
             @Param("companyId") Long companyId,
             @Param("stocktakeId") Long stocktakeId
     );
@@ -91,5 +91,45 @@ public interface StocktakeMapper {
     // 선택한 재고실사에 포함된 품목 목록을 조회
     List<StocktakeItemResponseDto> findItemsByStocktakeId(
             @Param("stocktakeId") Long stocktakeId
+    );
+
+    // 확정 처리에서 재고를 조정할 품목(차이 수량) 목록
+    List<StocktakeConfirmItemDto> findConfirmItemsByStocktakeId(
+            @Param("stocktakeId") Long stocktakeId
+    );
+
+    // DRAFT 상태인 실사 문서를 CONFIRMED로 전환한다.
+    int confirmStocktake(
+            @Param("companyId") Long companyId,
+            @Param("stocktakeId") Long stocktakeId,
+            @Param("confirmedBy") Long confirmedBy
+    );
+
+    // 수량이 음수가 되지 않는 경우에만 LOT 재고를 차이 수량만큼 조정한다.
+    int adjustLotStockQuantity(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("lotId") Long lotId,
+            @Param("differenceQty") BigDecimal differenceQty
+    );
+
+    // 수량이 음수가 되지 않는 경우에만 창고별 전체 재고를 차이 수량만큼 조정한다.
+    int adjustStockQuantity(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("differenceQty") BigDecimal differenceQty
+    );
+
+    // 확정된 재고실사의 수량 차이를 재고 이력으로 남긴다.
+    int insertStocktakeAdjustmentHistory(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("lotId") Long lotId,
+            @Param("differenceQty") BigDecimal differenceQty,
+            @Param("stocktakeId") Long stocktakeId,
+            @Param("createdBy") Long createdBy
     );
 }

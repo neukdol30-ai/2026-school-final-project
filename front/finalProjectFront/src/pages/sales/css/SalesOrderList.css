@@ -42,8 +42,9 @@
 }
 
 .sales-order-search-form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 16px;
   padding: 20px;
   background-color: #ffffff;
@@ -53,7 +54,7 @@
 
 .sales-order-search-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px 16px;
 }
 
@@ -89,6 +90,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .sales-order-search-actions button {
@@ -174,18 +176,41 @@
   text-align: center;
 }
 
+.sales-order-table th:nth-child(n + 2),
+.sales-order-table td:nth-child(n + 2) {
+  text-align: center;
+}
+
+.sales-order-table th:first-child,
+.sales-order-table td:first-child {
+  width: 42%;
+}
+
+.sales-order-table th:nth-child(2),
+.sales-order-table td:nth-child(2) {
+  width: 20%;
+}
+
 .sales-order-number-button {
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 184px;
+  height: 36px;
+  padding: 0 10px;
   font-size: 13px;
   font-weight: 600;
-  color: #1769aa;
+  color: #ffffff;
   cursor: pointer;
-  background: none;
-  border: 0;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
+  border-radius: 5px;
+  box-sizing: border-box;
 }
 
 .sales-order-number-button:hover {
-  text-decoration: underline;
+  background-color: #12578e;
+  border-color: #12578e;
 }
 
 .sales-order-status {
@@ -286,6 +311,10 @@
   }
 
   .sales-order-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-order-search-form {
     grid-template-columns: 1fr;
   }
 

@@ -6,7 +6,7 @@
 
 <mapper namespace="com.foodlogistics.erp.salesorder.mapper.SalesOrderMapper">
 
-    <select id="findAll"
+    <select id="findAllByCompanyId"
             resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto">
 
         SELECT
@@ -18,6 +18,7 @@
         FROM sales_order so
         JOIN business_partner bp
         ON bp.partner_id = so.customer_id
+        WHERE so.company_id = #{companyId}
         ORDER BY so.sales_order_id DESC
     </select>
 
@@ -34,7 +35,8 @@
         FROM sales_order so
         JOIN business_partner bp
         ON bp.partner_id = so.customer_id
-        WHERE so.sales_order_id = #{salesOrderId}
+        WHERE so.company_id = #{companyId}
+        AND so.sales_order_id = #{salesOrderId}
 
     </select>
 
@@ -45,12 +47,21 @@
         SELECT
         soi.sales_order_item_id AS "salesOrderItemId",
         soi.product_unit_id AS "productUnitId",
+        p.product_id AS "productId",
+        p.product_name AS "productName",
+        p.lot_managed_yn AS "lotManagedYn",
+        soi.conversion_qty AS "conversionQty",
         soi.ordered_qty AS "orderedQty",
         soi.shipped_qty / soi.conversion_qty AS "shippedQty",
         (soi.base_ordered_qty - soi.shipped_qty)
             / soi.conversion_qty AS "remainingQty"
         FROM sales_order_item soi
-        WHERE soi.sales_order_id = #{salesOrderId}
+        JOIN sales_order so
+        ON so.sales_order_id = soi.sales_order_id
+        JOIN product p
+        ON p.product_id = soi.product_id
+        WHERE so.company_id = #{companyId}
+        AND soi.sales_order_id = #{salesOrderId}
         ORDER BY soi.line_no
 
     </select>

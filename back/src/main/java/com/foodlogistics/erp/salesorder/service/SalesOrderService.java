@@ -24,27 +24,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SalesOrderService {
 
-    private static final Long TEMPORARY_COMPANY_ID = 1L;
-    private static final Long TEMPORARY_APP_USER_ID = 1L;
-
     private final SalesOrderMapper salesOrderMapper;
     private final SalesOrderValidator salesOrderValidator;
     private final SalesOrderCalculator salesOrderCalculator;
     private final SalesOrderNumberGenerator salesOrderNumberGenerator;
 
-    public List<SalesOrderResponseDto> getSalesOrders() {
-        return salesOrderMapper.findAll();
+    public List<SalesOrderResponseDto> getSalesOrders(Long companyId) {
+        return salesOrderMapper.findAllByCompanyId(companyId);
     }
 
-    public SalesOrderDetailResponseDto getSalesOrderDetail(Long salesOrderId) {
-        SalesOrderResponseDto salesOrder = salesOrderMapper.findById(salesOrderId);
+    public SalesOrderDetailResponseDto getSalesOrderDetail(
+            Long companyId,
+            Long salesOrderId
+    ) {
+        SalesOrderResponseDto salesOrder = salesOrderMapper.findById(
+                companyId,
+                salesOrderId
+        );
 
         if (salesOrder == null) {
             throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
         }
 
         List<SalesOrderItemResponseDto> items =
-                salesOrderMapper.findItemsBySalesOrderId(salesOrderId);
+                salesOrderMapper.findItemsBySalesOrderId(companyId, salesOrderId);
 
         return new SalesOrderDetailResponseDto(
                 salesOrder.salesOrderId(),
@@ -58,27 +61,40 @@ public class SalesOrderService {
 
     @Transactional
     public SalesOrderResponseDto createSalesOrder(
+            Long companyId,
+            Long appUserId,
             SalesOrderCreateRequestDto request
     ) {
         salesOrderValidator.validateUsableCustomer(
-                TEMPORARY_COMPANY_ID,
+                companyId,
                 request.customerId()
         );
 
-        List<SalesOrderItemSaveDto> itemsToSave = prepareItemsToSave(request);
+        List<SalesOrderItemSaveDto> itemsToSave = prepareItemsToSave(
+                companyId,
+                request
+        );
         SalesOrderAmountSummary amountSummary =
                 salesOrderCalculator.summarize(itemsToSave);
 
         SalesOrderSaveDto salesOrderToSave = createSalesOrderSaveDto(
                 request,
-                amountSummary
+                amountSummary,
+                companyId,
+                appUserId
         );
 
         salesOrderMapper.insertSalesOrder(salesOrderToSave);
-        saveSalesOrderItems(salesOrderToSave.getSalesOrderId(), itemsToSave);
+        saveSalesOrderItems(
+                salesOrderToSave.getSalesOrderId(),
+                itemsToSave,
+                appUserId
+        );
 
-        SalesOrderResponseDto createdSalesOrder =
-                salesOrderMapper.findById(salesOrderToSave.getSalesOrderId());
+        SalesOrderResponseDto createdSalesOrder = salesOrderMapper.findById(
+                companyId,
+                salesOrderToSave.getSalesOrderId()
+        );
 
         log.info(
                 "Sales order saved: salesOrderId={}, orderNo={}, itemCount={}",
@@ -92,6 +108,7 @@ public class SalesOrderService {
 
     // 검증이 끝난 화면 품목을 DB 저장용 품목 값으로 변환한다.
     private List<SalesOrderItemSaveDto> prepareItemsToSave(
+            Long companyId,
             SalesOrderCreateRequestDto request
     ) {
         salesOrderValidator.validateNoDuplicateProductUnitIds(request.items());
@@ -101,7 +118,7 @@ public class SalesOrderService {
         for (SalesOrderItemCreateRequestDto item : request.items()) {
             SalesOrderItemOrderInfoDto orderItemInfo =
                     salesOrderValidator.getUsableOrderItemInfo(
-                            TEMPORARY_COMPANY_ID,
+                            companyId,
                             item.productUnitId()
                     );
 
@@ -114,44 +131,51 @@ public class SalesOrderService {
     // 헤더 저장 뒤 생성된 주문 ID를 사용해 각 품목을 순서대로 저장한다.
     private void saveSalesOrderItems(
             Long salesOrderId,
-            List<SalesOrderItemSaveDto> itemsToSave
+            List<SalesOrderItemSaveDto> itemsToSave,
+            Long appUserId
     ) {
         for (int index = 0; index < itemsToSave.size(); index++) {
             salesOrderMapper.insertSalesOrderItem(
                     salesOrderId,
                     index + 1,
                     itemsToSave.get(index),
-                    TEMPORARY_APP_USER_ID
+                    appUserId
             );
         }
     }
 
     private SalesOrderSaveDto createSalesOrderSaveDto(
             SalesOrderCreateRequestDto request,
-            SalesOrderAmountSummary amountSummary
+            SalesOrderAmountSummary amountSummary,
+            Long companyId,
+            Long appUserId
     ) {
         return new SalesOrderSaveDto(
-                TEMPORARY_COMPANY_ID,
+                companyId,
                 salesOrderNumberGenerator.generate(),
                 request.customerId(),
                 amountSummary.totalSupplyAmount(),
                 amountSummary.totalTaxAmount(),
                 amountSummary.totalAmount(),
-                TEMPORARY_APP_USER_ID
+                appUserId
         );
     }
 
     @Transactional
-    public SalesOrderResponseDto confirmSalesOrder(Long salesOrderId) {
+    public SalesOrderResponseDto confirmSalesOrder(
+            Long companyId,
+            Long appUserId,
+            Long salesOrderId
+    ) {
         int updatedCount = salesOrderMapper.confirmSalesOrder(
                 salesOrderId,
-                TEMPORARY_COMPANY_ID,
-                TEMPORARY_APP_USER_ID
+                companyId,
+                appUserId
         );
 
         if (updatedCount == 0) {
             SalesOrderResponseDto existingSalesOrder =
-                    salesOrderMapper.findById(salesOrderId);
+                    salesOrderMapper.findById(companyId, salesOrderId);
 
             if (existingSalesOrder == null) {
                 throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
@@ -164,7 +188,7 @@ public class SalesOrderService {
         }
 
         SalesOrderResponseDto confirmedSalesOrder =
-                salesOrderMapper.findById(salesOrderId);
+                salesOrderMapper.findById(companyId, salesOrderId);
 
         log.info(
                 "Sales order confirmed: salesOrderId={}, orderNo={}",

@@ -8,6 +8,8 @@ import com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto;
 import com.foodlogistics.erp.salesorder.service.SalesOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,38 +24,64 @@ public class SalesOrderController {
 
     // 판매주문 목록 조회
     @GetMapping
-    public ApiResponse<List<SalesOrderResponseDto>> getSalesOrders() {
+    public ApiResponse<List<SalesOrderResponseDto>> getSalesOrders(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
         return  ApiResponse.ok(
-                salesOrderService.getSalesOrders()
+                salesOrderService.getSalesOrders(companyId.longValue())
         );
     }
     // 주문번호 선택 시 주문 헤더와 품목 목록 함께 조회
     @GetMapping("/{salesOrderId}")
     public ApiResponse<SalesOrderDetailResponseDto> getSalesOrderDetail(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable("salesOrderId") Long salesOrderId
     )  {
+        Number companyId = jwt.getClaim("companyId");
+
         return ApiResponse.ok(
-                salesOrderService.getSalesOrderDetail(salesOrderId)
+                salesOrderService.getSalesOrderDetail(
+                        companyId.longValue(),
+                        salesOrderId
+                )
         );
     }
     // 판매주문 등록
     @PostMapping
     public ApiResponse<SalesOrderResponseDto> createSalesOrder(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody
             @Valid
             SalesOrderCreateRequestDto request
     ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
         return ApiResponse.ok(
-                salesOrderService.createSalesOrder(request)
+                salesOrderService.createSalesOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        request
+                )
         );
     }
     //판매주문 확정
     @PostMapping("/{salesOrderId}/confirm")
     public ApiResponse<SalesOrderResponseDto> confirmSalesOrder(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable("salesOrderId") Long salesOrderId
     ) {
+        Number companyId = jwt.getClaim("companyId");
+        Number appUserId = jwt.getClaim("appUserId");
+
         return ApiResponse.ok(
-                salesOrderService.confirmSalesOrder(salesOrderId)
+                salesOrderService.confirmSalesOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        salesOrderId
+                )
         );
     }
 }

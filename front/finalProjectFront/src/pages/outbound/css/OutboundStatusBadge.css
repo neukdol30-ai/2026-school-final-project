@@ -15,3 +15,8 @@
   background: #dcf3e4;
   color: #16753b;
 }
+
+.outbound-status-cancelled {
+  background: #edf0f3;
+  color: #65717c;
+}

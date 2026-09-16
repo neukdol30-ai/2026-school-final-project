@@ -20,6 +20,8 @@ import StocktakeListPage from "./pages/stocktake/StocktakeListPage";
 import StocktakeCreatePage from "./pages/stocktake/StocktakeCreatePage";
 import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
 
+import InventoryPage from "./pages/inventory/InventoryPage";
+
 function App() {
   return (
     <Routes>
@@ -44,7 +46,7 @@ function App() {
           />
 
           <Route path="/inbounds" element={<EmptyPage title="입고관리" />} />
-          <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
+          <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/stocktakes" element={<StocktakeListPage />} />
           <Route path="/stocktakes/new" element={<StocktakeCreatePage />} />
           <Route

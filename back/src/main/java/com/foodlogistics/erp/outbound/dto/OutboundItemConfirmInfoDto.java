@@ -4,9 +4,17 @@ import java.math.BigDecimal;
 
 public record OutboundItemConfirmInfoDto(
 
+        Long outboundItemId,
+
         Long salesOrderId,
 
         Long salesOrderItemId,
+
+        Long warehouseId,
+
+        Long productId,
+
+        String lotManagedYn,
 
         BigDecimal baseShippedQty,
 

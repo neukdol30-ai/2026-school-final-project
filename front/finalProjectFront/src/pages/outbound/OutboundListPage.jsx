@@ -178,7 +178,7 @@ function OutboundListPage() {
           </p>
         )}
 
-        {!loading && !error && (
+        {!loading && (
           <div className="outbound-table-wrap">
             <table className="outbound-table">
               <thead>

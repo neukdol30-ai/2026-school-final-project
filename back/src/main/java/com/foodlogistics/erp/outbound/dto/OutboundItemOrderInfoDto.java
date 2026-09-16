@@ -13,6 +13,8 @@ public record OutboundItemOrderInfoDto(
 
         Long productId,
 
+        String lotManagedYn,
+
         BigDecimal baseOrderedQty,
 
         BigDecimal shippedQty,

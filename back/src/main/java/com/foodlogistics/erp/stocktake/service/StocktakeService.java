@@ -107,7 +107,7 @@ public class StocktakeService {
             Long companyId,
             Long stocktakeId
     ) {
-        StocktakeDetailResponseDto detail =
+        StocktakeDetailHeaderDto detail =
                 stocktakeMapper.findDetailById(companyId, stocktakeId);
 
         if (detail == null) {
@@ -129,6 +129,115 @@ public class StocktakeService {
                 detail.status(),
                 detail.memo(),
                 items
+        );
+    }
+
+    // 실사 등록 때 저장한 차이 수량만큼 재고를 조정하고, 문서를 확정한다.
+    @Transactional
+    public StocktakeDetailResponseDto confirmStocktake(
+            Long companyId,
+            Long appUserId,
+            Long stocktakeId
+    ) {
+        StocktakeDetailHeaderDto stocktake =
+                stocktakeMapper.findDetailById(companyId, stocktakeId);
+
+        if (stocktake == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "재고실사를 찾을 수 없습니다."
+            );
+        }
+
+        if (!"DRAFT".equals(stocktake.status())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 재고실사만 확정할 수 있습니다."
+            );
+        }
+
+        List<StocktakeConfirmItemDto> items =
+                stocktakeMapper.findConfirmItemsByStocktakeId(stocktakeId);
+
+        if (items.isEmpty()) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "실사 품목이 없는 재고실사는 확정할 수 없습니다."
+            );
+        }
+
+        // 먼저 상태를 조건부로 바꿔 중복 확정을 막는다. 이후 실패하면 트랜잭션 전체가 롤백된다.
+        if (stocktakeMapper.confirmStocktake(
+                companyId,
+                stocktakeId,
+                appUserId
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "작성중인 재고실사만 확정할 수 있습니다."
+            );
+        }
+
+        for (StocktakeConfirmItemDto item : items) {
+            applyStocktakeAdjustment(
+                    companyId,
+                    stocktake.warehouseId(),
+                    stocktakeId,
+                    appUserId,
+                    item
+            );
+        }
+
+        return getStocktakeDetail(companyId, stocktakeId);
+    }
+
+    private void applyStocktakeAdjustment(
+            Long companyId,
+            Long warehouseId,
+            Long stocktakeId,
+            Long appUserId,
+            StocktakeConfirmItemDto item
+    ) {
+        BigDecimal differenceQty = item.differenceQty();
+
+        // 수량 차이가 없으면 재고 변경 및 조정 이력을 만들지 않는다.
+        if (differenceQty.compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+
+        if (item.lotId() != null && stocktakeMapper.adjustLotStockQuantity(
+                companyId,
+                warehouseId,
+                item.productId(),
+                item.lotId(),
+                differenceQty
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "LOT 재고가 없거나 조정 후 수량이 음수가 됩니다."
+            );
+        }
+
+        if (stocktakeMapper.adjustStockQuantity(
+                companyId,
+                warehouseId,
+                item.productId(),
+                differenceQty
+        ) == 0) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "전체 재고가 없거나 조정 후 수량이 음수가 됩니다."
+            );
+        }
+
+        stocktakeMapper.insertStocktakeAdjustmentHistory(
+                companyId,
+                warehouseId,
+                item.productId(),
+                item.lotId(),
+                differenceQty,
+                stocktakeId,
+                appUserId
         );
     }
 

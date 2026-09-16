@@ -49,6 +49,27 @@
   background-color: #f4f6f8;
 }
 
+.outbound-cancel-button {
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c62828;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #f2caca;
+  border-radius: 6px;
+}
+
+.outbound-cancel-button:hover:not(:disabled) {
+  background-color: #fff3f3;
+}
+
+.outbound-cancel-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 /* 상세 안의 기본정보·품목 영역을 발주 상세처럼 흰 카드로 만든다. */
 .outbound-detail-page .content-panel {
   margin: 0;

@@ -87,6 +87,7 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
           <thead>
             <tr>
               <th>번호</th>
+              <th>상품</th>
               <th>상품 단위 ID</th>
               <th>주문 수량</th>
               <th>누적 출고 수량</th>
@@ -97,7 +98,7 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
           <tbody>
             {salesOrderDetail.items.length === 0 ? (
               <tr>
-                <td colSpan="5" className="empty-message">
+                <td colSpan="6" className="empty-message">
                   등록된 주문 품목이 없습니다.
                 </td>
               </tr>
@@ -105,6 +106,7 @@ function SalesOrderDetail({ salesOrderDetail, onClose }) {
               salesOrderDetail.items.map((item, index) => (
                 <tr key={`${item.productUnitId}-${index}`}>
                   <td>{index + 1}</td>
+                  <td>{item.productName}</td>
                   <td>{item.productUnitId}</td>
                   <td>{Number(item.orderedQty).toLocaleString("ko-KR")}</td>
                   <td>{Number(item.shippedQty).toLocaleString("ko-KR")}</td>

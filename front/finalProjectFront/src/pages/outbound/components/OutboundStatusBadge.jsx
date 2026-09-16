@@ -11,6 +11,10 @@ function OutboundStatusBadge({ status }) {
     label = "확정";
   }
 
+  if (status === "CANCELLED") {
+    label = "취소";
+  }
+
   return (
     <span className={`outbound-status outbound-status-${status.toLowerCase()}`}>
       {label}

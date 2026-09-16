@@ -42,8 +42,9 @@
 }
 
 .outbound-search-form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 16px;
   padding: 20px;
   background-color: #ffffff;
@@ -53,7 +54,7 @@
 
 .outbound-search-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px 16px;
 }
 
@@ -89,6 +90,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .outbound-search-actions button {
@@ -179,14 +181,36 @@
   text-align: center;
 }
 
+.outbound-table th:nth-child(n + 2),
+.outbound-table td:nth-child(n + 2) {
+  text-align: center;
+}
+
+.outbound-table th:first-child,
+.outbound-table td:first-child {
+  width: 30%;
+}
+
 .outbound-detail-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 36px;
+  padding: 0 8px;
   font-weight: 600;
-  color: #1769aa;
+  color: #ffffff;
   text-decoration: none;
+  white-space: nowrap;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
+  border-radius: 5px;
+  box-sizing: border-box;
 }
 
 .outbound-detail-link:hover {
-  text-decoration: underline;
+  background-color: #12578e;
+  border-color: #12578e;
 }
 
 .outbound-empty-row {
@@ -219,6 +243,10 @@
 
 @media (max-width: 800px) {
   .outbound-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .outbound-search-form {
     grid-template-columns: 1fr;
   }
 
