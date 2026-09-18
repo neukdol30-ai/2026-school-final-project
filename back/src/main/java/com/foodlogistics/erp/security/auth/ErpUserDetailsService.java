@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -23,7 +24,16 @@ public class ErpUserDetailsService implements UserDetailsService {
                 .findByLoginId(normalizedLoginId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        return new ErpUserDetails(authUser);
+        List<String> permissionCodes =
+                authUserMapper.findPermissionCodes(
+                        authUser.getAppUserId(),
+                        authUser.getCompanyId()
+                );
+
+        return new ErpUserDetails(
+                authUser,
+                permissionCodes
+        );
     }
 
     private String normalizedLoginId(String loginId) {

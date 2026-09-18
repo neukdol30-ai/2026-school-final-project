@@ -2,6 +2,7 @@ package com.foodlogistics.erp.security.jwt;
 
 import com.foodlogistics.erp.security.auth.ErpUserDetails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -10,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -37,6 +39,12 @@ public class JwtTokenProvider {
                 .type("JWT")
                 .build();
 
+        List<String> authorities =
+                userDetails.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList();
+
         JwtClaimsSet claims = JwtClaimsSet
                 .builder()
                 .issuer(ISSUER)
@@ -46,6 +54,7 @@ public class JwtTokenProvider {
                 .claim("appUserId", userDetails.getAppUserId())
                 .claim("companyId", userDetails.getCompanyId())
                 .claim("userName", userDetails.getDisplayName())
+                .claim("authorities", authorities)
                 .build();
 
         return jwtEncoder

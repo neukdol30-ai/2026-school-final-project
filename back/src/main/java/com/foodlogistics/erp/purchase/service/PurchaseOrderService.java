@@ -4,12 +4,18 @@ import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.purchase.calculator.PurchaseOrderCalculator;
 import com.foodlogistics.erp.purchase.dto.*;
+import com.foodlogistics.erp.purchase.entity.PurchaseOrder;
+import com.foodlogistics.erp.purchase.entity.PurchaseOrderApprovalStatus;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemInsertParam;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderItemReference;
 import com.foodlogistics.erp.purchase.mapper.PurchaseOrderMapper;
+// Service에서 검증·계산한 발주 수정값을 PurchaseOrderMapper.xml의 UPDATE SQL까지 전달하는 내부 객체
+import com.foodlogistics.erp.purchase.mapper.PurchaseOrderUpdateParam;
+import com.foodlogistics.erp.purchase.repository.PurchaseOrderRepository;
 import com.foodlogistics.erp.purchase.validator.PurchaseOrderValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +41,10 @@ public class PurchaseOrderService {
 
     // MyBatis를 통해 발주 Header와 Item을 저장하고 기준정보를 조회
     private final PurchaseOrderMapper purchaseOrderMapper;
+
+    // 승인 요청처럼 단일 발주의 상태를 변경할 때 사용할 JPA repository
+    // @RequiredArgsConstructor가 이 final 필드를 생성자로 자동 주입합니다.
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     // 인증정보, 공급업체, 창고, 날짜, DB 기준정보를 검증
     private final PurchaseOrderValidator purchaseOrderValidator;
@@ -72,8 +82,10 @@ public class PurchaseOrderService {
         );
 
         // 4단계:
-        // 납품희망일이 발주일보다 과거인지 검사
-        purchaseOrderValidator.validateDates(request);
+        // 새 발주를 등록할 때 적용하는 날짜 업무 규칙을 검사
+        purchaseOrderValidator.validateDatesForCreate(
+                request
+        );
 
         // 5단계:
         // 각 품목의 검증과 계산이 끝난 INSERT용 객체를 보관할 List
@@ -344,6 +356,351 @@ public class PurchaseOrderService {
         // 6단계:
         // Header + Item이 합쳐진 최종 상세조회 DTO를 Controller로 반환
         return response;
+    }
+
+    // 발주 한 건 수정
+    @Transactional
+    public PurchaseOrderDetailResponse updatePurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId,
+            PurchaseOrderUpdateRequest request
+    ) {
+
+        // 로그인 회사와 사용자 검증
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 수정 대상 발주 ID 검증
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        // 기존 발주 Header 조회
+        PurchaseOrderDetailResponse existingPurchaseOrder =
+                purchaseOrderMapper.findPurchaseOrderDetail(
+                                companyId,
+                                purchaseOrderId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        // 기존 발주품목 조회
+        List<PurchaseOrderItemDetailResponse> existingItems =
+                purchaseOrderMapper.findPurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        // DRAFT + NOT_RECEIVED + 미입고 상태인지 검사
+        purchaseOrderValidator.validateUpdatablePurchaseOrder(
+                existingPurchaseOrder,
+                existingItems
+        );
+
+        // 수정된 공급업체 검증
+        purchaseOrderValidator.validateSupplier(
+                companyId,
+                request.getSupplierId()
+        );
+
+        // 수정된 창고 검증
+        purchaseOrderValidator.validateWarehouse(
+                companyId,
+                request.getWarehouseId()
+        );
+
+        // 수정된 날짜 업무 규칙을 검사
+        purchaseOrderValidator.validateDatesForUpdate(
+                // DB에 기존부터 저장되어 있던 발주일을 Validator에 전달
+                existingPurchaseOrder.getOrderDate(),
+                request
+        );
+
+        // 수정 후 최종 품목 전체 검증 및 재계산
+        List<PurchaseOrderItemInsertParam> itemParams =
+                validateAndCalculateItems(
+                        companyId,
+                        request.getItems()
+                );
+
+        // Header 합계 재계산
+        BigDecimal totalSupplyAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        BigDecimal totalTaxAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        BigDecimal totalAmount =
+                BigDecimal.ZERO.setScale(2);
+
+        for (PurchaseOrderItemInsertParam itemParam : itemParams) {
+
+            totalSupplyAmount =
+                    totalSupplyAmount.add(
+                            itemParam.getSupplyAmount()
+                    );
+
+            totalTaxAmount =
+                    totalTaxAmount.add(
+                            itemParam.getTaxAmount()
+                    );
+
+            totalAmount =
+                    totalAmount.add(
+                            itemParam.getTotalAmount()
+                    );
+        }
+
+        // Header UPDATE용 객체 생성
+        PurchaseOrderUpdateParam updateParam =
+                new PurchaseOrderUpdateParam();
+
+        updateParam.setPurchaseOrderId(
+                purchaseOrderId
+        );
+
+        updateParam.setCompanyId(
+                companyId
+        );
+
+        updateParam.setSupplierId(
+                request.getSupplierId()
+        );
+
+        updateParam.setWarehouseId(
+                request.getWarehouseId()
+        );
+
+        updateParam.setOrderDate(
+                request.getOrderDate()
+        );
+
+        updateParam.setExpectedDeliveryDate(
+                request.getExpectedDeliveryDate()
+        );
+
+        updateParam.setRequestNote(
+                request.getRequestNote()
+        );
+
+        updateParam.setInternalMemo(
+                request.getInternalMemo()
+        );
+
+        updateParam.setTotalSupplyAmount(
+                totalSupplyAmount
+        );
+
+        updateParam.setTotalTaxAmount(
+                totalTaxAmount
+        );
+
+        updateParam.setTotalAmount(
+                totalAmount
+        );
+
+        updateParam.setUpdatedBy(
+                appUserId
+        );
+
+        // 발주 Header 수정
+        int updatedHeaderCount =
+                purchaseOrderMapper.updatePurchaseOrder(
+                        updateParam
+                );
+
+        if (updatedHeaderCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주 상태가 변경되었거나 수정할 수 없는 발주입니다."
+            );
+        }
+
+        // 기존 발주품목 전체 삭제
+        int deletedItemCount =
+                purchaseOrderMapper.deletePurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        if (deletedItemCount != existingItems.size()) {
+            throw new IllegalStateException(
+                    "기존 발주 품목 삭제 결과가 일치하지 않습니다."
+            );
+        }
+
+        // 수정 후 최종 발주품목 전체 저장
+        saveItems(
+                purchaseOrderId,
+                itemParams
+        );
+
+        // 수정 완료된 Header 재조회
+        PurchaseOrderDetailResponse response =
+                purchaseOrderMapper.findPurchaseOrderDetail(
+                                companyId,
+                                purchaseOrderId
+                        )
+                        .orElseThrow(
+                                () -> new IllegalStateException(
+                                        "수정된 발주 정보를 확인할 수 없습니다."
+                                )
+                        );
+
+        // 수정 완료된 품목 재조회
+        List<PurchaseOrderItemDetailResponse> updatedItems =
+                purchaseOrderMapper.findPurchaseOrderItems(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        response.setItems(
+                updatedItems
+        );
+
+        return response;
+    }
+
+    // 발주 승인 요청
+    @Transactional
+    public void requestPurchaseOrderApproval(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId
+    ) {
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId,
+                                companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.DRAFT) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "DRAFT 상태의 발주만 승인 요청할 수 있습니다."
+            );
+        }
+
+        purchaseOrder.requestApproval(
+                appUserId
+        );
+    }
+
+    // 실제 발주 승인
+    // 하나의 발주 상태를 조회하고 변경하는 작업이므로 JPA를 사용
+    @Transactional
+    public void approvePurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId
+    ) {
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId,
+                                companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다."
+                                )
+                        );
+
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.PENDING) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "PENDING 상태의 발주만 승인할 수 있습니다."
+            );
+        }
+
+        purchaseOrder.approve(
+                appUserId
+        );
+    }
+
+    // 발주 반려 업무 전체를 처리
+    @Transactional
+    public void rejectPurchaseOrder(
+            Long companyId,
+            Long appUserId,
+            Long purchaseOrderId,
+            PurchaseOrderRejectRequest request
+    ) {
+        // 1단계: JWT에서 전달받은 회사 ID와 사용자 ID가 정상인지 검사
+        purchaseOrderValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        // 2단계: URL로 받은 발주 PK가 null, 0, 음수가 아닌지 검사
+        purchaseOrderValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        // 3단계: 현재 로그인 회사의 발주를 JPA Repository로 조회
+        PurchaseOrder purchaseOrder =
+                purchaseOrderRepository
+                        .findByPurchaseOrderIdAndCompanyId(
+                                purchaseOrderId, companyId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "발주 정보를 찾을 수 없습니다.")
+                        );
+
+        // 4단계: 발주 반려는 PENDING(승인대기) 상태에서만 허용합니다.
+        if (purchaseOrder.getApprovalStatus()
+                != PurchaseOrderApprovalStatus.PENDING) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "PENDING(승인대기) 상태의 발주만 반려할 수 있습니다."
+            );
+        }
+
+        // 5단계: DTO에 들어 있는 반려사유를 꺼내 Entity의 reject() 메서드에 전달합니다.
+        purchaseOrder.reject(
+                appUserId,
+                request.getRejectionReason()
+        );
     }
 
     // 발주 품목 전체의 기준정보를 검증하고 계산 결과를 만드는 메서드

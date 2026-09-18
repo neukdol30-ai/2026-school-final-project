@@ -1,10 +1,7 @@
 package com.foodlogistics.erp.purchase.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateRequest;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderCreateResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderDetailResponse;
-import com.foodlogistics.erp.purchase.dto.PurchaseOrderListResponse;
+import com.foodlogistics.erp.purchase.dto.*;
 import com.foodlogistics.erp.purchase.service.PurchaseOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -165,4 +162,123 @@ public class PurchaseOrderController {
                 ApiResponse.ok(response)
         );
     }
+
+    // 발주 수정
+    // PUT /api/purchase-orders/{purchaseOrderId}
+    @PutMapping("/{purchaseOrderId}")
+    public ResponseEntity<ApiResponse<PurchaseOrderDetailResponse>>
+    updatePurchaseOrder(
+
+            // 로그인 후 Spring Security가 검증한 JWT
+            @AuthenticationPrincipal Jwt jwt,
+
+            // URL 경로에서 수정할 발주 ID를 받음
+            @PathVariable Long purchaseOrderId,
+
+            // React가 보낸 발주 수정 JSON을 DTO로 변환하고 Validation 수행
+            @Valid @RequestBody PurchaseOrderUpdateRequest request
+    ) {
+
+        // JWT에 들어 있는 현재 로그인 사용자 ID
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT에 들어 있는 현재 로그인 회사 ID
+        Number companyId = jwt.getClaim("companyId");
+
+        // 발주 수정 Service 호출
+        PurchaseOrderDetailResponse response =
+                purchaseOrderService.updatePurchaseOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId,
+                        request
+                );
+
+        // 수정된 발주 Header + Item 정보를 공통 응답 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 승인 요청
+    // POST /api/purchase-orders/{purchaseOrderId}/approval-request
+    @PostMapping("/{purchaseOrderId}/approval-request")
+    public ResponseEntity<ApiResponse<Void>>
+    requestPurchaseOrderApproval(
+
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        purchaseOrderService.requestPurchaseOrderApproval(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
+    // 실제 발주 승인
+    // POST /api/purchase-orders/{purchaseOrderId}/approve
+    @PostMapping("/{purchaseOrderId}/approve")
+    public ResponseEntity<ApiResponse<Void>>
+    approvePurchaseOrder(
+
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        Number appUserId = jwt.getClaim("appUserId");
+
+        Number companyId = jwt.getClaim("companyId");
+
+        purchaseOrderService.approvePurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
+    // 실제 발주 반려
+    // POST /api/purchase-orders/{purchaseOrderId}/reject
+    @PostMapping("/{purchaseOrderId}/reject")
+    public ResponseEntity<ApiResponse<Void>>
+    rejectPurchaseOrder(
+
+            // Spring Security가 먼저 Bearer JWT를 검증한 후, 검증된 JWT 객체를 이 매개변수에 전달
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId,
+            @Valid @RequestBody PurchaseOrderRejectRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        purchaseOrderService.rejectPurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId,
+                request
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
 }

@@ -1,0 +1,288 @@
+/* 발주 등록 화면의 큰 영역들을 위에서 아래로 배치하고 간격을 준다. */
+.purchase-order-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 화면 맨 위 제목 영역이다. */
+.purchase-order-create-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* "발주 등록" 제목 스타일이다. */
+.purchase-order-create-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #202830;
+}
+
+/* 제목 아래 설명 문장 스타일이다. */
+.purchase-order-create-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+/* API 호출이나 입력 검증에서 오류가 발생했을 때 보여주는 영역이다. */
+.purchase-order-create-error {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #c62828;
+  background-color: #fff3f3;
+  border: 1px solid #f2caca;
+  border-radius: 6px;
+}
+
+/* 발주 기본정보와 발주 품목을 각각 흰색 카드처럼 구분한다. */
+.purchase-order-create-section {
+  margin-bottom: 18px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+/* 각 영역의 제목이다. */
+.purchase-order-create-section h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #27313a;
+}
+
+/* 공급업체, 창고, 발주일, 납품희망일을 한 줄에 2개씩 배치한다. */
+.purchase-order-create-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin-bottom: 16px;
+}
+
+/* 각 입력항목의 제목과 입력칸을 위아래로 배치한다. */
+.purchase-order-create-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+/* input, select, textarea의 공통 글자와 테두리 스타일이다. */
+.purchase-order-create-section input,
+.purchase-order-create-section select,
+.purchase-order-create-section textarea {
+  width: 100%;
+  font-size: 13px;
+  color: #202830;
+  background-color: #ffffff;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+  outline: none;
+}
+
+/* 한 줄 입력창과 select의 높이를 동일하게 맞춘다. */
+.purchase-order-create-section input,
+.purchase-order-create-section select {
+  height: 38px;
+  padding: 0 10px;
+}
+
+/* 요청사항과 내부메모 textarea는 여러 줄 입력이 가능하므로 별도 여백을 준다. */
+.purchase-order-create-section textarea {
+  min-height: 78px;
+  padding: 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* 두 textarea 사이에 간격을 준다. */
+.purchase-order-create-section > label + label {
+  margin-top: 14px;
+}
+
+/* 입력칸을 클릭했을 때 현재 입력 중인 칸임을 알아보기 쉽게 한다. */
+.purchase-order-create-section input:focus,
+.purchase-order-create-section select:focus,
+.purchase-order-create-section textarea:focus {
+  border-color: #7b8792;
+}
+
+/* 발주 품목 제목과 품목 추가 버튼을 한 줄 양쪽에 배치한다. */
+.purchase-order-create-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* 위에서 h2에 margin-bottom을 줬기 때문에 품목 Header 안에서는 제거한다. */
+.purchase-order-create-item-header h2 {
+  margin: 0;
+}
+
+/* 품목 추가 버튼이다. */
+.purchase-order-create-item-header button {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #27313a;
+  border: 1px solid #27313a;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 품목 추가 버튼에 마우스를 올렸을 때 배경을 약간 바꾼다. */
+.purchase-order-create-item-header button:hover {
+  background-color: #3c4853;
+}
+
+/* 품목 테이블이 화면보다 넓어지면 가로 스크롤이 생기게 한다. */
+.purchase-order-create-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 품목 입력 테이블 전체 스타일이다. */
+.purchase-order-create-table-wrap table {
+  width: 100%;
+  min-width: 820px;
+  font-size: 13px;
+  background-color: #ffffff;
+  border-collapse: collapse;
+}
+
+/* 테이블 제목 셀과 데이터 셀의 공통 스타일이다. */
+.purchase-order-create-table-wrap th,
+.purchase-order-create-table-wrap td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7eaed;
+}
+
+/* 테이블 제목 행을 기존 상세화면과 비슷한 연한 배경으로 표시한다. */
+.purchase-order-create-table-wrap th {
+  font-weight: 600;
+  color: #4e5965;
+  background-color: #f7f8fa;
+  border-top: 1px solid #e4e8ec;
+  white-space: nowrap;
+}
+
+/* 테이블 안의 select와 input이 셀 폭을 사용하도록 한다. */
+.purchase-order-create-table-wrap select,
+.purchase-order-create-table-wrap input {
+  min-width: 120px;
+}
+
+/* 상품 선택칸은 상품 코드와 이름이 표시되므로 조금 더 넓게 잡는다. */
+.purchase-order-create-table-wrap td:first-child select {
+  min-width: 220px;
+}
+
+/* 테이블 안의 삭제 버튼이다. */
+.purchase-order-create-table-wrap button {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c62828;
+  background-color: #ffffff;
+  border: 1px solid #e3bcbc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 삭제 버튼 위에 마우스를 올렸을 때의 스타일이다. */
+.purchase-order-create-table-wrap button:hover:not(:disabled) {
+  background-color: #fff3f3;
+}
+
+/* 품목이 한 줄뿐이라 삭제할 수 없는 버튼이다. */
+.purchase-order-create-table-wrap button:disabled {
+  color: #a7afb7;
+  background-color: #f4f5f6;
+  border-color: #dde1e5;
+  cursor: not-allowed;
+}
+
+/* 화면 맨 아래 취소/등록 버튼 영역이다. */
+.purchase-order-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 취소와 등록 버튼의 공통 크기다. */
+.purchase-order-create-actions button {
+  min-width: 92px;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 첫 번째 버튼은 취소 버튼이므로 흰색 보조 버튼으로 표시한다. */
+.purchase-order-create-actions button:first-child {
+  color: #4e5965;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+}
+
+/* 취소 버튼에 마우스를 올렸을 때의 스타일이다. */
+.purchase-order-create-actions button:first-child:hover:not(:disabled) {
+  background-color: #f4f6f8;
+}
+
+/* 마지막 버튼은 실제 발주 등록 버튼이므로 진한 색으로 강조한다. */
+.purchase-order-create-actions button:last-child {
+  color: #ffffff;
+  background-color: #27313a;
+  border: 1px solid #27313a;
+}
+
+/* 등록 버튼에 마우스를 올렸을 때의 스타일이다. */
+.purchase-order-create-actions button:last-child:hover:not(:disabled) {
+  background-color: #3c4853;
+}
+
+/* 등록 처리 중 비활성화된 버튼임을 시각적으로 보여준다. */
+.purchase-order-create-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 화면이 800px 이하로 좁아지면 기본정보 입력을 한 줄에 하나씩 배치한다. */
+@media (max-width: 800px) {
+  .purchase-order-create-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 휴대폰처럼 더 좁은 화면에서는 제목과 품목 추가 버튼 배치도 세로로 바꾼다. */
+@media (max-width: 650px) {
+  .purchase-order-create-header,
+  .purchase-order-create-item-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .purchase-order-create-actions {
+    flex-direction: column-reverse;
+  }
+
+  .purchase-order-create-actions button {
+    width: 100%;
+  }
+}
