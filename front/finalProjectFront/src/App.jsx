@@ -5,6 +5,13 @@ import EmptyPage from "./pages/EmptyPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 import ProductManagementPage from "./pages/product/ProductManagementPage.jsx";
+import BusinessPartnerManagementPage
+  from "./pages/businessPartner/BusinessPartnerManagementPage.jsx";
+import WarehouseManagementPage
+  from "./pages/warehouse/WarehouseManagementPage.jsx";
+import UnitManagementPage
+  from "./pages/unit/UnitManagementPage.jsx";
+
 
 function App() {
 
@@ -16,9 +23,18 @@ function App() {
           <Route element={<MainLayout/>}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/products" element={<ProductManagementPage />}/>
-            <Route path="/partners" element={<EmptyPage title="거래처관리" />} />
-            <Route path="/warehouses" element={<EmptyPage title="창고관리" />} />
-            <Route path="/units" element={<EmptyPage title="단위관리" />} />
+            <Route
+                path="/partners"
+                element={<BusinessPartnerManagementPage />}
+            />
+            <Route
+                path="/warehouses"
+                element={<WarehouseManagementPage />}
+            />
+            <Route
+                path="/units"
+                element={<UnitManagementPage />}
+            />
             <Route path="/purchase-orders" element={<EmptyPage title="구매 / 발주" />} />
             <Route path="/inbounds" element={<EmptyPage title="입고관리" />} />
             <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />

@@ -4,12 +4,20 @@ import {
     useState,
 } from "react";
 import {
+    requestAvailableUnits,
     requestCreateProduct,
+    requestCreateProductUnit,
+    requestDeactivateProduct,
     requestManagementProducts,
+    requestManagementProductUnits,
     requestUpdateProduct,
+    requestUpdateProductUnit,
+    requestDeactivateProductUnit,
 } from "../../api/productManagementApi.js";
 import ProductForm from "./ProductForm.jsx";
 import ProductSearchForm from "./ProductSearchForm.jsx";
+import ProductUnitPanel from "./ProductUnitPanel.jsx";
+import ProductUnitForm from "./ProductUnitForm.jsx";
 import "./ProductManagementPage.css";
 
 
@@ -34,6 +42,12 @@ const INITIAL_FORM = {
     storageType: "AMBIENT",
 };
 
+const INITIAL_PRODUCT_UNIT_FORM = {
+    unitId: "",
+    conversionQty: "1",
+    isBaseYn: "N",
+};
+
 const STORAGE_TYPE_LABELS = {
     AMBIENT: "상온",
     CHILLED: "냉장",
@@ -44,7 +58,7 @@ function ProductManagementPage() {
     const [filters, setFilters] =
         useState(INITIAL_FILTERS);
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] =
         useState("");
 
@@ -62,6 +76,41 @@ function ProductManagementPage() {
 
     const [successMessage, setSuccessMessage] =
         useState("");
+
+    const [selectedProduct, setSelectedProduct] =
+        useState(null);
+
+    const [productUnits, setProductUnits] =
+        useState([]);
+
+    const [productUnitsLoading, setProductUnitsLoading] =
+        useState(false);
+
+    const [
+        productUnitErrorMessage,
+        setProductUnitErrorMessage,
+    ] = useState("");
+
+    const [availableUnits, setAvailableUnits] =
+        useState([]);
+
+    const [
+        productUnitFormOpen,
+        setProductUnitFormOpen,
+    ] = useState(false);
+
+    const [
+        productUnitForm,
+        setProductUnitForm,
+    ] = useState(INITIAL_PRODUCT_UNIT_FORM);
+
+    const [productUnitSaving, setProductUnitSaving] =
+        useState(false);
+
+    const [
+        editingProductUnitId,
+        setEditingProductUnitId,
+    ] = useState(null);
 
     const loadProducts = useCallback(
         async (nextFilters) => {
@@ -91,8 +140,35 @@ function ProductManagementPage() {
     );
 
     useEffect(() => {
-        loadProducts(INITIAL_FILTERS);
-    }, [loadProducts]);
+        let cancelled = false;
+
+        requestManagementProducts(INITIAL_FILTERS)
+            .then((data) => {
+                if (!cancelled) {
+                    setProducts(data);
+                }
+            })
+            .catch((error) => {
+                if (!cancelled) {
+                    setProducts([]);
+
+                    setErrorMessage(
+                        error instanceof Error
+                            ? error.message
+                            : "상품 목록을 불러오지 못했습니다.",
+                    );
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     function handleFilterChange(event) {
         const { name, value } = event.target;
@@ -216,6 +292,277 @@ function ProductManagementPage() {
         }
     }
 
+    async function handleDeactivateProduct(product) {
+        if (product.useYn === "N") {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `'${product.productName}' 상품을 비활성화하시겠습니까?`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setErrorMessage("");
+        setSuccessMessage("");
+
+        try {
+            await requestDeactivateProduct(
+                product.productId,
+            );
+
+            setSuccessMessage(
+                "상품이 비활성화되었습니다.",
+            );
+
+            await loadProducts(filters);
+        } catch (error) {
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "상품을 비활성화하지 못했습니다.",
+            );
+        }
+    }
+
+    async function openProductUnits(product) {
+        setSelectedProduct(product);
+        setProductUnits([]);
+        setProductUnitErrorMessage("");
+        setProductUnitsLoading(true);
+
+        try {
+            const data =
+                await requestManagementProductUnits(
+                    product.productId,
+                );
+
+            setProductUnits(data);
+        } catch (error) {
+            setProductUnitErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "상품단위 목록을 불러오지 못했습니다.",
+            );
+        } finally {
+            setProductUnitsLoading(false);
+        }
+    }
+
+    function closeProductUnits() {
+        setSelectedProduct(null);
+        setProductUnits([]);
+        setProductUnitErrorMessage("");
+    }
+
+    async function openProductUnitCreateForm() {
+        setProductUnitErrorMessage("");
+        setSuccessMessage("");
+        setEditingProductUnitId(null);
+
+        try {
+            const data = await requestAvailableUnits();
+
+            setAvailableUnits(data);
+            setProductUnitForm(
+                INITIAL_PRODUCT_UNIT_FORM,
+            );
+            setProductUnitFormOpen(true);
+        } catch (error) {
+            setProductUnitErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "단위 목록을 불러오지 못했습니다.",
+            );
+        }
+    }
+
+    async function openProductUnitEditForm(
+        productUnit,
+    ) {
+        setProductUnitErrorMessage("");
+        setSuccessMessage("");
+
+        try {
+            const data = await requestAvailableUnits();
+
+            setAvailableUnits(data);
+
+            setEditingProductUnitId(
+                productUnit.productUnitId,
+            );
+
+            setProductUnitForm({
+                unitId: String(productUnit.unitId),
+                conversionQty: String(
+                    productUnit.conversionQty,
+                ),
+                isBaseYn: productUnit.isBaseYn,
+            });
+
+            setProductUnitFormOpen(true);
+        } catch (error) {
+            setProductUnitErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "단위 목록을 불러오지 못했습니다.",
+            );
+        }
+    }
+
+    function handleProductUnitFormChange(event) {
+        const { name, value } = event.target;
+
+        setProductUnitForm((previousForm) => ({
+            ...previousForm,
+            [name]: value,
+        }));
+    }
+
+    function closeProductUnitForm() {
+        if (productUnitSaving) {
+            return;
+        }
+
+        setProductUnitFormOpen(false);
+        setProductUnitForm(
+            INITIAL_PRODUCT_UNIT_FORM,
+        );
+        setEditingProductUnitId(null);
+    }
+
+    async function handleSaveProductUnit(event) {
+        event.preventDefault();
+
+        const unitId = Number(
+            productUnitForm.unitId,
+        );
+
+        const conversionQty = Number(
+            productUnitForm.conversionQty,
+        );
+
+        if (
+            !Number.isInteger(unitId) ||
+            unitId <= 0
+        ) {
+            setProductUnitErrorMessage(
+                "단위를 선택해주세요.",
+            );
+
+            return;
+        }
+
+        if (
+            !Number.isFinite(conversionQty) ||
+            conversionQty <= 0
+        ) {
+            setProductUnitErrorMessage(
+                "환산수량은 0보다 커야 합니다.",
+            );
+
+            return;
+        }
+
+        const requestData = {
+            unitId,
+            conversionQty,
+            isBaseYn: productUnitForm.isBaseYn,
+        };
+
+        setProductUnitSaving(true);
+        setProductUnitErrorMessage("");
+        setSuccessMessage("");
+
+        try {
+            if (editingProductUnitId) {
+                await requestUpdateProductUnit(
+                    selectedProduct.productId,
+                    editingProductUnitId,
+                    requestData,
+                );
+
+                setSuccessMessage(
+                    "상품단위가 수정되었습니다.",
+                );
+            } else {
+                await requestCreateProductUnit(
+                    selectedProduct.productId,
+                    requestData,
+                );
+
+                setSuccessMessage(
+                    "상품단위가 등록되었습니다.",
+                );
+            }
+
+            const data =
+                await requestManagementProductUnits(
+                    selectedProduct.productId,
+                );
+
+            setProductUnits(data);
+            setProductUnitFormOpen(false);
+            setEditingProductUnitId(null);
+            setProductUnitForm(
+                INITIAL_PRODUCT_UNIT_FORM,
+            );
+        } catch (error) {
+            setProductUnitErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "상품단위를 저장하지 못했습니다.",
+            );
+        } finally {
+            setProductUnitSaving(false);
+        }
+    }
+
+    async function handleDeactivateProductUnit(
+        productUnit,
+    ) {
+        if (productUnit.useYn === "N") {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `'${productUnit.unitName}' 상품단위를 비활성화하시겠습니까?`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setProductUnitErrorMessage("");
+        setSuccessMessage("");
+
+        try {
+            await requestDeactivateProductUnit(
+                selectedProduct.productId,
+                productUnit.productUnitId,
+            );
+
+            const data =
+                await requestManagementProductUnits(
+                    selectedProduct.productId,
+                );
+
+            setProductUnits(data);
+
+            setSuccessMessage(
+                "상품단위가 비활성화되었습니다.",
+            );
+        } catch (error) {
+            setProductUnitErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "상품단위를 비활성화하지 못했습니다.",
+            );
+        }
+    }
+
     return (
         <div className="page product-management-page">
             <div className="product-management-header">
@@ -301,7 +648,7 @@ function ProductManagementPage() {
                     ) : products.length === 0 ? (
                         <tr>
                             <td
-                                colSpan="6"
+                                colSpan="7"
                                 className="product-empty-row"
                             >
                                 조회된 상품이 없습니다.
@@ -321,9 +668,8 @@ function ProductManagementPage() {
                                 </td>
 
                                 <td>
-                                    {TAX_TYPE_LABELS[
-                                        product.taxType
-                                        ] ?? product.taxType}
+                                    {TAX_TYPE_LABELS[product.taxType]
+                                        ?? product.taxType}
                                 </td>
 
                                 <td>
@@ -333,19 +679,52 @@ function ProductManagementPage() {
                                 </td>
 
                                 <td>
-                                    {product.useYn === "Y"
-                                        ? "사용"
-                                        : "미사용"}
+      <span
+          className={
+              product.useYn === "Y"
+                  ? "product-status active"
+                  : "product-status inactive"
+          }
+      >
+        {product.useYn === "Y"
+            ? "사용"
+            : "미사용"}
+      </span>
                                 </td>
 
                                 <td>
-                                    <button
-                                        type="button"
-                                        className="product-edit-button"
-                                        onClick={() => openEditForm(product)}
-                                    >
-                                        수정
-                                    </button>
+                                    <div className="product-row-actions">
+                                        <button
+                                            type="button"
+                                            className="product-unit-button"
+                                            onClick={() =>
+                                                openProductUnits(product)
+                                            }
+                                        >
+                                            단위관리
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="product-edit-button"
+                                            onClick={() =>
+                                                openEditForm(product)
+                                            }
+                                        >
+                                            수정
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="product-deactivate-button"
+                                            onClick={() =>
+                                                handleDeactivateProduct(product)
+                                            }
+                                            disabled={product.useYn === "N"}
+                                        >
+                                            비활성화
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))
@@ -353,6 +732,43 @@ function ProductManagementPage() {
                     </tbody>
                 </table>
             </div>
+            {selectedProduct && (
+                <>
+                    <div className="product-unit-create-area">
+                        <button
+                            type="button"
+                            className="product-primary-button"
+                            onClick={openProductUnitCreateForm}
+                        >
+                            상품단위 등록
+                        </button>
+                    </div>
+
+                    {productUnitFormOpen && (
+                        <ProductUnitForm
+                            form={productUnitForm}
+                            units={availableUnits}
+                            saving={productUnitSaving}
+                            editing={editingProductUnitId !== null}
+                            onChange={handleProductUnitFormChange}
+                            onSubmit={handleSaveProductUnit}
+                            onCancel={closeProductUnitForm}
+                        />
+                    )}
+
+                    <ProductUnitPanel
+                        product={selectedProduct}
+                        productUnits={productUnits}
+                        loading={productUnitsLoading}
+                        errorMessage={productUnitErrorMessage}
+                        onEdit={openProductUnitEditForm}
+                        onDeactivate={
+                            handleDeactivateProductUnit
+                        }
+                        onClose={closeProductUnits}
+                    />
+                </>
+            )}
         </div>
     );
 }
