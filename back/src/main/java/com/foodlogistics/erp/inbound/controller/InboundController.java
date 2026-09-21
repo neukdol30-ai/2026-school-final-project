@@ -30,11 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InboundController {
 
-    // 입고 조회, 생성, 품목 저장 실제 업무는 Service가 담당
     private final InboundService inboundService;
 
-    // INBOUND DRAFT 생성
-    // POST /api/inbounds
     @PostMapping
     public ResponseEntity<
             ApiResponse<InboundCreateResponse>
@@ -49,14 +46,6 @@ public class InboundController {
         Number companyId =
                 jwt.getClaim("companyId");
 
-        log.info(
-                "POST /api/inbounds: "
-                        + "companyId={}, appUserId={}, purchaseOrderId={}",
-                companyId.longValue(),
-                appUserId.longValue(),
-                request.getPurchaseOrderId()
-        );
-
         InboundCreateResponse response =
                 inboundService.createInbound(
                         companyId.longValue(),
@@ -64,21 +53,61 @@ public class InboundController {
                         request
                 );
 
-        log.info(
-                "POST /api/inbounds completed: "
-                        + "companyId={}, inboundId={}, inboundNo={}",
-                companyId.longValue(),
-                response.getInboundId(),
-                response.getInboundNo()
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
         );
+    }
+
+    @GetMapping("/purchase-orders")
+    public ResponseEntity<
+            ApiResponse<List<InboundPurchaseOrderResponse>>
+            >
+    getInboundTargetPurchaseOrders(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        List<InboundPurchaseOrderResponse> response =
+                inboundService.getInboundTargetPurchaseOrders(
+                        companyId.longValue(),
+                        appUserId.longValue()
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.ok(response)
         );
     }
 
-    // DRAFT 입고서의 품목 전체 교체 저장
-    // PUT /api/inbounds/{inboundId}/items
+    @GetMapping("/purchase-orders/{purchaseOrderId}/items")
+    public ResponseEntity<
+            ApiResponse<List<InboundPurchaseOrderItemResponse>>
+            >
+    getInboundTargetPurchaseOrderItems(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        List<InboundPurchaseOrderItemResponse> response =
+                inboundService.getInboundTargetPurchaseOrderItems(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
     @PutMapping("/{inboundId}/items")
     public ResponseEntity<
             ApiResponse<InboundItemsUpdateResponse>
@@ -94,15 +123,6 @@ public class InboundController {
         Number companyId =
                 jwt.getClaim("companyId");
 
-        log.info(
-                "PUT /api/inbounds/{}/items: "
-                        + "companyId={}, appUserId={}, itemCount={}",
-                inboundId,
-                companyId.longValue(),
-                appUserId.longValue(),
-                request.getItems().size()
-        );
-
         InboundItemsUpdateResponse response =
                 inboundService.updateInboundItems(
                         companyId.longValue(),
@@ -111,96 +131,39 @@ public class InboundController {
                         request
                 );
 
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    @PostMapping("/{inboundId}/confirm")
+    public ResponseEntity<
+            ApiResponse<Long>
+            >
+    confirmInbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long inboundId
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
         log.info(
-                "PUT /api/inbounds/{}/items completed: "
-                        + "companyId={}, savedItemCount={}, savedLotCount={}",
+                "POST /api/inbounds/{}/confirm: "
+                        + "companyId={}, appUserId={}",
                 inboundId,
                 companyId.longValue(),
-                response.getSavedItemCount(),
-                response.getSavedLotCount()
-        );
-
-        return ResponseEntity.ok(
-                ApiResponse.ok(response)
-        );
-    }
-
-    // 입고 대상 발주 목록 조회
-    // GET /api/inbounds/purchase-orders
-    @GetMapping("/purchase-orders")
-    public ResponseEntity<
-            ApiResponse<List<InboundPurchaseOrderResponse>>
-            >
-    getInboundTargetPurchaseOrders(
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        Number appUserId =
-                jwt.getClaim("appUserId");
-
-        Number companyId =
-                jwt.getClaim("companyId");
-
-        log.info(
-                "GET /api/inbounds/purchase-orders: companyId={}, appUserId={}",
-                companyId.longValue(),
                 appUserId.longValue()
         );
 
-        List<InboundPurchaseOrderResponse> response =
-                inboundService.getInboundTargetPurchaseOrders(
-                        companyId.longValue(),
-                        appUserId.longValue()
-                );
-
-        log.info(
-                "GET /api/inbounds/purchase-orders completed: companyId={}, count={}",
-                companyId.longValue(),
-                response.size()
-        );
-
-        return ResponseEntity.ok(
-                ApiResponse.ok(response)
-        );
-    }
-
-    // 선택한 발주의 입고 가능 품목 조회
-    // GET /api/inbounds/purchase-orders/{purchaseOrderId}/items
-    @GetMapping("/purchase-orders/{purchaseOrderId}/items")
-    public ResponseEntity<
-            ApiResponse<List<InboundPurchaseOrderItemResponse>>
-            >
-    getInboundTargetPurchaseOrderItems(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long purchaseOrderId
-    ) {
-        Number appUserId =
-                jwt.getClaim("appUserId");
-
-        Number companyId =
-                jwt.getClaim("companyId");
-
-        log.info(
-                "GET /api/inbounds/purchase-orders/{}/items: "
-                        + "companyId={}, appUserId={}",
-                purchaseOrderId,
-                companyId.longValue(),
-                appUserId.longValue()
-        );
-
-        List<InboundPurchaseOrderItemResponse> response =
-                inboundService.getInboundTargetPurchaseOrderItems(
+        Long response =
+                inboundService.confirmInbound(
                         companyId.longValue(),
                         appUserId.longValue(),
-                        purchaseOrderId
+                        inboundId
                 );
-
-        log.info(
-                "GET /api/inbounds/purchase-orders/{}/items completed: "
-                        + "companyId={}, count={}",
-                purchaseOrderId,
-                companyId.longValue(),
-                response.size()
-        );
 
         return ResponseEntity.ok(
                 ApiResponse.ok(response)

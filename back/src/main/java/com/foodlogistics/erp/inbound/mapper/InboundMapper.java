@@ -134,7 +134,6 @@ public interface InboundMapper {
     );
 
     // INBOUND 확정 처리
-    // 실제 호출은 10/10 재고 증가 처리와 결합한 뒤 사용
     int confirmInbound(
             @Param("companyId") Long companyId,
             @Param("purchaseOrderId") Long purchaseOrderId,
@@ -148,5 +147,57 @@ public interface InboundMapper {
     // INBOUND Header 저장
     int insertInbound(
             InboundInsertParam param
+    );
+
+    // 입고확정 LOT별 재고 반영 정보 조회
+    List<InboundConfirmLotInfo> findInboundConfirmLots(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 기존 LOT 재고 증가
+    int increaseInboundLotStock(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("lotId") Long lotId,
+            @Param("baseLotQty") BigDecimal baseLotQty
+    );
+
+    // 최초 LOT 재고 생성
+    int insertInboundLotStock(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("lotId") Long lotId,
+            @Param("baseLotQty") BigDecimal baseLotQty
+    );
+
+    // 기존 전체 재고 증가
+    int increaseInboundStock(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("baseReceivedQty") BigDecimal baseReceivedQty
+    );
+
+    // 최초 전체 재고 생성
+    int insertInboundStock(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("baseReceivedQty") BigDecimal baseReceivedQty
+    );
+
+    // 입고 재고이력 저장
+    int insertInboundStockHistory(
+            @Param("companyId") Long companyId,
+            @Param("warehouseId") Long warehouseId,
+            @Param("productId") Long productId,
+            @Param("lotId") Long lotId,
+            @Param("changeQty") BigDecimal changeQty,
+            @Param("inboundId") Long inboundId,
+            @Param("createdBy") Long createdBy
     );
 }

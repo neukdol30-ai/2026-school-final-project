@@ -698,4 +698,157 @@
 
     </update>
 
+    <!-- 입고확정 LOT별 재고 반영 정보 -->
+    <select id="findInboundConfirmLots"
+            resultType="com.foodlogistics.erp.inbound.mapper.InboundConfirmLotInfo">
+
+        SELECT
+        ii.inbound_item_id AS "inboundItemId",
+        poi.product_id AS "productId",
+        iil.lot_id AS "lotId",
+        iil.base_lot_qty AS "baseLotQty"
+
+        FROM inbound i
+
+        JOIN inbound_item ii
+        ON ii.inbound_id = i.inbound_id
+
+        JOIN purchase_order_item poi
+        ON poi.purchase_order_item_id = ii.purchase_order_item_id
+        AND poi.purchase_order_id = i.purchase_order_id
+
+        JOIN inbound_item_lot iil
+        ON iil.inbound_item_id = ii.inbound_item_id
+
+        WHERE i.company_id = #{companyId}
+        AND i.purchase_order_id = #{purchaseOrderId}
+        AND i.inbound_id = #{inboundId}
+        AND i.status = 'DRAFT'
+
+        ORDER BY
+        poi.product_id,
+        iil.lot_id,
+        ii.inbound_item_id
+
+    </select>
+
+    <!-- 기존 LOT 재고 증가 -->
+    <update id="increaseInboundLotStock">
+
+        UPDATE lot_stock
+
+        SET quantity =
+        quantity + #{baseLotQty}
+
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND lot_id = #{lotId}
+
+        AND EXISTS
+        (
+        SELECT 1
+
+        FROM lot l
+
+        WHERE l.lot_id = lot_stock.lot_id
+        AND l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+        )
+
+    </update>
+
+    <!-- 최초 LOT 재고 생성 -->
+    <insert id="insertInboundLotStock">
+
+        INSERT INTO lot_stock
+        (
+        company_id,
+        warehouse_id,
+        lot_id,
+        quantity
+        )
+
+        SELECT
+        #{companyId},
+        #{warehouseId},
+        l.lot_id,
+        #{baseLotQty}
+
+        FROM lot l
+
+        WHERE l.lot_id = #{lotId}
+        AND l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+
+    </insert>
+
+    <!-- 기존 창고·상품 전체 재고 증가 -->
+    <update id="increaseInboundStock">
+
+        UPDATE stock
+
+        SET quantity =
+        quantity + #{baseReceivedQty}
+
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+
+    </update>
+
+    <!-- 최초 창고·상품 전체 재고 생성 -->
+    <insert id="insertInboundStock">
+
+        INSERT INTO stock
+        (
+        company_id,
+        warehouse_id,
+        product_id,
+        quantity
+        )
+        VALUES
+        (
+        #{companyId},
+        #{warehouseId},
+        #{productId},
+        #{baseReceivedQty}
+        )
+
+    </insert>
+
+    <!-- 입고 재고이력 저장 -->
+    <insert id="insertInboundStockHistory">
+
+        INSERT INTO stock_history
+        (
+        company_id,
+        warehouse_id,
+        product_id,
+        lot_id,
+        movement_type,
+        change_qty,
+        source_type,
+        source_id,
+        created_by,
+        created_at
+        )
+        VALUES
+        (
+        #{companyId},
+        #{warehouseId},
+        #{productId},
+        #{lotId, jdbcType=NUMERIC},
+        'INBOUND',
+        #{changeQty},
+        'INBOUND',
+        #{inboundId},
+        #{createdBy},
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        )
+
+    </insert>
+
 </mapper>

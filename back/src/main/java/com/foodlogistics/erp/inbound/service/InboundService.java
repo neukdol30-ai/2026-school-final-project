@@ -34,13 +34,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class InboundService {
 
-    // 입고 조회, DRAFT 생성, 입고품목 저장에 사용하는 MyBatis Mapper
     private final InboundMapper inboundMapper;
 
-    // 입고 업무 규칙 검증
     private final InboundValidator inboundValidator;
 
-    // 현재 회사의 입고 대상 발주 목록 조회
     @Transactional(readOnly = true)
     public List<InboundPurchaseOrderResponse>
     getInboundTargetPurchaseOrders(
@@ -72,7 +69,6 @@ public class InboundService {
         return response;
     }
 
-    // 선택한 발주의 아직 입고 가능한 품목 조회
     @Transactional(readOnly = true)
     public List<InboundPurchaseOrderItemResponse>
     getInboundTargetPurchaseOrderItems(
@@ -112,13 +108,6 @@ public class InboundService {
         );
 
         if (items.isEmpty()) {
-            log.info(
-                    "No inbound target purchase order items found: "
-                            + "companyId={}, purchaseOrderId={}",
-                    companyId,
-                    purchaseOrderId
-            );
-
             throw new BusinessException(
                     ErrorCode.RESOURCE_NOT_FOUND,
                     "입고 가능한 발주 품목을 찾을 수 없습니다."
@@ -128,7 +117,6 @@ public class InboundService {
         return items;
     }
 
-    // INBOUND DRAFT Header 생성
     @Transactional
     public InboundCreateResponse createInbound(
             Long companyId,
@@ -278,7 +266,6 @@ public class InboundService {
         );
     }
 
-    // DRAFT 입고서의 품목 전체를 교체 저장
     @Transactional
     public InboundItemsUpdateResponse updateInboundItems(
             Long companyId,
@@ -308,7 +295,6 @@ public class InboundService {
                 request.getItems().size()
         );
 
-        // 먼저 INBOUND를 일반 조회하여 연결된 발주 ID를 확인
         InboundItemUpdateTargetInfo target =
                 inboundMapper.findInboundItemUpdateTarget(
                         companyId,
@@ -330,7 +316,6 @@ public class InboundService {
             );
         }
 
-        // 7/10과 잠금 순서를 맞추기 위해 PURCHASE_ORDER를 먼저 잠금
         InboundPurchaseOrderLockInfo purchaseOrder =
                 inboundMapper.findPurchaseOrderForUpdate(
                         companyId,
@@ -341,7 +326,6 @@ public class InboundService {
                 purchaseOrder
         );
 
-        // PURCHASE_ORDER 다음으로 INBOUND를 잠금
         InboundItemUpdateTargetInfo lockedInbound =
                 inboundMapper.findInboundForUpdate(
                         companyId,
@@ -359,7 +343,6 @@ public class InboundService {
         Map<Long, InboundPurchaseOrderItemResponse> itemReferences =
                 new HashMap<>();
 
-        // 모든 품목을 먼저 검증하고 계산
         for (InboundItemUpdateRequest itemRequest : request.getItems()) {
 
             InboundPurchaseOrderItemResponse reference =
@@ -447,8 +430,6 @@ public class InboundService {
             );
         }
 
-        // 같은 신규 LOT를 여러 요청이 동시에 만들 때
-        // 잠금 순서를 일정하게 유지하기 위해 상품 ID + LOT 번호 순서로 정렬
         Map<String, LotResolveTarget> uniqueLotTargets =
                 new LinkedHashMap<>();
 
@@ -506,7 +487,6 @@ public class InboundService {
         Map<String, LotInfo> resolvedLots =
                 new HashMap<>();
 
-        // 기존 LOT는 재사용하고, 없는 LOT만 새로 생성
         for (LotResolveTarget lotTarget : sortedLotTargets) {
 
             LotInfo resolvedLot =
@@ -524,8 +504,6 @@ public class InboundService {
             );
         }
 
-        // 같은 LOT가 여러 품목에서 사용됐다면
-        // 각각의 요청 날짜가 기존 LOT 정보와 충돌하지 않는지 모두 검사
         for (InboundItemUpdateRequest itemRequest : request.getItems()) {
 
             InboundPurchaseOrderItemResponse reference =
@@ -569,13 +547,11 @@ public class InboundService {
             }
         }
 
-        // 모든 검증이 끝난 다음 기존 자식 LOT 연결부터 삭제
         inboundMapper.deleteInboundItemLots(
                 companyId,
                 inboundId
         );
 
-        // 그다음 기존 입고품목 전체 삭제
         inboundMapper.deleteInboundItems(
                 companyId,
                 inboundId
@@ -587,7 +563,6 @@ public class InboundService {
         int savedLotCount =
                 0;
 
-        // 검증이 끝난 새 입고품목을 다시 저장
         for (int index = 0;
              index < itemParams.size();
              index++) {
@@ -623,7 +598,6 @@ public class InboundService {
 
             savedItemCount++;
 
-            // LOT 비관리상품은 INBOUND_ITEM_LOT를 만들지 않음
             if (!"Y".equals(
                     reference.getLotManagedYn()
             )) {
@@ -697,7 +671,410 @@ public class InboundService {
         );
     }
 
-    // 기존 LOT를 조회하고 없으면 신규 LOT 생성
+    @Transactional
+    public Long confirmInbound(
+            Long companyId,
+            Long appUserId,
+            Long inboundId
+    ) {
+        inboundValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        inboundValidator.validateInboundId(
+                inboundId
+        );
+
+        log.info(
+                "Inbound confirmation started: "
+                        + "companyId={}, appUserId={}, inboundId={}",
+                companyId,
+                appUserId,
+                inboundId
+        );
+
+        InboundItemUpdateTargetInfo inboundTarget =
+                inboundMapper.findInboundItemUpdateTarget(
+                        companyId,
+                        inboundId
+                );
+
+        inboundValidator.validateInboundExists(
+                inboundTarget
+        );
+
+        Long purchaseOrderId =
+                inboundTarget.getPurchaseOrderId();
+
+        inboundValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        InboundPurchaseOrderLockInfo purchaseOrder =
+                inboundMapper.findPurchaseOrderForUpdate(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        inboundValidator.validatePurchaseOrderForInbound(
+                purchaseOrder
+        );
+
+        if (purchaseOrder.getWarehouseId() == null
+                || purchaseOrder.getWarehouseId() <= 0) {
+
+            throw new IllegalStateException(
+                    "입고 창고 정보를 확인할 수 없습니다."
+            );
+        }
+
+        Long warehouseId =
+                purchaseOrder.getWarehouseId();
+
+        InboundItemUpdateTargetInfo lockedInbound =
+                inboundMapper.findInboundForUpdate(
+                        companyId,
+                        inboundId,
+                        purchaseOrderId
+                );
+
+        inboundValidator.validateInboundDraft(
+                lockedInbound
+        );
+
+        List<InboundConfirmItemInfo> confirmItems =
+                inboundMapper.findInboundConfirmItems(
+                        companyId,
+                        purchaseOrderId,
+                        inboundId
+                );
+
+        inboundValidator.validateInboundConfirmItems(
+                confirmItems
+        );
+
+        List<InboundConfirmLotInfo> confirmLots =
+                inboundMapper.findInboundConfirmLots(
+                        companyId,
+                        purchaseOrderId,
+                        inboundId
+                );
+
+        for (InboundConfirmItemInfo item : confirmItems) {
+
+            int updatedCount =
+                    inboundMapper.increasePurchaseOrderItemReceivedQty(
+                            companyId,
+                            purchaseOrderId,
+                            item.getPurchaseOrderItemId(),
+                            item.getBaseReceivedQty()
+                    );
+
+            inboundValidator.validatePurchaseOrderItemUpdateCount(
+                    updatedCount
+            );
+        }
+
+        applyInboundInventoryAndSaveHistory(
+                companyId,
+                warehouseId,
+                inboundId,
+                appUserId,
+                confirmItems,
+                confirmLots
+        );
+
+        int remainingItemCount =
+                inboundMapper.countRemainingPurchaseOrderItems(
+                        purchaseOrderId
+                );
+
+        String receiptStatus =
+                remainingItemCount == 0
+                        ? "RECEIVED"
+                        : "PARTIAL";
+
+        int purchaseOrderUpdatedCount =
+                inboundMapper.updatePurchaseOrderReceiptStatus(
+                        companyId,
+                        purchaseOrderId,
+                        receiptStatus,
+                        appUserId
+                );
+
+        inboundValidator.validatePurchaseOrderStatusUpdateCount(
+                purchaseOrderUpdatedCount
+        );
+
+        int inboundUpdatedCount =
+                inboundMapper.confirmInbound(
+                        companyId,
+                        purchaseOrderId,
+                        inboundId,
+                        appUserId
+                );
+
+        inboundValidator.validateInboundConfirmUpdateCount(
+                inboundUpdatedCount
+        );
+
+        log.info(
+                "Inbound confirmation completed: "
+                        + "companyId={}, appUserId={}, inboundId={}, "
+                        + "purchaseOrderId={}, receiptStatus={}",
+                companyId,
+                appUserId,
+                inboundId,
+                purchaseOrderId,
+                receiptStatus
+        );
+
+        return inboundId;
+    }
+
+    private void applyInboundInventoryAndSaveHistory(
+            Long companyId,
+            Long warehouseId,
+            Long inboundId,
+            Long appUserId,
+            List<InboundConfirmItemInfo> confirmItems,
+            List<InboundConfirmLotInfo> confirmLots
+    ) {
+        Map<Long, List<InboundConfirmLotInfo>> lotsByInboundItemId =
+                groupInboundLotsByItemId(
+                        confirmLots
+                );
+
+        for (InboundConfirmItemInfo item : confirmItems) {
+
+            List<InboundConfirmLotInfo> itemLots =
+                    lotsByInboundItemId.getOrDefault(
+                            item.getInboundItemId(),
+                            List.of()
+                    );
+
+            if ("Y".equals(
+                    item.getLotManagedYn()
+            )) {
+
+                for (InboundConfirmLotInfo lot : itemLots) {
+
+                    increaseInboundLotStock(
+                            companyId,
+                            warehouseId,
+                            item.getProductId(),
+                            lot.getLotId(),
+                            lot.getBaseLotQty()
+                    );
+                }
+
+                increaseInboundStock(
+                        companyId,
+                        warehouseId,
+                        item.getProductId(),
+                        item.getBaseReceivedQty()
+                );
+
+                for (InboundConfirmLotInfo lot : itemLots) {
+
+                    insertInboundStockHistory(
+                            companyId,
+                            warehouseId,
+                            item.getProductId(),
+                            lot.getLotId(),
+                            lot.getBaseLotQty(),
+                            inboundId,
+                            appUserId
+                    );
+                }
+
+                continue;
+            }
+
+            if (!itemLots.isEmpty()) {
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "LOT 비관리상품에는 LOT 재고정보가 존재할 수 없습니다."
+                );
+            }
+
+            increaseInboundStock(
+                    companyId,
+                    warehouseId,
+                    item.getProductId(),
+                    item.getBaseReceivedQty()
+            );
+
+            insertInboundStockHistory(
+                    companyId,
+                    warehouseId,
+                    item.getProductId(),
+                    null,
+                    item.getBaseReceivedQty(),
+                    inboundId,
+                    appUserId
+            );
+        }
+    }
+
+    private Map<Long, List<InboundConfirmLotInfo>>
+    groupInboundLotsByItemId(
+            List<InboundConfirmLotInfo> confirmLots
+    ) {
+        Map<Long, List<InboundConfirmLotInfo>> lotsByInboundItemId =
+                new HashMap<>();
+
+        for (InboundConfirmLotInfo lot : confirmLots) {
+
+            lotsByInboundItemId
+                    .computeIfAbsent(
+                            lot.getInboundItemId(),
+                            ignored -> new ArrayList<>()
+                    )
+                    .add(
+                            lot
+                    );
+        }
+
+        return lotsByInboundItemId;
+    }
+
+    private void increaseInboundLotStock(
+            Long companyId,
+            Long warehouseId,
+            Long productId,
+            Long lotId,
+            BigDecimal baseLotQty
+    ) {
+        int updatedCount =
+                inboundMapper.increaseInboundLotStock(
+                        companyId,
+                        warehouseId,
+                        productId,
+                        lotId,
+                        baseLotQty
+                );
+
+        if (updatedCount == 1) {
+            return;
+        }
+
+        try {
+
+            int insertedCount =
+                    inboundMapper.insertInboundLotStock(
+                            companyId,
+                            warehouseId,
+                            productId,
+                            lotId,
+                            baseLotQty
+                    );
+
+            if (insertedCount != 1) {
+                throw new IllegalStateException(
+                        "LOT 재고 생성 결과를 확인할 수 없습니다."
+                );
+            }
+
+        } catch (DuplicateKeyException e) {
+
+            int retryUpdatedCount =
+                    inboundMapper.increaseInboundLotStock(
+                            companyId,
+                            warehouseId,
+                            productId,
+                            lotId,
+                            baseLotQty
+                    );
+
+            if (retryUpdatedCount != 1) {
+                throw new IllegalStateException(
+                        "LOT 재고 증가 결과를 확인할 수 없습니다."
+                );
+            }
+        }
+    }
+
+    private void increaseInboundStock(
+            Long companyId,
+            Long warehouseId,
+            Long productId,
+            BigDecimal baseReceivedQty
+    ) {
+        int updatedCount =
+                inboundMapper.increaseInboundStock(
+                        companyId,
+                        warehouseId,
+                        productId,
+                        baseReceivedQty
+                );
+
+        if (updatedCount == 1) {
+            return;
+        }
+
+        try {
+
+            int insertedCount =
+                    inboundMapper.insertInboundStock(
+                            companyId,
+                            warehouseId,
+                            productId,
+                            baseReceivedQty
+                    );
+
+            if (insertedCount != 1) {
+                throw new IllegalStateException(
+                        "재고 생성 결과를 확인할 수 없습니다."
+                );
+            }
+
+        } catch (DuplicateKeyException e) {
+
+            int retryUpdatedCount =
+                    inboundMapper.increaseInboundStock(
+                            companyId,
+                            warehouseId,
+                            productId,
+                            baseReceivedQty
+                    );
+
+            if (retryUpdatedCount != 1) {
+                throw new IllegalStateException(
+                        "재고 증가 결과를 확인할 수 없습니다."
+                );
+            }
+        }
+    }
+
+    private void insertInboundStockHistory(
+            Long companyId,
+            Long warehouseId,
+            Long productId,
+            Long lotId,
+            BigDecimal changeQty,
+            Long inboundId,
+            Long appUserId
+    ) {
+        int insertedCount =
+                inboundMapper.insertInboundStockHistory(
+                        companyId,
+                        warehouseId,
+                        productId,
+                        lotId,
+                        changeQty,
+                        inboundId,
+                        appUserId
+                );
+
+        if (insertedCount != 1) {
+            throw new IllegalStateException(
+                    "입고 재고이력 저장 결과를 확인할 수 없습니다."
+            );
+        }
+    }
+
     private LotInfo resolveLot(
             Long companyId,
             LotResolveTarget target
@@ -792,8 +1169,6 @@ public class InboundService {
 
         } catch (DuplicateKeyException e) {
 
-            // 다른 트랜잭션이 같은 상품 + 같은 LOT 번호를
-            // 먼저 생성한 경우 다시 조회해서 그 LOT를 재사용
             LotInfo concurrentLot =
                     inboundMapper.findLot(
                             companyId,
@@ -814,7 +1189,6 @@ public class InboundService {
         }
     }
 
-    // 상품 ID와 LOT 번호를 묶어 Map Key 생성
     private String createLotKey(
             Long productId,
             String lotNo
@@ -824,7 +1198,6 @@ public class InboundService {
                 + lotNo;
     }
 
-    // 입고일 + Sequence를 업무용 입고번호로 변환
     private String createInboundNo(
             LocalDate inboundDate,
             Long sequence
@@ -846,7 +1219,6 @@ public class InboundService {
                 + sequenceText;
     }
 
-    // LOT 생성 순서를 일정하게 유지하기 위한 Service 내부 객체
     private static class LotResolveTarget {
 
         private final Long productId;
@@ -881,71 +1253,5 @@ public class InboundService {
         private InboundItemLotRequest getRequest() {
             return request;
         }
-    }
-
-    private List<InboundConfirmItemInfo> prepareInboundConfirmation(
-            Long companyId,
-            Long appUserId,
-            Long inboundId
-    ) {
-        inboundValidator.validateAuthenticatedUser(
-                companyId,
-                appUserId
-        );
-
-        inboundValidator.validateInboundId(
-                inboundId
-        );
-
-        InboundItemUpdateTargetInfo inboundTarget =
-                inboundMapper.findInboundItemUpdateTarget(
-                        companyId,
-                        inboundId
-                );
-
-        inboundValidator.validateInboundExists(
-                inboundTarget
-        );
-
-        Long purchaseOrderId =
-                inboundTarget.getPurchaseOrderId();
-
-        inboundValidator.validatePurchaseOrderId(
-                purchaseOrderId
-        );
-
-        InboundPurchaseOrderLockInfo purchaseOrder =
-                inboundMapper.findPurchaseOrderForUpdate(
-                        companyId,
-                        purchaseOrderId
-                );
-
-        inboundValidator.validatePurchaseOrderForInbound(
-                purchaseOrder
-        );
-
-        InboundItemUpdateTargetInfo lockedInbound =
-                inboundMapper.findInboundForUpdate(
-                        companyId,
-                        inboundId,
-                        purchaseOrderId
-                );
-
-        inboundValidator.validateInboundDraft(
-                lockedInbound
-        );
-
-        List<InboundConfirmItemInfo> confirmItems =
-                inboundMapper.findInboundConfirmItems(
-                        companyId,
-                        purchaseOrderId,
-                        inboundId
-                );
-
-        inboundValidator.validateInboundConfirmItems(
-                confirmItems
-        );
-
-        return confirmItems;
     }
 }
