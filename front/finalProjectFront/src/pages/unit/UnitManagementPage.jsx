@@ -11,6 +11,12 @@ import {
 import UnitSearchForm
     from "./UnitSearchForm.jsx";
 import UnitForm from "./UnitForm.jsx";
+import ManagementModal
+    from "../../components/common/ManagementModal.jsx";
+import ManagementAccessDenied
+    from "../../components/common/ManagementAccessDenied.jsx";
+import { hasAuthority }
+    from "../../storage/authStorage.js";
 import "./UnitManagementPage.css";
 
 const INITIAL_FILTERS = {
@@ -25,6 +31,13 @@ const INITIAL_FORM = {
 };
 
 function UnitManagementPage() {
+    const canRead = hasAuthority("UNIT_READ");
+    const canCreate = hasAuthority("UNIT_CREATE");
+    const canUpdate = hasAuthority("UNIT_UPDATE");
+    const canDeactivate = hasAuthority(
+        "UNIT_DEACTIVATE",
+    );
+
     const [filters, setFilters] =
         useState(INITIAL_FILTERS);
 
@@ -53,6 +66,10 @@ function UnitManagementPage() {
         useState("");
 
     useEffect(() => {
+        if (!canRead) {
+            return undefined;
+        }
+
         let cancelled = false;
 
         requestUnits(INITIAL_FILTERS)
@@ -81,7 +98,7 @@ function UnitManagementPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [canRead]);
 
     async function loadUnits(nextFilters) {
         setLoading(true);
@@ -269,6 +286,14 @@ function UnitManagementPage() {
         }
     }
 
+    if (!canRead) {
+        return (
+            <div className="page unit-page">
+                <ManagementAccessDenied resourceName="단위" />
+            </div>
+        );
+    }
+
     return (
         <div className="page unit-page">
             <div className="unit-header">
@@ -282,22 +307,32 @@ function UnitManagementPage() {
 
                 <button
                     type="button"
-                    className="unit-primary-button"
+                    className={
+                        canCreate
+                            ? "unit-primary-button"
+                            : "unit-primary-button permission-disabled"
+                    }
                     onClick={openCreateForm}
+                    disabled={!canCreate}
                 >
                     단위 등록
                 </button>
             </div>
 
             {formOpen && (
-                <UnitForm
-                    form={form}
-                    saving={saving}
-                    editing={editingUnitId !== null}
-                    onChange={handleFormChange}
-                    onSubmit={handleSaveUnit}
-                    onCancel={closeForm}
-                />
+                <ManagementModal
+                    onClose={closeForm}
+                    closeDisabled={saving}
+                >
+                    <UnitForm
+                        form={form}
+                        saving={saving}
+                        editing={editingUnitId !== null}
+                        onChange={handleFormChange}
+                        onSubmit={handleSaveUnit}
+                        onCancel={closeForm}
+                    />
+                </ManagementModal>
             )}
 
             <UnitSearchForm
@@ -387,8 +422,13 @@ function UnitManagementPage() {
                                     <div className="unit-row-actions">
                                         <button
                                             type="button"
-                                            className="unit-edit-button"
+                                            className={
+                                                canUpdate
+                                                    ? "unit-edit-button"
+                                                    : "unit-edit-button permission-disabled"
+                                            }
                                             onClick={() => openEditForm(unit)}
+                                            disabled={!canUpdate}
                                         >
                                             수정
                                         </button>
@@ -396,10 +436,15 @@ function UnitManagementPage() {
                                         {unit.useYn === "Y" && (
                                             <button
                                                 type="button"
-                                                className="unit-deactivate-button"
+                                                className={
+                                                    canDeactivate
+                                                        ? "unit-deactivate-button"
+                                                        : "unit-deactivate-button permission-disabled"
+                                                }
                                                 onClick={() =>
                                                     handleDeactivateUnit(unit)
                                                 }
+                                                disabled={!canDeactivate}
                                             >
                                                 비활성화
                                             </button>

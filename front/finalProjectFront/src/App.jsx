@@ -11,6 +11,8 @@ import WarehouseManagementPage
   from "./pages/warehouse/WarehouseManagementPage.jsx";
 import UnitManagementPage
   from "./pages/unit/UnitManagementPage.jsx";
+import UserPermissionPage
+  from "./pages/settings/UserPermissionPage.jsx";
 
 
 function App() {
@@ -41,7 +43,10 @@ function App() {
             <Route path="/stocktakes" element={<EmptyPage title="재고실사" />} />
             <Route path="/sales-orders" element={<EmptyPage title="판매주문" />} />
             <Route path="/outbounds" element={<EmptyPage title="출고관리" />} />
-            <Route path="/settings" element={<EmptyPage title="사용자 / 권한 설정" />} />
+            <Route
+                path="/settings"
+                element={<UserPermissionPage />}
+            />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace/>} />

@@ -64,7 +64,7 @@ public class WarehouseController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('WAREHOUSE_CREATE')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_READ') and hasAuthority('WAREHOUSE_CREATE')")
     public ResponseEntity<
             ApiResponse<WarehouseResponse>
             > createWarehouse(
@@ -85,7 +85,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{warehouseId}")
-    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_READ') and hasAuthority('WAREHOUSE_UPDATE')")
     public ResponseEntity<
             ApiResponse<WarehouseResponse>
             > updateWarehouse(
@@ -108,7 +108,7 @@ public class WarehouseController {
     }
 
     @PatchMapping("/{warehouseId}/deactivate")
-    @PreAuthorize("hasAuthority('WAREHOUSE_DEACTIVATE')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_READ') and hasAuthority('WAREHOUSE_DEACTIVATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateWarehouse(
             @AuthenticationPrincipal Jwt jwt,

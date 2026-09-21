@@ -12,6 +12,12 @@ import BusinessPartnerSearchForm
     from "./BusinessPartnerSearchForm.jsx";
 import BusinessPartnerForm
     from "./BusinessPartnerForm.jsx";
+import ManagementModal
+    from "../../components/common/ManagementModal.jsx";
+import ManagementAccessDenied
+    from "../../components/common/ManagementAccessDenied.jsx";
+import { hasAuthority }
+    from "../../storage/authStorage.js";
 import "./BusinessPartnerManagementPage.css";
 
 const INITIAL_FILTERS = {
@@ -55,6 +61,19 @@ function getPartnerTypeLabel(partner) {
 }
 
 function BusinessPartnerManagementPage() {
+    const canRead = hasAuthority(
+        "BUSINESS_PARTNER_READ",
+    );
+    const canCreate = hasAuthority(
+        "BUSINESS_PARTNER_CREATE",
+    );
+    const canUpdate = hasAuthority(
+        "BUSINESS_PARTNER_UPDATE",
+    );
+    const canDeactivate = hasAuthority(
+        "BUSINESS_PARTNER_DEACTIVATE",
+    );
+
     const [filters, setFilters] =
         useState(INITIAL_FILTERS);
 
@@ -83,6 +102,10 @@ function BusinessPartnerManagementPage() {
         useState("");
 
     useEffect(() => {
+        if (!canRead) {
+            return undefined;
+        }
+
         let cancelled = false;
 
         requestBusinessPartners(INITIAL_FILTERS)
@@ -111,7 +134,7 @@ function BusinessPartnerManagementPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [canRead]);
 
     async function loadPartners(nextFilters) {
         setLoading(true);
@@ -341,6 +364,14 @@ function BusinessPartnerManagementPage() {
         }
     }
 
+    if (!canRead) {
+        return (
+            <div className="page business-partner-page">
+                <ManagementAccessDenied resourceName="거래처" />
+            </div>
+        );
+    }
+
     return (
         <div className="page business-partner-page">
             <div className="business-partner-header">
@@ -354,22 +385,32 @@ function BusinessPartnerManagementPage() {
 
                 <button
                     type="button"
-                    className="business-partner-primary-button"
+                    className={
+                        canCreate
+                            ? "business-partner-primary-button"
+                            : "business-partner-primary-button permission-disabled"
+                    }
                     onClick={openCreateForm}
+                    disabled={!canCreate}
                 >
                     거래처 등록
                 </button>
             </div>
 
             {formOpen && (
-                <BusinessPartnerForm
-                    form={form}
-                    saving={saving}
-                    editing={editingPartnerId !== null}
-                    onChange={handleFormChange}
-                    onSubmit={handleSaveBusinessPartner}
-                    onCancel={closeForm}
-                />
+                <ManagementModal
+                    onClose={closeForm}
+                    closeDisabled={saving}
+                >
+                    <BusinessPartnerForm
+                        form={form}
+                        saving={saving}
+                        editing={editingPartnerId !== null}
+                        onChange={handleFormChange}
+                        onSubmit={handleSaveBusinessPartner}
+                        onCancel={closeForm}
+                    />
+                </ManagementModal>
             )}
 
             <BusinessPartnerSearchForm
@@ -480,8 +521,13 @@ function BusinessPartnerManagementPage() {
                                     <div className="business-partner-row-actions">
                                         <button
                                             type="button"
-                                            className="business-partner-edit-button"
+                                            className={
+                                                canUpdate
+                                                    ? "business-partner-edit-button"
+                                                    : "business-partner-edit-button permission-disabled"
+                                            }
                                             onClick={() => openEditForm(partner)}
+                                            disabled={!canUpdate}
                                         >
                                             수정
                                         </button>
@@ -489,12 +535,17 @@ function BusinessPartnerManagementPage() {
                                         {partner.useYn === "Y" && (
                                             <button
                                                 type="button"
-                                                className="business-partner-deactivate-button"
+                                                className={
+                                                    canDeactivate
+                                                        ? "business-partner-deactivate-button"
+                                                        : "business-partner-deactivate-button permission-disabled"
+                                                }
                                                 onClick={() =>
                                                     handleDeactivateBusinessPartner(
                                                         partner,
                                                     )
                                                 }
+                                                disabled={!canDeactivate}
                                             >
                                                 비활성화
                                             </button>

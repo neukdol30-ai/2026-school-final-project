@@ -1,13 +1,24 @@
+.unit-page {
+    width: 100%;
+    min-width: 960px;
+}
+
 .unit-header {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: flex-start;
     gap: 16px;
     margin-bottom: 18px;
 }
 
+.unit-header > div {
+    min-width: max-content;
+}
+
 .unit-header h1 {
     margin: 0;
+    white-space: nowrap;
     font-size: 24px;
     font-weight: 700;
     color: #202830;
@@ -15,6 +26,7 @@
 
 .unit-header p {
     margin: 6px 0 0;
+    white-space: nowrap;
     font-size: 13px;
     color: #818b95;
 }
@@ -38,6 +50,7 @@
 
 .unit-search-fields label {
     display: flex;
+    min-width: 0;
     flex-direction: column;
     gap: 6px;
     font-size: 13px;
@@ -48,6 +61,8 @@
 .unit-search-fields input,
 .unit-search-fields select {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     height: 38px;
     padding: 0 10px;
     font-size: 13px;
@@ -175,6 +190,12 @@ button[type="button"]:hover:not(:disabled) {
     text-align: center;
 }
 
+.unit-result-summary,
+.unit-table th,
+.unit-table td {
+    white-space: nowrap;
+}
+
 
 
 .unit-empty-row {
@@ -205,6 +226,8 @@ button[type="button"]:hover:not(:disabled) {
 }
 
 .unit-primary-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
     height: 38px;
     padding: 0 18px;
     font-size: 13px;
@@ -393,23 +416,4 @@ button[type="submit"]:hover:not(:disabled) {
 
 .unit-deactivate-button:hover {
     background-color: #fff1f1;
-}
-
-@media (max-width: 650px) {
-    .unit-header {
-        flex-direction: column;
-    }
-
-    .unit-search-fields,
-    .unit-edit-fields {
-        grid-template-columns: 1fr;
-    }
-
-    .unit-field-wide {
-        grid-column: span 1;
-    }
-
-    .unit-search-actions {
-        justify-content: flex-start;
-    }
 }

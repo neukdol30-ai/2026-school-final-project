@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('USER_CREATE')")
+    @PreAuthorize("hasAuthority('USER_READ') and hasAuthority('USER_CREATE')")
     public ResponseEntity<ApiResponse<UserResponse>>
     createUser(
             @AuthenticationPrincipal Jwt jwt,

@@ -18,6 +18,12 @@ import ProductForm from "./ProductForm.jsx";
 import ProductSearchForm from "./ProductSearchForm.jsx";
 import ProductUnitPanel from "./ProductUnitPanel.jsx";
 import ProductUnitForm from "./ProductUnitForm.jsx";
+import ManagementModal
+    from "../../components/common/ManagementModal.jsx";
+import ManagementAccessDenied
+    from "../../components/common/ManagementAccessDenied.jsx";
+import { hasAuthority }
+    from "../../storage/authStorage.js";
 import "./ProductManagementPage.css";
 
 
@@ -55,6 +61,15 @@ const STORAGE_TYPE_LABELS = {
 };
 
 function ProductManagementPage() {
+    const canRead = hasAuthority("PRODUCT_READ");
+    const canCreate = hasAuthority("PRODUCT_CREATE");
+    const canUpdate = hasAuthority("PRODUCT_UPDATE");
+    const canDeactivate = hasAuthority(
+        "PRODUCT_DEACTIVATE",
+    );
+    const canManageProductUnits =
+        canCreate || canUpdate;
+
     const [filters, setFilters] =
         useState(INITIAL_FILTERS);
     const [products, setProducts] = useState([]);
@@ -140,6 +155,10 @@ function ProductManagementPage() {
     );
 
     useEffect(() => {
+        if (!canRead) {
+            return undefined;
+        }
+
         let cancelled = false;
 
         requestManagementProducts(INITIAL_FILTERS)
@@ -168,7 +187,7 @@ function ProductManagementPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [canRead]);
 
     function handleFilterChange(event) {
         const { name, value } = event.target;
@@ -563,6 +582,14 @@ function ProductManagementPage() {
         }
     }
 
+    if (!canRead) {
+        return (
+            <div className="page product-management-page">
+                <ManagementAccessDenied resourceName="상품" />
+            </div>
+        );
+    }
+
     return (
         <div className="page product-management-page">
             <div className="product-management-header">
@@ -576,8 +603,13 @@ function ProductManagementPage() {
 
                 <button
                     type="button"
-                    className="product-primary-button"
+                    className={
+                        canCreate
+                            ? "product-primary-button"
+                            : "product-primary-button permission-disabled"
+                    }
                     onClick={openCreateForm}
+                    disabled={!canCreate}
                 >
                     상품 등록
                 </button>
@@ -592,14 +624,19 @@ function ProductManagementPage() {
             />
 
             {formOpen && (
-                <ProductForm
-                    form={form}
-                    saving={saving}
-                    editing={editingProductId !== null}
-                    onChange={handleFormChange}
-                    onSubmit={handleSaveProduct}
-                    onCancel={closeForm}
-                />
+                <ManagementModal
+                    onClose={closeForm}
+                    closeDisabled={saving}
+                >
+                    <ProductForm
+                        form={form}
+                        saving={saving}
+                        editing={editingProductId !== null}
+                        onChange={handleFormChange}
+                        onSubmit={handleSaveProduct}
+                        onCancel={closeForm}
+                    />
+                </ManagementModal>
             )}
 
             {errorMessage && (
@@ -706,21 +743,33 @@ function ProductManagementPage() {
 
                                         <button
                                             type="button"
-                                            className="product-edit-button"
+                                            className={
+                                                canUpdate
+                                                    ? "product-edit-button"
+                                                    : "product-edit-button permission-disabled"
+                                            }
                                             onClick={() =>
                                                 openEditForm(product)
                                             }
+                                            disabled={!canUpdate}
                                         >
                                             수정
                                         </button>
 
                                         <button
                                             type="button"
-                                            className="product-deactivate-button"
+                                            className={
+                                                canDeactivate
+                                                    ? "product-deactivate-button"
+                                                    : "product-deactivate-button permission-disabled"
+                                            }
                                             onClick={() =>
                                                 handleDeactivateProduct(product)
                                             }
-                                            disabled={product.useYn === "N"}
+                                            disabled={
+                                                !canDeactivate ||
+                                                product.useYn === "N"
+                                            }
                                         >
                                             비활성화
                                         </button>
@@ -737,23 +786,33 @@ function ProductManagementPage() {
                     <div className="product-unit-create-area">
                         <button
                             type="button"
-                            className="product-primary-button"
+                            className={
+                                canManageProductUnits
+                                    ? "product-primary-button"
+                                    : "product-primary-button permission-disabled"
+                            }
                             onClick={openProductUnitCreateForm}
+                            disabled={!canManageProductUnits}
                         >
                             상품단위 등록
                         </button>
                     </div>
 
                     {productUnitFormOpen && (
-                        <ProductUnitForm
-                            form={productUnitForm}
-                            units={availableUnits}
-                            saving={productUnitSaving}
-                            editing={editingProductUnitId !== null}
-                            onChange={handleProductUnitFormChange}
-                            onSubmit={handleSaveProductUnit}
-                            onCancel={closeProductUnitForm}
-                        />
+                        <ManagementModal
+                            onClose={closeProductUnitForm}
+                            closeDisabled={productUnitSaving}
+                        >
+                            <ProductUnitForm
+                                form={productUnitForm}
+                                units={availableUnits}
+                                saving={productUnitSaving}
+                                editing={editingProductUnitId !== null}
+                                onChange={handleProductUnitFormChange}
+                                onSubmit={handleSaveProductUnit}
+                                onCancel={closeProductUnitForm}
+                            />
+                        </ManagementModal>
                     )}
 
                     <ProductUnitPanel
@@ -765,6 +824,7 @@ function ProductManagementPage() {
                         onDeactivate={
                             handleDeactivateProductUnit
                         }
+                        canUpdate={canUpdate}
                         onClose={closeProductUnits}
                     />
                 </>

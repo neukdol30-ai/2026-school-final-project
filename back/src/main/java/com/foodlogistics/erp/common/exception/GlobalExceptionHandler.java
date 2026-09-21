@@ -6,6 +6,7 @@ import com.foodlogistics.erp.common.response.ValidationError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -102,6 +103,28 @@ public class GlobalExceptionHandler {
 
         log.warn(
                 "Method not allowed exception: {}",
+                exception.getMessage()
+        );
+
+        ApiError apiError = ApiError.of(
+                errorCode.getCode(),
+                errorCode.getMessage()
+        );
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ApiResponse.fail(apiError));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>>
+    handleAccessDeniedException(
+            AccessDeniedException exception
+    ) {
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+
+        log.warn(
+                "Access denied: {}",
                 exception.getMessage()
         );
 

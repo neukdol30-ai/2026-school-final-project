@@ -1,13 +1,24 @@
+.warehouse-page {
+    width: 100%;
+    min-width: 960px;
+}
+
 .warehouse-header {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: flex-start;
     gap: 16px;
     margin-bottom: 18px;
 }
 
+.warehouse-header > div {
+    min-width: max-content;
+}
+
 .warehouse-header h1 {
     margin: 0;
+    white-space: nowrap;
     font-size: 24px;
     font-weight: 700;
     color: #202830;
@@ -15,6 +26,7 @@
 
 .warehouse-header p {
     margin: 6px 0 0;
+    white-space: nowrap;
     font-size: 13px;
     color: #818b95;
 }
@@ -38,6 +50,7 @@
 
 .warehouse-search-fields label {
     display: flex;
+    min-width: 0;
     flex-direction: column;
     gap: 6px;
     font-size: 13px;
@@ -48,6 +61,8 @@
 .warehouse-search-fields input,
 .warehouse-search-fields select {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     height: 38px;
     padding: 0 10px;
     font-size: 13px;
@@ -135,7 +150,7 @@ button[type="button"]:hover:not(:disabled) {
 
 .warehouse-table {
     width: 100%;
-    min-width: 850px;
+    min-width: 1100px;
     font-size: 13px;
     background-color: #ffffff;
     border-collapse: collapse;
@@ -174,6 +189,30 @@ button[type="button"]:hover:not(:disabled) {
 .warehouse-table td:last-child {
     text-align: center;
 }
+
+.warehouse-table th:last-child,
+.warehouse-table td:last-child {
+    min-width: 180px;
+    white-space: nowrap;
+}
+
+.warehouse-result-summary,
+.warehouse-table th,
+.warehouse-table td {
+    white-space: nowrap;
+}
+
+.warehouse-row-actions {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.warehouse-edit-button,
+.warehouse-deactivate-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
 .warehouse-empty-row {
     padding: 28px 20px !important;
     text-align: center !important;
@@ -202,6 +241,8 @@ button[type="button"]:hover:not(:disabled) {
 }
 
 .warehouse-primary-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
     height: 38px;
     padding: 0 18px;
     font-size: 13px;
@@ -353,36 +394,6 @@ button[type="submit"]:hover:not(:disabled) {
     cursor: not-allowed;
 }
 
-@media (max-width: 1000px) {
-    .warehouse-edit-fields {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-    .warehouse-field-wide {
-        grid-column: span 2;
-    }
-}
-
-@media (max-width: 650px) {
-    .warehouse-header {
-        flex-direction: column;
-    }
-
-    .warehouse-search-fields,
-    .warehouse-edit-fields {
-        grid-template-columns: 1fr;
-    }
-
-    .warehouse-field-wide {
-        grid-column: span 1;
-    }
-
-    .warehouse-search-actions {
-        justify-content: flex-start;
-    }
-}
-
 .warehouse-edit-button {
     height: 30px;
     padding: 0 12px;
@@ -420,4 +431,18 @@ button[type="submit"]:hover:not(:disabled) {
 
 .warehouse-deactivate-button:hover {
     background-color: #fff1f1;
+}
+
+.warehouse-primary-button,
+.warehouse-search-actions button,
+.warehouse-edit-actions button {
+    white-space: nowrap;
+}
+
+.warehouse-primary-button {
+    min-width: 120px;
+}
+
+.warehouse-search-actions button {
+    min-width: 88px;
 }

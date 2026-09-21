@@ -23,6 +23,7 @@ public class AppUser {
     private String positionName;
 
     private String useYn;
+    private String ownerYn;
 
     private LocalDateTime createdAt;
     private Long createdBy;

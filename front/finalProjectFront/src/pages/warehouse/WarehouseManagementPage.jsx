@@ -12,6 +12,12 @@ import WarehouseSearchForm
     from "./WarehouseSearchForm.jsx";
 import WarehouseForm
     from "./WarehouseForm.jsx";
+import ManagementModal
+    from "../../components/common/ManagementModal.jsx";
+import ManagementAccessDenied
+    from "../../components/common/ManagementAccessDenied.jsx";
+import { hasAuthority }
+    from "../../storage/authStorage.js";
 import "./WarehouseManagementPage.css";
 
 const INITIAL_FILTERS = {
@@ -40,6 +46,15 @@ function getWarehouseAddress(warehouse) {
 }
 
 function WarehouseManagementPage() {
+    const canRead = hasAuthority("WAREHOUSE_READ");
+    const canCreate = hasAuthority(
+        "WAREHOUSE_CREATE",
+    );
+    const canUpdate = hasAuthority("WAREHOUSE_UPDATE");
+    const canDeactivate = hasAuthority(
+        "WAREHOUSE_DEACTIVATE",
+    );
+
     const [filters, setFilters] =
         useState(INITIAL_FILTERS);
 
@@ -68,6 +83,10 @@ function WarehouseManagementPage() {
         useState("");
 
     useEffect(() => {
+        if (!canRead) {
+            return undefined;
+        }
+
         let cancelled = false;
 
         requestWarehouses(INITIAL_FILTERS)
@@ -96,7 +115,7 @@ function WarehouseManagementPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [canRead]);
 
     async function loadWarehouses(nextFilters) {
         setLoading(true);
@@ -310,6 +329,14 @@ function WarehouseManagementPage() {
         }
     }
 
+    if (!canRead) {
+        return (
+            <div className="page warehouse-page">
+                <ManagementAccessDenied resourceName="창고" />
+            </div>
+        );
+    }
+
     return (
         <div className="page warehouse-page">
             <div className="warehouse-header">
@@ -323,22 +350,32 @@ function WarehouseManagementPage() {
 
                 <button
                     type="button"
-                    className="warehouse-primary-button"
+                    className={
+                        canCreate
+                            ? "warehouse-primary-button"
+                            : "warehouse-primary-button permission-disabled"
+                    }
                     onClick={openCreateForm}
+                    disabled={!canCreate}
                 >
                     창고 등록
                 </button>
             </div>
 
             {formOpen && (
-                <WarehouseForm
-                    form={form}
-                    saving={saving}
-                    editing={editingWarehouseId !== null}
-                    onChange={handleFormChange}
-                    onSubmit={handleSaveWarehouse}
-                    onCancel={closeForm}
-                />
+                <ManagementModal
+                    onClose={closeForm}
+                    closeDisabled={saving}
+                >
+                    <WarehouseForm
+                        form={form}
+                        saving={saving}
+                        editing={editingWarehouseId !== null}
+                        onChange={handleFormChange}
+                        onSubmit={handleSaveWarehouse}
+                        onCancel={closeForm}
+                    />
+                </ManagementModal>
             )}
 
             <WarehouseSearchForm
@@ -444,10 +481,15 @@ function WarehouseManagementPage() {
                                     <div className="warehouse-row-actions">
                                         <button
                                             type="button"
-                                            className="warehouse-edit-button"
+                                            className={
+                                                canUpdate
+                                                    ? "warehouse-edit-button"
+                                                    : "warehouse-edit-button permission-disabled"
+                                            }
                                             onClick={() =>
                                                 openEditForm(warehouse)
                                             }
+                                            disabled={!canUpdate}
                                         >
                                             수정
                                         </button>
@@ -455,12 +497,17 @@ function WarehouseManagementPage() {
                                         {warehouse.useYn === "Y" && (
                                             <button
                                                 type="button"
-                                                className="warehouse-deactivate-button"
+                                                className={
+                                                    canDeactivate
+                                                        ? "warehouse-deactivate-button"
+                                                        : "warehouse-deactivate-button permission-disabled"
+                                                }
                                                 onClick={() =>
                                                     handleDeactivateWarehouse(
                                                         warehouse,
                                                     )
                                                 }
+                                                disabled={!canDeactivate}
                                             >
                                                 비활성화
                                             </button>

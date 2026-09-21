@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.accesscontrol.AccessControlMapper">
+
+    <resultMap id="roleResultMap"
+               type="com.foodlogistics.erp.accesscontrol.AccessRole">
+        <id column="app_role_id" property="appRoleId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_type" property="roleType"/>
+        <result column="description" property="description"/>
+        <result column="use_yn" property="useYn"/>
+        <result column="permission_count" property="permissionCount"/>
+        <result column="assigned_yn" property="assignedYn"/>
+    </resultMap>
+
+    <resultMap id="permissionResultMap"
+               type="com.foodlogistics.erp.accesscontrol.AccessPermission">
+        <id column="app_permission_id" property="appPermissionId"/>
+        <result column="permission_code" property="permissionCode"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="description" property="description"/>
+        <result column="assigned_yn" property="assignedYn"/>
+    </resultMap>
+
+    <select id="findRoles" resultMap="roleResultMap">
+        SELECT
+            r.app_role_id,
+            r.company_id,
+            r.role_code,
+            r.role_name,
+            r.role_type,
+            r.description,
+            r.use_yn,
+            SUM(
+                CASE
+                    WHEN rp.active_yn = 'Y' THEN 1
+                    ELSE 0
+                END
+            ) AS permission_count,
+            'N' AS assigned_yn
+        FROM app_role r
+        LEFT JOIN app_role_permission rp
+          ON rp.app_role_id = r.app_role_id
+        WHERE r.company_id = #{companyId}
+        <if test="keyword != null and keyword != ''">
+            AND (
+                LOWER(r.role_code)
+                    LIKE '%' || LOWER(#{keyword}) || '%'
+                OR LOWER(r.role_name)
+                    LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+        <if test="useYn != null and useYn != ''">
+            AND r.use_yn = #{useYn}
+        </if>
+        GROUP BY
+            r.app_role_id,
+            r.company_id,
+            r.role_code,
+            r.role_name,
+            r.role_type,
+            r.description,
+            r.use_yn
+        ORDER BY
+            CASE r.role_type WHEN 'OWNER' THEN 0 ELSE 1 END,
+            r.use_yn DESC,
+            r.role_name ASC
+    </select>
+
+    <select id="findRoleById" resultMap="roleResultMap">
+        SELECT
+            r.app_role_id,
+            r.company_id,
+            r.role_code,
+            r.role_name,
+            r.role_type,
+            r.description,
+            r.use_yn,
+            (
+                SELECT COUNT(*)
+                FROM app_role_permission rp
+                WHERE rp.app_role_id = r.app_role_id
+                  AND rp.active_yn = 'Y'
+            ) AS permission_count,
+            'N' AS assigned_yn
+        FROM app_role r
+        WHERE r.company_id = #{companyId}
+          AND r.app_role_id = #{roleId}
+    </select>
+
+    <select id="countDuplicateRole" resultType="int">
+        SELECT COUNT(*)
+        FROM app_role
+        WHERE company_id = #{companyId}
+          AND (
+              LOWER(TRIM(role_code))
+                  = LOWER(TRIM(#{roleCode}))
+              OR LOWER(TRIM(role_name))
+                  = LOWER(TRIM(#{roleName}))
+          )
+    </select>
+
+    <insert id="insertRole"
+            parameterType="com.foodlogistics.erp.accesscontrol.AccessRole"
+            useGeneratedKeys="true"
+            keyProperty="appRoleId"
+            keyColumn="app_role_id">
+        INSERT INTO app_role (
+            company_id,
+            role_code,
+            role_name,
+            role_type,
+            description,
+            use_yn,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{companyId},
+            #{roleCode},
+            #{roleName},
+            #{roleType},
+            #{description},
+            #{useYn},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findPermissionsForRole"
+            resultMap="permissionResultMap">
+        SELECT
+            p.app_permission_id,
+            p.permission_code,
+            p.permission_name,
+            p.description,
+            CASE
+                WHEN r.role_type = 'OWNER' THEN 'Y'
+                WHEN rp.active_yn = 'Y' THEN 'Y'
+                ELSE 'N'
+            END AS assigned_yn
+        FROM app_role r
+        CROSS JOIN app_permission p
+        LEFT JOIN app_role_permission rp
+          ON rp.app_role_id = r.app_role_id
+         AND rp.app_permission_id = p.app_permission_id
+        WHERE r.company_id = #{companyId}
+          AND r.app_role_id = #{roleId}
+        ORDER BY p.permission_code ASC
+    </select>
+
+    <select id="findAllPermissions"
+            resultMap="permissionResultMap">
+        SELECT
+            app_permission_id,
+            permission_code,
+            permission_name,
+            description,
+            'N' AS assigned_yn
+        FROM app_permission
+        ORDER BY permission_code ASC
+    </select>
+
+    <select id="findExistingPermissionIds" resultType="long">
+        SELECT app_permission_id
+        FROM app_permission
+        WHERE app_permission_id IN
+        <foreach collection="ids"
+                 item="id"
+                 open="("
+                 separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="deactivateRolePermissions">
+        UPDATE app_role_permission
+        SET active_yn = 'N',
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE app_role_id = #{roleId}
+          AND active_yn = 'Y'
+    </update>
+
+    <update id="upsertRolePermission">
+        MERGE INTO app_role_permission target
+        USING (
+            SELECT
+                #{roleId} AS app_role_id,
+                #{permissionId} AS app_permission_id
+            FROM dual
+        ) source
+        ON (
+            target.app_role_id = source.app_role_id
+            AND target.app_permission_id
+                = source.app_permission_id
+        )
+        WHEN MATCHED THEN
+            UPDATE SET
+                target.active_yn = 'Y',
+                target.updated_at = CAST(
+                    SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                    AS TIMESTAMP
+                ),
+                target.updated_by = #{updatedBy}
+        WHEN NOT MATCHED THEN
+            INSERT (
+                app_role_id,
+                app_permission_id,
+                active_yn,
+                created_by,
+                updated_by
+            )
+            VALUES (
+                source.app_role_id,
+                source.app_permission_id,
+                'Y',
+                #{updatedBy},
+                #{updatedBy}
+            )
+    </update>
+
+    <select id="findRolesForUser" resultMap="roleResultMap">
+        SELECT
+            r.app_role_id,
+            r.company_id,
+            r.role_code,
+            r.role_name,
+            r.role_type,
+            r.description,
+            r.use_yn,
+            (
+                SELECT COUNT(*)
+                FROM app_role_permission rp
+                WHERE rp.app_role_id = r.app_role_id
+                  AND rp.active_yn = 'Y'
+            ) AS permission_count,
+            CASE
+                WHEN ur.active_yn = 'Y' THEN 'Y'
+                ELSE 'N'
+            END AS assigned_yn
+        FROM app_role r
+        LEFT JOIN app_user_role ur
+          ON ur.app_role_id = r.app_role_id
+         AND ur.app_user_id = #{userId}
+        WHERE r.company_id = #{companyId}
+          AND r.role_type = 'CUSTOM'
+          AND r.use_yn = 'Y'
+        ORDER BY r.role_name ASC
+    </select>
+
+    <select id="findAssignableRoleIds" resultType="long">
+        SELECT app_role_id
+        FROM app_role
+        WHERE company_id = #{companyId}
+          AND role_type = 'CUSTOM'
+          AND use_yn = 'Y'
+          AND app_role_id IN
+        <foreach collection="ids"
+                 item="id"
+                 open="("
+                 separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countActiveOwnerRoleForUser" resultType="int">
+        SELECT COUNT(*)
+        FROM app_user_role ur
+        JOIN app_role r
+          ON r.app_role_id = ur.app_role_id
+        WHERE ur.app_user_id = #{userId}
+          AND ur.active_yn = 'Y'
+          AND r.company_id = #{companyId}
+          AND r.role_type = 'OWNER'
+          AND r.use_yn = 'Y'
+    </select>
+
+    <update id="deactivateUserCustomRoles">
+        UPDATE app_user_role
+        SET active_yn = 'N',
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE app_user_id = #{userId}
+          AND active_yn = 'Y'
+          AND EXISTS (
+              SELECT 1
+              FROM app_role r
+              WHERE r.app_role_id =
+                    app_user_role.app_role_id
+                AND r.company_id = #{companyId}
+                AND r.role_type = 'CUSTOM'
+          )
+    </update>
+
+    <update id="upsertUserRole">
+        MERGE INTO app_user_role target
+        USING (
+            SELECT
+                #{userId} AS app_user_id,
+                #{roleId} AS app_role_id
+            FROM dual
+        ) source
+        ON (
+            target.app_user_id = source.app_user_id
+            AND target.app_role_id = source.app_role_id
+        )
+        WHEN MATCHED THEN
+            UPDATE SET
+                target.active_yn = 'Y',
+                target.updated_at = CAST(
+                    SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                    AS TIMESTAMP
+                ),
+                target.updated_by = #{updatedBy}
+        WHEN NOT MATCHED THEN
+            INSERT (
+                app_user_id,
+                app_role_id,
+                active_yn,
+                created_by,
+                updated_by
+            )
+            VALUES (
+                source.app_user_id,
+                source.app_role_id,
+                'Y',
+                #{updatedBy},
+                #{updatedBy}
+            )
+    </update>
+
+</mapper>

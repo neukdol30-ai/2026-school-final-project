@@ -6,6 +6,7 @@ function ProductUnitPanel({
                               onEdit,
                               onClose,
                               onDeactivate,
+                              canUpdate,
                           }) {
     if (!product) {
         return null;
@@ -115,22 +116,36 @@ function ProductUnitPanel({
                                     <div className="product-unit-row-actions">
                                         <button
                                             type="button"
-                                            className="product-unit-edit-button"
+                                            className={
+                                                canUpdate
+                                                    ? "product-unit-edit-button"
+                                                    : "product-unit-edit-button permission-disabled"
+                                            }
                                             onClick={() =>
                                                 onEdit(productUnit)
                                             }
-                                            disabled={productUnit.useYn === "N"}
+                                            disabled={
+                                                !canUpdate ||
+                                                productUnit.useYn === "N"
+                                            }
                                         >
                                             수정
                                         </button>
 
                                         <button
                                             type="button"
-                                            className="product-unit-deactivate-button"
+                                            className={
+                                                canUpdate
+                                                    ? "product-unit-deactivate-button"
+                                                    : "product-unit-deactivate-button permission-disabled"
+                                            }
                                             onClick={() =>
                                                 onDeactivate(productUnit)
                                             }
-                                            disabled={productUnit.useYn === "N"}
+                                            disabled={
+                                                !canUpdate ||
+                                                productUnit.useYn === "N"
+                                            }
                                         >
                                             비활성화
                                         </button>

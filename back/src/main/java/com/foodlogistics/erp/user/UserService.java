@@ -95,7 +95,10 @@ public class UserService {
                 appUser.getEmail(),
                 appUser.getPhone(),
                 appUser.getPositionName(),
-                appUser.getUseYn()
+                appUser.getUseYn(),
+                appUser.getOwnerYn() == null
+                        ? "N"
+                        : appUser.getOwnerYn()
         );
     }
 

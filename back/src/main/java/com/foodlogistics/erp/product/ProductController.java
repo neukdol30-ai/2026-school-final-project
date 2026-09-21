@@ -73,7 +73,7 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_READ') and hasAuthority('PRODUCT_CREATE')")
     public ResponseEntity<
             ApiResponse<ProductResponse>
             > createProduct(
@@ -94,7 +94,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_READ') and hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<
             ApiResponse<ProductResponse>
             > updateProduct(
@@ -117,7 +117,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/deactivate")
-    @PreAuthorize("hasAuthority('PRODUCT_DEACTIVATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_READ') and hasAuthority('PRODUCT_DEACTIVATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateProduct(
             @AuthenticationPrincipal Jwt jwt,

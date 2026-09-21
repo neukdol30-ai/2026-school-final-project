@@ -75,7 +75,7 @@ public class BusinessPartnerController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_CREATE')")
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_READ') and hasAuthority('BUSINESS_PARTNER_CREATE')")
     public ResponseEntity<
             ApiResponse<BusinessPartnerResponse>
             > createPartner(
@@ -96,7 +96,7 @@ public class BusinessPartnerController {
     }
 
     @PutMapping("/{partnerId}")
-    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_UPDATE')")
+    @PreAuthorize("hasAuthority('BUSINESS_PARTNER_READ') and hasAuthority('BUSINESS_PARTNER_UPDATE')")
     public ResponseEntity<
             ApiResponse<BusinessPartnerResponse>
             > updatePartner(
@@ -120,7 +120,8 @@ public class BusinessPartnerController {
 
     @PatchMapping("/{partnerId}/deactivate")
     @PreAuthorize(
-            "hasAuthority('BUSINESS_PARTNER_DEACTIVATE')"
+            "hasAuthority('BUSINESS_PARTNER_READ') and " +
+                    "hasAuthority('BUSINESS_PARTNER_DEACTIVATE')"
     )
     public ResponseEntity<ApiResponse<Void>>
     deactivatePartner(

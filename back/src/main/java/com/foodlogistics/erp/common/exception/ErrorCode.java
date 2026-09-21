@@ -39,10 +39,28 @@ public enum ErrorCode {
             "접근 권한이 없습니다."
     ),
 
+    OWNER_ACCESS_IMMUTABLE(
+            HttpStatus.FORBIDDEN,
+            "OWNER_ACCESS_IMMUTABLE",
+            "OWNER 권한은 등록하거나 변경할 수 없습니다."
+    ),
+
+    READ_PERMISSION_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "READ_PERMISSION_REQUIRED",
+            "등록·수정·비활성화 권한을 부여하려면 해당 업무의 조회 권한이 필요합니다."
+    ),
+
     DUPLICATE_LOGIN_ID(
             HttpStatus.CONFLICT,
             "DUPLICATE_LOGIN_ID",
             "이미 사용 중인 아이디입니다."
+    ),
+
+    DUPLICATE_ROLE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_ROLE",
+            "이미 사용 중인 권한 그룹 코드 또는 이름입니다."
     ),
 
     DUPLICATE_WAREHOUSE_CODE(

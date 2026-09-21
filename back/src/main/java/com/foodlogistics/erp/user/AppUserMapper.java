@@ -58,8 +58,22 @@ public interface AppUserMapper {
             email,
             phone,
             position_name,
-            use_yn
-        FROM app_user
+            use_yn,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM app_user_role ur
+                    JOIN app_role r
+                      ON r.app_role_id = ur.app_role_id
+                    WHERE ur.app_user_id = u.app_user_id
+                      AND ur.active_yn = 'Y'
+                      AND r.company_id = u.company_id
+                      AND r.role_type = 'OWNER'
+                      AND r.use_yn = 'Y'
+                ) THEN 'Y'
+                ELSE 'N'
+            END AS owner_yn
+        FROM app_user u
         WHERE company_id = #{companyId}
         ORDER BY
             use_yn DESC,
@@ -101,10 +115,48 @@ public interface AppUserMapper {
                     @Result(
                             column = "use_yn",
                             property = "useYn"
+                    ),
+                    @Result(
+                            column = "owner_yn",
+                            property = "ownerYn"
                     )
             }
     )
     List<AppUser> findAllByCompanyId(
             @Param("companyId") Long companyId
+    );
+
+    @Select("""
+        SELECT
+            app_user_id,
+            company_id,
+            login_id,
+            user_name,
+            email,
+            phone,
+            position_name,
+            use_yn,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM app_user_role ur
+                    JOIN app_role r
+                      ON r.app_role_id = ur.app_role_id
+                    WHERE ur.app_user_id = u.app_user_id
+                      AND ur.active_yn = 'Y'
+                      AND r.company_id = u.company_id
+                      AND r.role_type = 'OWNER'
+                      AND r.use_yn = 'Y'
+                ) THEN 'Y'
+                ELSE 'N'
+            END AS owner_yn
+        FROM app_user u
+        WHERE company_id = #{companyId}
+          AND app_user_id = #{appUserId}
+        """)
+    @ResultMap("appUserListResult")
+    AppUser findById(
+            @Param("companyId") Long companyId,
+            @Param("appUserId") Long appUserId
     );
 }

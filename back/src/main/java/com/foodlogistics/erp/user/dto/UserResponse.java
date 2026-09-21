@@ -18,4 +18,5 @@ public class UserResponse {
     private final String positionName;
 
     private final String useYn;
+    private final String ownerYn;
 }

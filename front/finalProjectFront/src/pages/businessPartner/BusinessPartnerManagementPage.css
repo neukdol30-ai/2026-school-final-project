@@ -1,13 +1,24 @@
+.business-partner-page {
+    width: 100%;
+    min-width: 960px;
+}
+
 .business-partner-header {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: flex-start;
     gap: 16px;
     margin-bottom: 18px;
 }
 
+.business-partner-header > div {
+    min-width: max-content;
+}
+
 .business-partner-header h1 {
     margin: 0;
+    white-space: nowrap;
     font-size: 24px;
     font-weight: 700;
     color: #202830;
@@ -15,6 +26,7 @@
 
 .business-partner-header p {
     margin: 6px 0 0;
+    white-space: nowrap;
     font-size: 13px;
     color: #818b95;
 }
@@ -38,6 +50,7 @@
 
 .business-partner-search-fields label {
     display: flex;
+    min-width: 0;
     flex-direction: column;
     gap: 6px;
     font-size: 13px;
@@ -48,6 +61,8 @@
 .business-partner-search-fields input,
 .business-partner-search-fields select {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     height: 38px;
     padding: 0 10px;
     font-size: 13px;
@@ -135,7 +150,7 @@ button[type="button"]:hover:not(:disabled) {
 
 .business-partner-table {
     width: 100%;
-    min-width: 950px;
+    min-width: 1150px;
     font-size: 13px;
     background-color: #ffffff;
     border-collapse: collapse;
@@ -200,13 +215,9 @@ button[type="button"]:hover:not(:disabled) {
     background-color: #eef1f3;
 }
 
-@media (max-width: 1000px) {
-    .business-partner-search-fields {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
 .business-partner-primary-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
     height: 38px;
     padding: 0 18px;
     font-size: 13px;
@@ -347,21 +358,17 @@ button[type="submit"]:hover:not(:disabled) {
     cursor: not-allowed;
 }
 
-@media (max-width: 650px) {
-    .business-partner-search-fields {
-        grid-template-columns: 1fr;
-    }
-
-    .business-partner-search-actions {
-        justify-content: flex-start;
-    }
-}
-
 .business-partner-table th:nth-child(7),
 .business-partner-table td:nth-child(7),
 .business-partner-table th:last-child,
 .business-partner-table td:last-child {
     text-align: center;
+}
+
+.business-partner-result-summary,
+.business-partner-table th,
+.business-partner-table td {
+    white-space: nowrap;
 }
 
 .business-partner-status {

@@ -56,7 +56,7 @@ public class MeasurementUnitController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('UNIT_CREATE')")
+    @PreAuthorize("hasAuthority('UNIT_READ') and hasAuthority('UNIT_CREATE')")
     public ResponseEntity<
             ApiResponse<MeasurementUnitResponse>
             > createUnit(
@@ -74,7 +74,7 @@ public class MeasurementUnitController {
     }
 
     @PutMapping("/{unitId}")
-    @PreAuthorize("hasAuthority('UNIT_UPDATE')")
+    @PreAuthorize("hasAuthority('UNIT_READ') and hasAuthority('UNIT_UPDATE')")
     public ResponseEntity<
             ApiResponse<MeasurementUnitResponse>
             > updateUnit(
@@ -94,7 +94,7 @@ public class MeasurementUnitController {
     }
 
     @PatchMapping("/{unitId}/deactivate")
-    @PreAuthorize("hasAuthority('UNIT_DEACTIVATE')")
+    @PreAuthorize("hasAuthority('UNIT_READ') and hasAuthority('UNIT_DEACTIVATE')")
     public ResponseEntity<ApiResponse<Void>>
     deactivateUnit(
             @PathVariable Long unitId
