@@ -39,12 +39,89 @@ public enum ErrorCode {
             "접근 권한이 없습니다."
     ),
 
+    OWNER_ACCESS_IMMUTABLE(
+            HttpStatus.FORBIDDEN,
+            "OWNER_ACCESS_IMMUTABLE",
+            "OWNER 권한은 등록하거나 변경할 수 없습니다."
+    ),
+
+    READ_PERMISSION_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "READ_PERMISSION_REQUIRED",
+            "등록·수정·비활성화 권한을 부여하려면 해당 업무의 조회 권한이 필요합니다."
+    ),
+
     DUPLICATE_LOGIN_ID(
             HttpStatus.CONFLICT,
             "DUPLICATE_LOGIN_ID",
             "이미 사용 중인 아이디입니다."
     ),
 
+    DUPLICATE_ROLE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_ROLE",
+            "이미 사용 중인 권한 그룹 코드 또는 이름입니다."
+    ),
+
+    DUPLICATE_WAREHOUSE_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_WAREHOUSE_CODE",
+            "이미 사용 중인 창고 코드입니다."
+    ),
+
+    DUPLICATE_UNIT_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_UNIT_CODE",
+            "이미 사용 중인 단위 코드입니다."
+    ),
+
+    DUPLICATE_PRODUCT_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PRODUCT_CODE",
+            "이미 사용 중인 상품 코드입니다."
+    ),
+
+    DUPLICATE_PARTNER_CODE(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PARTNER_CODE",
+            "이미 사용 중인 거래처 코드입니다."
+    ),
+
+    DUPLICATE_BUSINESS_NUMBER(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_BUSINESS_NUMBER",
+            "이미 등록된 사업자등록번호입니다."
+    ),
+
+    DUPLICATE_PRODUCT_UNIT(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_PRODUCT_UNIT",
+            "이미 등록된 상품 단위입니다."
+    ),
+
+    BASE_UNIT_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "BASE_UNIT_ALREADY_EXISTS",
+            "해당 상품에는 이미 기준 단위가 존재합니다."
+    ),
+
+    BASE_UNIT_CONVERSION_INVALID(
+            HttpStatus.BAD_REQUEST,
+            "BASE_UNIT_CONVERSION_INVALID",
+            "기준 단위의 환산 수량은 1이어야 합니다."
+    ),
+
+    UNIT_NOT_AVAILABLE(
+            HttpStatus.BAD_REQUEST,
+            "UNIT_NOT_AVAILABLE",
+            "존재하지 않거나 사용할 수 없는 단위입니다."
+    ),
+
+    PARTNER_ROLE_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "PARTNER_ROLE_REQUIRED",
+            "공급업체 또는 판매처 중 하나 이상을 선택해야 합니다."
+    ),
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",

@@ -4,9 +4,17 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import EmptyPage from "./pages/EmptyPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
+
 import PurchaseOrderListPage from "./pages/purchase/PurchaseOrderListPage.jsx";
 import PurchaseOrderDetailPage from "./pages/purchase/PurchaseOrderDetailPage.jsx";
 import PurchaseOrderCreatePage from "./pages/purchase/PurchaseOrderCreatePage.jsx";
+
+import ProductManagementPage from "./pages/product/ProductManagementPage.jsx";
+import BusinessPartnerManagementPage from "./pages/businessPartner/BusinessPartnerManagementPage.jsx";
+import WarehouseManagementPage from "./pages/warehouse/WarehouseManagementPage.jsx";
+import UnitManagementPage from "./pages/unit/UnitManagementPage.jsx";
+import UserPermissionPage from "./pages/settings/UserPermissionPage.jsx";
+
 import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
 import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
 import SalesOrderEditPage from "./pages/sales/SalesOrderEditPage";
@@ -19,38 +27,23 @@ import StocktakeListPage from "./pages/stocktake/StocktakeListPage";
 import StocktakeCreatePage from "./pages/stocktake/StocktakeCreatePage";
 import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
 
-// React 애플리케이션의 Route 구조를 정의하는 컴포넌트다.
 function App() {
   return (
     <Routes>
-      {/* 로그인하지 않은 사용자가 보는 화면 */}
       <Route path="/login" element={<LoginPage />} />
 
-      {/* 로그인한 사용자만 아래 ERP 화면에 들어올 수 있음 */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
 
-          <Route path="/products" element={<EmptyPage title="상품관리" />} />
+          <Route path="/products" element={<ProductManagementPage />} />
+          <Route path="/partners" element={<BusinessPartnerManagementPage />} />
+          <Route path="/warehouses" element={<WarehouseManagementPage />} />
+          <Route path="/units" element={<UnitManagementPage />} />
 
-          <Route path="/partners" element={<EmptyPage title="거래처관리" />} />
-
-          <Route path="/warehouses" element={<EmptyPage title="창고관리" />} />
-
-          <Route path="/units" element={<EmptyPage title="단위관리" />} />
-
-          {/* /purchase-orders는 발주 여러 건을 보여주는 목록 화면이다. */}
           <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
-
-          {/* /purchase-orders/new는 새 발주를 작성하는 등록 화면이다. */}
-          <Route
-            path="/purchase-orders/new"
-            element={<PurchaseOrderCreatePage />}
-          />
-
-          {/* :purchaseOrderId는 매번 값이 바뀌는 URL 부분이다.
-              예: /purchase-orders/1에서 purchaseOrderId = "1" */}
+          <Route path="/purchase-orders/new" element={<PurchaseOrderCreatePage />} />
           <Route
             path="/purchase-orders/:purchaseOrderId"
             element={<PurchaseOrderDetailPage />}
@@ -58,6 +51,7 @@ function App() {
 
           <Route path="/inbounds" element={<EmptyPage title="입고관리" />} />
           <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
+
           <Route path="/stocktakes" element={<StocktakeListPage />} />
           <Route path="/stocktakes/new" element={<StocktakeCreatePage />} />
           <Route
@@ -87,14 +81,10 @@ function App() {
             element={<OutboundDetailPage />}
           />
 
-          <Route
-            path="/settings"
-            element={<EmptyPage title="사용자 / 권한 설정" />}
-          />
+          <Route path="/settings" element={<UserPermissionPage />} />
         </Route>
       </Route>
 
-      {/* 존재하지 않는 주소는 로그인 화면으로 */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.businesspartner.BusinessPartnerMapper">
+
+    <resultMap
+            id="businessPartnerResultMap"
+            type="com.foodlogistics.erp.businesspartner.BusinessPartner">
+
+        <id
+                column="partner_id"
+                property="partnerId"
+        />
+
+        <result
+                column="company_id"
+                property="companyId"
+        />
+        <result
+                column="partner_code"
+                property="partnerCode"
+        />
+        <result
+                column="partner_name"
+                property="partnerName"
+        />
+        <result
+                column="business_number"
+                property="businessNumber"
+        />
+        <result
+                column="representative_name"
+                property="representativeName"
+        />
+        <result
+                column="contact_name"
+                property="contactName"
+        />
+        <result
+                column="phone"
+                property="phone"
+        />
+        <result
+                column="email"
+                property="email"
+        />
+        <result
+                column="postal_code"
+                property="postalCode"
+        />
+        <result
+                column="address1"
+                property="address1"
+        />
+        <result
+                column="address2"
+                property="address2"
+        />
+        <result
+                column="supplier_yn"
+                property="supplierYn"
+        />
+        <result
+                column="customer_yn"
+                property="customerYn"
+        />
+        <result
+                column="use_yn"
+                property="useYn"
+        />
+        <result
+                column="created_at"
+                property="createdAt"
+        />
+        <result
+                column="created_by"
+                property="createdBy"
+        />
+        <result
+                column="updated_at"
+                property="updatedAt"
+        />
+        <result
+                column="updated_by"
+                property="updatedBy"
+        />
+    </resultMap>
+
+    <sql id="businessPartnerColumns">
+        partner_id,
+        company_id,
+        partner_code,
+        partner_name,
+        business_number,
+        representative_name,
+        contact_name,
+        phone,
+        email,
+        postal_code,
+        address1,
+        address2,
+        supplier_yn,
+        customer_yn,
+        use_yn,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by
+    </sql>
+
+    <select
+            id="findAll"
+            resultMap="businessPartnerResultMap">
+
+        SELECT
+        <include refid="businessPartnerColumns"/>
+        FROM business_partner
+        WHERE company_id = #{companyId}
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            LOWER(partner_code)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(partner_name)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            OR business_number
+            LIKE '%' || #{keyword} || '%'
+            )
+        </if>
+
+        <choose>
+            <when test="partnerType == 'SUPPLIER'">
+                AND supplier_yn = 'Y'
+            </when>
+
+            <when test="partnerType == 'CUSTOMER'">
+                AND customer_yn = 'Y'
+            </when>
+        </choose>
+
+        <if test="useYn != null and useYn != ''">
+            AND use_yn = #{useYn}
+        </if>
+
+        ORDER BY
+        use_yn DESC,
+        partner_name ASC,
+        partner_id ASC
+    </select>
+
+    <select
+            id="findById"
+            resultMap="businessPartnerResultMap">
+
+        SELECT
+        <include refid="businessPartnerColumns"/>
+        FROM business_partner
+        WHERE company_id = #{companyId}
+        AND partner_id = #{partnerId}
+    </select>
+
+    <select
+            id="countByPartnerCode"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM business_partner
+        WHERE company_id = #{companyId}
+        AND LOWER(TRIM(partner_code))
+        = LOWER(TRIM(#{partnerCode}))
+
+        <if test="excludePartnerId != null">
+            AND partner_id != #{excludePartnerId}
+        </if>
+    </select>
+
+    <select
+            id="countByBusinessNumber"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM business_partner
+        WHERE company_id = #{companyId}
+        AND business_number = #{businessNumber}
+
+        <if test="excludePartnerId != null">
+            AND partner_id != #{excludePartnerId}
+        </if>
+    </select>
+
+    <insert
+            id="insert"
+            parameterType="com.foodlogistics.erp.businesspartner.BusinessPartner"
+            useGeneratedKeys="true"
+            keyProperty="partnerId"
+            keyColumn="partner_id">
+
+        INSERT INTO business_partner (
+        company_id,
+        partner_code,
+        partner_name,
+        business_number,
+        representative_name,
+        contact_name,
+        phone,
+        email,
+        postal_code,
+        address1,
+        address2,
+        supplier_yn,
+        customer_yn,
+        use_yn,
+        created_by,
+        updated_by
+        ) VALUES (
+        #{companyId},
+        #{partnerCode},
+        #{partnerName},
+        #{businessNumber},
+        #{representativeName},
+        #{contactName},
+        #{phone},
+        #{email},
+        #{postalCode},
+        #{address1},
+        #{address2},
+        #{supplierYn},
+        #{customerYn},
+        #{useYn},
+        #{createdBy},
+        #{updatedBy}
+        )
+    </insert>
+
+    <update
+            id="update"
+            parameterType="com.foodlogistics.erp.businesspartner.BusinessPartner">
+
+        UPDATE business_partner
+        SET partner_code = #{partnerCode},
+        partner_name = #{partnerName},
+        business_number = #{businessNumber},
+        representative_name = #{representativeName},
+        contact_name = #{contactName},
+        phone = #{phone},
+        email = #{email},
+        postal_code = #{postalCode},
+        address1 = #{address1},
+        address2 = #{address2},
+        supplier_yn = #{supplierYn},
+        customer_yn = #{customerYn},
+        updated_at =
+    CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+    ),
+        updated_by = #{updatedBy}
+        WHERE partner_id = #{partnerId}
+        AND company_id = #{companyId}
+    </update>
+
+    <update id="updateUseYn">
+
+        UPDATE business_partner
+        SET use_yn = #{useYn},
+        updated_at =
+    CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+    ),
+        updated_by = #{updatedBy}
+        WHERE partner_id = #{partnerId}
+        AND company_id = #{companyId}
+    </update>
+
+</mapper>

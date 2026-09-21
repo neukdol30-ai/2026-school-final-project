@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.warehouse.WarehouseMapper">
+
+    <resultMap
+            id="warehouseResultMap"
+            type="com.foodlogistics.erp.warehouse.Warehouse">
+
+        <id column="warehouse_id" property="warehouseId"/>
+
+        <result column="company_id" property="companyId"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="postal_code" property="postalCode"/>
+        <result column="address1" property="address1"/>
+        <result column="address2" property="address2"/>
+        <result column="description" property="description"/>
+        <result column="use_yn" property="useYn"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <sql id="warehouseColumns">
+        warehouse_id,
+        company_id,
+        warehouse_code,
+        warehouse_name,
+        postal_code,
+        address1,
+        address2,
+        description,
+        use_yn,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by
+    </sql>
+
+    <select id="findAll" resultMap="warehouseResultMap">
+        SELECT
+        <include refid="warehouseColumns"/>
+        FROM warehouse
+        WHERE company_id = #{companyId}
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            LOWER(warehouse_code)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(warehouse_name)
+            LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+
+        <if test="useYn != null and useYn != ''">
+            AND use_yn = #{useYn}
+        </if>
+
+        ORDER BY
+        use_yn DESC,
+        warehouse_name ASC,
+        warehouse_id ASC
+    </select>
+
+    <select id="findById" resultMap="warehouseResultMap">
+        SELECT
+        <include refid="warehouseColumns"/>
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+    </select>
+
+    <select id="countByWarehouseCode" resultType="int">
+        SELECT COUNT(*)
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND LOWER(TRIM(warehouse_code))
+        = LOWER(TRIM(#{warehouseCode}))
+
+        <if test="excludeWarehouseId != null">
+            AND warehouse_id != #{excludeWarehouseId}
+        </if>
+    </select>
+
+    <insert
+            id="insert"
+            parameterType="com.foodlogistics.erp.warehouse.Warehouse"
+            useGeneratedKeys="true"
+            keyProperty="warehouseId"
+            keyColumn="warehouse_id">
+
+        INSERT INTO warehouse (
+        company_id,
+        warehouse_code,
+        warehouse_name,
+        postal_code,
+        address1,
+        address2,
+        description,
+        use_yn,
+        created_by,
+        updated_by
+        ) VALUES (
+        #{companyId},
+        #{warehouseCode},
+        #{warehouseName},
+        #{postalCode},
+        #{address1},
+        #{address2},
+        #{description},
+        #{useYn},
+        #{createdBy},
+        #{updatedBy}
+        )
+    </insert>
+
+    <update
+            id="update"
+            parameterType="com.foodlogistics.erp.warehouse.Warehouse">
+
+        UPDATE warehouse
+        SET warehouse_code = #{warehouseCode},
+        warehouse_name = #{warehouseName},
+        postal_code = #{postalCode},
+        address1 = #{address1},
+        address2 = #{address2},
+        description = #{description},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE warehouse_id = #{warehouseId}
+        AND company_id = #{companyId}
+    </update>
+
+    <update id="updateUseYn">
+        UPDATE warehouse
+        SET use_yn = #{useYn},
+        updated_at = CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{updatedBy}
+        WHERE warehouse_id = #{warehouseId}
+        AND company_id = #{companyId}
+    </update>
+
+</mapper>

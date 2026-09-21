@@ -1,0 +1,415 @@
+.business-partner-page {
+    width: 100%;
+    min-width: 960px;
+}
+
+.business-partner-header {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.business-partner-header > div {
+    min-width: max-content;
+}
+
+.business-partner-header h1 {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 24px;
+    font-weight: 700;
+    color: #202830;
+}
+
+.business-partner-header p {
+    margin: 6px 0 0;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #818b95;
+}
+
+.business-partner-search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e4e8ec;
+    border-radius: 7px;
+}
+
+.business-partner-search-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.business-partner-search-fields label {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #323b45;
+}
+
+.business-partner-search-fields input,
+.business-partner-search-fields select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #202830;
+    background-color: #ffffff;
+    border: 1px solid #d7dce1;
+    border-radius: 6px;
+    outline: none;
+}
+
+.business-partner-search-fields input:focus,
+.business-partner-search-fields select:focus {
+    border-color: #1769aa;
+    box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.business-partner-search-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.business-partner-search-actions button {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #cfd6dc;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.business-partner-search-actions button[type="submit"] {
+    color: #ffffff;
+    background-color: #1769aa;
+    border-color: #1769aa;
+}
+
+.business-partner-search-actions
+button[type="submit"]:hover:not(:disabled) {
+    background-color: #12578e;
+    border-color: #12578e;
+}
+
+.business-partner-search-actions button[type="button"] {
+    color: #4e5965;
+    background-color: #ffffff;
+}
+
+.business-partner-search-actions
+button[type="button"]:hover:not(:disabled) {
+    background-color: #f4f6f8;
+}
+
+.business-partner-search-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.business-partner-message {
+    margin: 0 0 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    border-radius: 7px;
+}
+
+.business-partner-message.error {
+    color: #c62828;
+    background-color: #fff3f3;
+    border: 1px solid #f2caca;
+}
+
+.business-partner-result-summary {
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #65717c;
+}
+
+.business-partner-table-wrap {
+    overflow-x: auto;
+    background-color: #ffffff;
+    border-radius: 7px;
+}
+
+.business-partner-table {
+    width: 100%;
+    min-width: 1150px;
+    font-size: 13px;
+    background-color: #ffffff;
+    border-collapse: collapse;
+}
+
+.business-partner-table th,
+.business-partner-table td {
+    padding: 11px 12px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #e7eaed;
+}
+
+.business-partner-table th {
+    font-weight: 600;
+    color: #4e5965;
+    background-color: #f7f8fa;
+    border-top: 1px solid #e4e8ec;
+}
+
+.business-partner-table td {
+    color: #323b45;
+}
+
+.business-partner-table td small {
+    display: block;
+    margin-top: 3px;
+    color: #818b95;
+}
+
+.business-partner-table tbody tr:hover {
+    background-color: #f5f9fc;
+}
+
+.business-partner-table tbody tr:last-child td {
+    border-bottom: 1px solid #e4e8ec;
+}
+
+.business-partner-empty-row {
+    padding: 28px 20px !important;
+    text-align: center !important;
+    color: #818b95 !important;
+}
+
+.business-partner-status {
+    display: inline-flex;
+    align-items: center;
+    min-width: 52px;
+    padding: 4px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.business-partner-status.active {
+    color: #1b7b44;
+    background-color: #eaf7ef;
+}
+
+.business-partner-status.inactive {
+    color: #7a838c;
+    background-color: #eef1f3;
+}
+
+.business-partner-primary-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    height: 38px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #1769aa;
+    border: 1px solid #1769aa;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.business-partner-primary-button:hover {
+    background-color: #12578e;
+    border-color: #12578e;
+}
+
+.business-partner-message.success {
+    color: #1b6f3a;
+    background-color: #edf8f1;
+    border: 1px solid #c9e8d3;
+}
+
+.business-partner-edit-panel {
+    margin-bottom: 18px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e4e8ec;
+    border-radius: 7px;
+}
+
+.business-partner-edit-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.business-partner-edit-heading h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #202830;
+}
+
+.business-partner-edit-heading button {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4e5965;
+    background-color: #ffffff;
+    border: 1px solid #cfd6dc;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.business-partner-edit-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.business-partner-edit-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #323b45;
+}
+
+.business-partner-edit-fields input,
+.business-partner-edit-fields select {
+    width: 100%;
+    height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #202830;
+    background-color: #ffffff;
+    border: 1px solid #d7dce1;
+    border-radius: 6px;
+    outline: none;
+}
+
+.business-partner-edit-fields input:focus,
+.business-partner-edit-fields select:focus {
+    border-color: #1769aa;
+    box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.business-partner-field-wide {
+    grid-column: span 3;
+}
+
+.business-partner-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.business-partner-edit-actions button {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #cfd6dc;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.business-partner-edit-actions button[type="button"] {
+    color: #4e5965;
+    background-color: #ffffff;
+}
+
+.business-partner-edit-actions button[type="submit"] {
+    color: #ffffff;
+    background-color: #1769aa;
+    border-color: #1769aa;
+}
+
+.business-partner-edit-actions
+button[type="button"]:hover:not(:disabled) {
+    background-color: #f4f6f8;
+}
+
+.business-partner-edit-actions
+button[type="submit"]:hover:not(:disabled) {
+    background-color: #12578e;
+    border-color: #12578e;
+}
+
+.business-partner-edit-heading button:disabled,
+.business-partner-edit-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.business-partner-table th:nth-child(7),
+.business-partner-table td:nth-child(7),
+.business-partner-table th:last-child,
+.business-partner-table td:last-child {
+    text-align: center;
+}
+
+.business-partner-result-summary,
+.business-partner-table th,
+.business-partner-table td {
+    white-space: nowrap;
+}
+
+.business-partner-status {
+    justify-content: center;
+}
+
+.business-partner-edit-button {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1769aa;
+    background-color: #ffffff;
+    border: 1px solid #9fc4df;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.business-partner-edit-button:hover {
+    background-color: #edf6fc;
+}
+
+.business-partner-row-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.business-partner-deactivate-button {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #c62828;
+    background-color: #ffffff;
+    border: 1px solid #e0aaaa;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.business-partner-deactivate-button:hover {
+    background-color: #fff1f1;
+}
