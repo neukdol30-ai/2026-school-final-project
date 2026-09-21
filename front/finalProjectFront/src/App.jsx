@@ -7,6 +7,17 @@ import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 import PurchaseOrderListPage from "./pages/purchase/PurchaseOrderListPage.jsx";
 import PurchaseOrderDetailPage from "./pages/purchase/PurchaseOrderDetailPage.jsx";
 import PurchaseOrderCreatePage from "./pages/purchase/PurchaseOrderCreatePage.jsx";
+import SalesOrderListPage from "./pages/sales/SalesOrderListPage";
+import SalesOrderCreatePage from "./pages/sales/SalesOrderCreatePage";
+import SalesOrderEditPage from "./pages/sales/SalesOrderEditPage";
+
+import OutboundListPage from "./pages/outbound/OutboundListPage";
+import OutboundCreatePage from "./pages/outbound/OutboundCreatePage";
+import OutboundDetailPage from "./pages/outbound/OutboundDetailPage";
+
+import StocktakeListPage from "./pages/stocktake/StocktakeListPage";
+import StocktakeCreatePage from "./pages/stocktake/StocktakeCreatePage";
+import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
 
 // React 애플리케이션의 Route 구조를 정의하는 컴포넌트다.
 function App() {
