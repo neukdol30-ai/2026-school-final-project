@@ -10,13 +10,7 @@ import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
-import com.foodlogistics.erp.inbound.mapper.InboundInsertParam;
-import com.foodlogistics.erp.inbound.mapper.InboundItemInsertParam;
-import com.foodlogistics.erp.inbound.mapper.InboundItemUpdateTargetInfo;
-import com.foodlogistics.erp.inbound.mapper.InboundMapper;
-import com.foodlogistics.erp.inbound.mapper.InboundPurchaseOrderLockInfo;
-import com.foodlogistics.erp.inbound.mapper.LotInfo;
-import com.foodlogistics.erp.inbound.mapper.LotInsertParam;
+import com.foodlogistics.erp.inbound.mapper.*;
 import com.foodlogistics.erp.inbound.validator.InboundValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -887,5 +881,71 @@ public class InboundService {
         private InboundItemLotRequest getRequest() {
             return request;
         }
+    }
+
+    private List<InboundConfirmItemInfo> prepareInboundConfirmation(
+            Long companyId,
+            Long appUserId,
+            Long inboundId
+    ) {
+        inboundValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        inboundValidator.validateInboundId(
+                inboundId
+        );
+
+        InboundItemUpdateTargetInfo inboundTarget =
+                inboundMapper.findInboundItemUpdateTarget(
+                        companyId,
+                        inboundId
+                );
+
+        inboundValidator.validateInboundExists(
+                inboundTarget
+        );
+
+        Long purchaseOrderId =
+                inboundTarget.getPurchaseOrderId();
+
+        inboundValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        InboundPurchaseOrderLockInfo purchaseOrder =
+                inboundMapper.findPurchaseOrderForUpdate(
+                        companyId,
+                        purchaseOrderId
+                );
+
+        inboundValidator.validatePurchaseOrderForInbound(
+                purchaseOrder
+        );
+
+        InboundItemUpdateTargetInfo lockedInbound =
+                inboundMapper.findInboundForUpdate(
+                        companyId,
+                        inboundId,
+                        purchaseOrderId
+                );
+
+        inboundValidator.validateInboundDraft(
+                lockedInbound
+        );
+
+        List<InboundConfirmItemInfo> confirmItems =
+                inboundMapper.findInboundConfirmItems(
+                        companyId,
+                        purchaseOrderId,
+                        inboundId
+                );
+
+        inboundValidator.validateInboundConfirmItems(
+                confirmItems
+        );
+
+        return confirmItems;
     }
 }

@@ -150,6 +150,33 @@
 
     </resultMap>
 
+    <!-- 입고확정 대상 품목 검증정보 -->
+    <resultMap id="inboundConfirmItemInfoMap"
+               type="com.foodlogistics.erp.inbound.mapper.InboundConfirmItemInfo">
+
+        <id column="inbound_item_id"
+            property="inboundItemId"/>
+
+        <result column="purchase_order_item_id"
+                property="purchaseOrderItemId"/>
+
+        <result column="product_id"
+                property="productId"/>
+
+        <result column="lot_managed_yn"
+                property="lotManagedYn"/>
+
+        <result column="base_received_qty"
+                property="baseReceivedQty"/>
+
+        <result column="lot_count"
+                property="lotCount"/>
+
+        <result column="base_lot_qty_total"
+                property="baseLotQtyTotal"/>
+
+    </resultMap>
+
     <!-- 현재 회사의 입고 대상 발주 목록 조회 -->
     <select id="findInboundTargetPurchaseOrders"
             resultMap="inboundPurchaseOrderResponseMap">
@@ -406,6 +433,51 @@
 
     </select>
 
+    <!-- 입고확정 대상 품목과 LOT 검증정보 조회 -->
+    <select id="findInboundConfirmItems"
+            resultMap="inboundConfirmItemInfoMap">
+
+        SELECT
+        ii.inbound_item_id,
+        ii.purchase_order_item_id,
+        poi.product_id,
+        p.lot_managed_yn,
+        ii.base_received_qty,
+
+        (
+        SELECT COUNT(*)
+        FROM inbound_item_lot iil
+        WHERE iil.inbound_item_id = ii.inbound_item_id
+        ) AS lot_count,
+
+        (
+        SELECT NVL(SUM(iil.base_lot_qty), 0)
+        FROM inbound_item_lot iil
+        WHERE iil.inbound_item_id = ii.inbound_item_id
+        ) AS base_lot_qty_total
+
+        FROM inbound_item ii
+
+        INNER JOIN inbound i
+        ON i.inbound_id = ii.inbound_id
+
+        INNER JOIN purchase_order_item poi
+        ON poi.purchase_order_item_id = ii.purchase_order_item_id
+        AND poi.purchase_order_id = i.purchase_order_id
+
+        INNER JOIN product p
+        ON p.product_id = poi.product_id
+        AND p.company_id = i.company_id
+
+        WHERE ii.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+        AND i.purchase_order_id = #{purchaseOrderId}
+        AND i.status = 'DRAFT'
+
+        ORDER BY ii.inbound_item_id
+
+    </select>
+
     <!-- 입고번호에 사용할 다음 Sequence -->
     <select id="nextInboundNoSequence"
             resultType="java.lang.Long">
@@ -558,5 +630,72 @@
         )
 
     </insert>
+
+    <!-- 발주품목 누적 입고수량 증가 -->
+    <update id="increasePurchaseOrderItemReceivedQty">
+
+        UPDATE purchase_order_item
+
+        SET received_qty =
+        received_qty + #{baseReceivedQty}
+
+        WHERE purchase_order_item_id = #{purchaseOrderItemId}
+        AND purchase_order_id = #{purchaseOrderId}
+        AND received_qty + #{baseReceivedQty}
+        &lt;= base_ordered_qty
+
+        AND EXISTS
+        (
+        SELECT 1
+
+        FROM purchase_order po
+
+        WHERE po.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+        AND po.approval_status = 'APPROVED'
+        AND po.receipt_status IN ('NOT_RECEIVED', 'PARTIAL')
+        )
+
+    </update>
+
+    <!-- 발주 입고상태 변경 -->
+    <update id="updatePurchaseOrderReceiptStatus">
+
+        UPDATE purchase_order
+
+        SET receipt_status = #{receiptStatus},
+        updated_by = #{updatedBy},
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+
+        WHERE purchase_order_id = #{purchaseOrderId}
+        AND company_id = #{companyId}
+        AND approval_status = 'APPROVED'
+        AND receipt_status IN ('NOT_RECEIVED', 'PARTIAL')
+
+    </update>
+
+    <!-- INBOUND 최종 확정 -->
+    <update id="confirmInbound">
+
+        UPDATE inbound
+
+        SET status = 'CONFIRMED',
+        confirmed_by = #{confirmedBy},
+        confirmed_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+
+        WHERE inbound_id = #{inboundId}
+        AND company_id = #{companyId}
+        AND purchase_order_id = #{purchaseOrderId}
+        AND status = 'DRAFT'
+
+    </update>
 
 </mapper>

@@ -109,6 +109,39 @@ public interface InboundMapper {
             @Param("baseLotQty") BigDecimal baseLotQty
     );
 
+    // 입고확정 대상 품목과 LOT 검증정보 조회
+    List<InboundConfirmItemInfo>
+    findInboundConfirmItems(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 발주품목의 누적 입고수량 증가
+    int increasePurchaseOrderItemReceivedQty(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("purchaseOrderItemId") Long purchaseOrderItemId,
+            @Param("baseReceivedQty") BigDecimal baseReceivedQty
+    );
+
+    // 발주의 입고진행상태 변경
+    int updatePurchaseOrderReceiptStatus(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("receiptStatus") String receiptStatus,
+            @Param("updatedBy") Long updatedBy
+    );
+
+    // INBOUND 확정 처리
+    // 실제 호출은 10/10 재고 증가 처리와 결합한 뒤 사용
+    int confirmInbound(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("inboundId") Long inboundId,
+            @Param("confirmedBy") Long confirmedBy
+    );
+
     // 입고번호용 Oracle Sequence 다음 값 조회
     Long nextInboundNoSequence();
 

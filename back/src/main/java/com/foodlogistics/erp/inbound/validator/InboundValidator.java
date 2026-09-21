@@ -5,6 +5,7 @@ import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.inbound.dto.InboundItemLotRequest;
 import com.foodlogistics.erp.inbound.dto.InboundItemUpdateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
+import com.foodlogistics.erp.inbound.mapper.InboundConfirmItemInfo;
 import com.foodlogistics.erp.inbound.mapper.InboundItemUpdateTargetInfo;
 import com.foodlogistics.erp.inbound.mapper.InboundPurchaseOrderLockInfo;
 import com.foodlogistics.erp.inbound.mapper.LotInfo;
@@ -102,36 +103,6 @@ public class InboundValidator {
         }
     }
 
-    // 입고품목을 수정할 INBOUND가 존재하는지 확인
-    public void validateInboundExists(
-            InboundItemUpdateTargetInfo inbound
-    ) {
-        if (inbound == null) {
-            throw new BusinessException(
-                    ErrorCode.RESOURCE_NOT_FOUND,
-                    "입고 정보를 찾을 수 없습니다."
-            );
-        }
-    }
-
-    // 입고품목 수정은 DRAFT(작성중) 상태에서만 허용
-    public void validateInboundDraft(
-            InboundItemUpdateTargetInfo inbound
-    ) {
-        validateInboundExists(
-                inbound
-        );
-
-        if (!"DRAFT".equals(
-                inbound.getStatus()
-        )) {
-            throw new BusinessException(
-                    ErrorCode.INVALID_REQUEST,
-                    "DRAFT(작성중) 상태의 입고서만 품목을 수정할 수 있습니다."
-            );
-        }
-    }
-
     // 아직 입고 잔량이 남아 있는지 검증
     public void validateRemainingPurchaseOrderItems(
             int remainingItemCount
@@ -203,18 +174,53 @@ public class InboundValidator {
         }
     }
 
-    // 전체 입고품목 요청의 기본값과 중복을 검증
+    // 입고서 존재 여부 검증
+    public void validateInboundExists(
+            InboundItemUpdateTargetInfo inbound
+    ) {
+        if (inbound == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "입고서를 찾을 수 없습니다."
+            );
+        }
+    }
+
+    // 입고서가 DRAFT 상태인지 검증
+    public void validateInboundDraft(
+            InboundItemUpdateTargetInfo inbound
+    ) {
+        if (inbound == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "입고서를 찾을 수 없습니다."
+            );
+        }
+
+        if (!"DRAFT".equals(inbound.getStatus())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "DRAFT(작성중) 상태의 입고서만 수정할 수 있습니다."
+            );
+        }
+    }
+
+    // DRAFT 품목 요청 전체 기본 검증
     public void validateItemRequests(
             List<InboundItemUpdateRequest> items
     ) {
         if (items == null) {
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "입고 품목 목록을 확인할 수 없습니다."
+                    "입고품목 목록을 확인해 주십시오."
             );
         }
 
-        // 빈 목록 []은 DRAFT의 품목 전체 삭제 의미이므로 허용
+        // 빈 목록은 DRAFT 품목 전체 삭제 의미로 허용
+        if (items.isEmpty()) {
+            return;
+        }
+
         Set<Long> purchaseOrderItemIds =
                 new HashSet<>();
 
@@ -223,7 +229,7 @@ public class InboundValidator {
             if (item == null) {
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
-                        "입고 품목 정보가 올바르지 않습니다."
+                        "입고품목 정보를 확인해 주십시오."
                 );
             }
 
@@ -235,11 +241,10 @@ public class InboundValidator {
 
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
-                        "발주 품목 ID는 0보다 큰 값이어야 합니다."
+                        "발주품목 ID는 0보다 큰 값이어야 합니다."
                 );
             }
 
-            // 같은 발주품목을 요청 안에 두 번 넣는 것을 차단
             if (!purchaseOrderItemIds.add(
                     purchaseOrderItemId
             )) {
@@ -250,8 +255,7 @@ public class InboundValidator {
             }
 
             validateDatabaseQuantity(
-                    item.getReceivedQty(),
-                    "입고수량"
+                    item.getReceivedQty()
             );
 
             validateLotRequestBasics(
@@ -260,45 +264,34 @@ public class InboundValidator {
         }
     }
 
-    // 요청한 발주품목이 현재 입고서의 발주에 실제로 존재하는지 검증
+    // 요청한 발주품목이 현재 입고서에서 처리 가능한지 검증
     public void validateInboundPurchaseOrderItem(
-            InboundPurchaseOrderItemResponse purchaseOrderItem
+            InboundPurchaseOrderItemResponse item
     ) {
-        if (purchaseOrderItem == null) {
+        if (item == null) {
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "현재 입고서에서 처리할 수 없는 발주 품목입니다."
             );
         }
 
-        if (purchaseOrderItem.getProductId() == null
-                || purchaseOrderItem.getProductUnitId() == null) {
+        if (item.getProductId() == null
+                || item.getProductId() <= 0
+                || item.getProductUnitId() == null
+                || item.getProductUnitId() <= 0) {
 
             throw new IllegalStateException(
-                    "발주 품목의 상품 또는 상품단위 정보를 확인할 수 없습니다."
+                    "발주 품목의 상품 또는 단위 정보를 확인할 수 없습니다."
             );
         }
 
-        BigDecimal conversionQty =
-                purchaseOrderItem.getConversionQty();
+        validateDatabaseQuantity(
+                item.getConversionQty()
+        );
 
-        if (conversionQty == null
-                || conversionQty.compareTo(
-                BigDecimal.ZERO
-        ) <= 0) {
-
-            throw new IllegalStateException(
-                    "발주 품목의 환산수량을 확인할 수 없습니다."
-            );
-        }
-
-        BigDecimal remainingBaseQty =
-                purchaseOrderItem.getRemainingBaseQty();
-
-        if (remainingBaseQty == null
-                || remainingBaseQty.compareTo(
-                BigDecimal.ZERO
-        ) <= 0) {
+        if (item.getRemainingBaseQty() == null
+                || item.getRemainingBaseQty()
+                .compareTo(BigDecimal.ZERO) <= 0) {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
@@ -307,7 +300,7 @@ public class InboundValidator {
         }
 
         String lotManagedYn =
-                purchaseOrderItem.getLotManagedYn();
+                item.getLotManagedYn();
 
         if (!"Y".equals(lotManagedYn)
                 && !"N".equals(lotManagedYn)) {
@@ -318,19 +311,22 @@ public class InboundValidator {
         }
     }
 
-    // 계산된 기준입고수량이 남은 발주수량을 초과하지 않는지 검증
+    // 기준입고수량이 DB 저장범위 안이고 발주 잔량을 넘지 않는지 검증
     public void validateBaseReceivedQty(
             BigDecimal baseReceivedQty,
             BigDecimal remainingBaseQty
     ) {
         validateDatabaseQuantity(
-                baseReceivedQty,
-                "기준입고수량"
+                baseReceivedQty
         );
 
-        if (remainingBaseQty == null) {
-            throw new IllegalStateException(
-                    "남은 발주수량을 확인할 수 없습니다."
+        if (remainingBaseQty == null
+                || remainingBaseQty
+                .compareTo(BigDecimal.ZERO) <= 0) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "해당 발주 품목에는 남은 입고 수량이 없습니다."
             );
         }
 
@@ -345,13 +341,12 @@ public class InboundValidator {
         }
     }
 
-    // 상품의 LOT 관리 여부와 요청 LOT 목록을 함께 검증
+    // LOT 관리 여부에 따라 LOT 요청을 검증
     public void validateLotPolicy(
             String lotManagedYn,
             List<InboundItemLotRequest> lots,
             BigDecimal baseReceivedQty
     ) {
-        // LOT 비관리상품은 LOT 입력 자체를 허용하지 않음
         if ("N".equals(lotManagedYn)) {
 
             if (lots != null
@@ -366,7 +361,6 @@ public class InboundValidator {
             return;
         }
 
-        // 여기부터는 LOT 관리상품
         if (!"Y".equals(lotManagedYn)) {
             throw new IllegalStateException(
                     "상품의 LOT 관리 여부를 확인할 수 없습니다."
@@ -378,14 +372,14 @@ public class InboundValidator {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "LOT 관리상품은 LOT 정보를 1건 이상 입력해야 합니다."
+                    "LOT 관리상품에는 LOT 정보를 입력해야 합니다."
             );
         }
 
         Set<String> lotNos =
                 new HashSet<>();
 
-        BigDecimal lotQtyTotal =
+        BigDecimal totalBaseLotQty =
                 BigDecimal.ZERO;
 
         for (InboundItemLotRequest lot : lots) {
@@ -393,7 +387,7 @@ public class InboundValidator {
             if (lot == null) {
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
-                        "LOT 정보가 올바르지 않습니다."
+                        "LOT 정보를 확인해 주십시오."
                 );
             }
 
@@ -401,7 +395,7 @@ public class InboundValidator {
                     lot.getLotNo();
 
             if (lotNo == null
-                    || lotNo.isBlank()) {
+                    || lotNo.trim().isEmpty()) {
 
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
@@ -412,14 +406,6 @@ public class InboundValidator {
             String normalizedLotNo =
                     lotNo.trim();
 
-            if (normalizedLotNo.length() > 50) {
-                throw new BusinessException(
-                        ErrorCode.INVALID_REQUEST,
-                        "LOT 번호는 50자 이하여야 합니다."
-                );
-            }
-
-            // 같은 품목 안에서 동일 LOT 번호 중복 입력 차단
             if (!lotNos.add(
                     normalizedLotNo
             )) {
@@ -430,8 +416,7 @@ public class InboundValidator {
             }
 
             validateDatabaseQuantity(
-                    lot.getBaseLotQty(),
-                    "LOT 기준수량"
+                    lot.getBaseLotQty()
             );
 
             validateLotDates(
@@ -439,14 +424,13 @@ public class InboundValidator {
                     lot.getExpiryDate()
             );
 
-            lotQtyTotal =
-                    lotQtyTotal.add(
+            totalBaseLotQty =
+                    totalBaseLotQty.add(
                             lot.getBaseLotQty()
                     );
         }
 
-        // LOT별 기준수량 합계는 품목의 기준입고수량과 정확히 같아야 함
-        if (lotQtyTotal.compareTo(
+        if (totalBaseLotQty.compareTo(
                 baseReceivedQty
         ) != 0) {
 
@@ -457,55 +441,164 @@ public class InboundValidator {
         }
     }
 
-    // 기존 LOT를 재사용할 때 날짜가 서로 충돌하는지 검증
+    // 기존 LOT와 요청 LOT의 날짜가 충돌하는지 검증
     public void validateExistingLotDates(
             LotInfo existingLot,
             InboundItemLotRequest requestLot
     ) {
         if (existingLot == null
                 || requestLot == null) {
-
             return;
         }
 
-        LocalDate existingManufactureDate =
-                existingLot.getManufactureDate();
-
-        LocalDate requestedManufactureDate =
-                requestLot.getManufactureDate();
-
-        if (existingManufactureDate != null
-                && requestedManufactureDate != null
-                && !existingManufactureDate.equals(
-                requestedManufactureDate
+        if (existingLot.getManufactureDate() != null
+                && requestLot.getManufactureDate() != null
+                && !existingLot.getManufactureDate().equals(
+                requestLot.getManufactureDate()
         )) {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "기존 LOT의 제조일과 요청한 제조일이 일치하지 않습니다."
+                    "기존 LOT의 제조일과 입력한 제조일이 일치하지 않습니다."
             );
         }
 
-        LocalDate existingExpiryDate =
-                existingLot.getExpiryDate();
-
-        LocalDate requestedExpiryDate =
-                requestLot.getExpiryDate();
-
-        if (existingExpiryDate != null
-                && requestedExpiryDate != null
-                && !existingExpiryDate.equals(
-                requestedExpiryDate
+        if (existingLot.getExpiryDate() != null
+                && requestLot.getExpiryDate() != null
+                && !existingLot.getExpiryDate().equals(
+                requestLot.getExpiryDate()
         )) {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "기존 LOT의 유통기한과 요청한 유통기한이 일치하지 않습니다."
+                    "기존 LOT의 유통기한과 입력한 유통기한이 일치하지 않습니다."
             );
         }
     }
 
-    // LOT 제조일과 유통기한의 순서를 검증
+    // 입고확정 대상 품목과 LOT 상태 재검증
+    public void validateInboundConfirmItems(
+            List<InboundConfirmItemInfo> items
+    ) {
+        if (items == null
+                || items.isEmpty()) {
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "입고확정할 품목이 없습니다."
+            );
+        }
+
+        for (InboundConfirmItemInfo item : items) {
+
+            if (item == null
+                    || item.getInboundItemId() == null
+                    || item.getInboundItemId() <= 0
+                    || item.getPurchaseOrderItemId() == null
+                    || item.getPurchaseOrderItemId() <= 0
+                    || item.getProductId() == null
+                    || item.getProductId() <= 0) {
+
+                throw new BusinessException(
+                        ErrorCode.INVALID_REQUEST,
+                        "입고확정 품목 정보를 확인할 수 없습니다."
+                );
+            }
+
+            validateDatabaseQuantity(
+                    item.getBaseReceivedQty()
+            );
+
+            if ("Y".equals(
+                    item.getLotManagedYn()
+            )) {
+
+                if (item.getLotCount() <= 0) {
+                    throw new BusinessException(
+                            ErrorCode.INVALID_REQUEST,
+                            "LOT 관리상품에는 LOT 정보가 필요합니다."
+                    );
+                }
+
+                if (item.getBaseLotQtyTotal() == null) {
+                    throw new BusinessException(
+                            ErrorCode.INVALID_REQUEST,
+                            "LOT 수량 정보를 확인할 수 없습니다."
+                    );
+                }
+
+                if (item.getBaseLotQtyTotal()
+                        .compareTo(
+                                item.getBaseReceivedQty()
+                        ) != 0) {
+
+                    throw new BusinessException(
+                            ErrorCode.INVALID_REQUEST,
+                            "LOT별 기준수량 합계는 품목의 기준입고수량과 같아야 합니다."
+                    );
+                }
+
+                continue;
+            }
+
+            if ("N".equals(
+                    item.getLotManagedYn()
+            )) {
+
+                if (item.getLotCount() != 0) {
+                    throw new BusinessException(
+                            ErrorCode.INVALID_REQUEST,
+                            "LOT 비관리상품에는 LOT 정보를 저장할 수 없습니다."
+                    );
+                }
+
+                continue;
+            }
+
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "상품의 LOT 관리 여부가 올바르지 않습니다."
+            );
+        }
+    }
+
+    // 발주품목 조건부 UPDATE 결과 검증
+    public void validatePurchaseOrderItemUpdateCount(
+            int updatedCount
+    ) {
+        if (updatedCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "입고수량이 발주 잔량을 초과하거나 처리할 수 없는 발주 품목입니다."
+            );
+        }
+    }
+
+    // 발주 Header 입고상태 UPDATE 결과 검증
+    public void validatePurchaseOrderStatusUpdateCount(
+            int updatedCount
+    ) {
+        if (updatedCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "발주의 입고상태를 변경할 수 없습니다."
+            );
+        }
+    }
+
+    // INBOUND 확정 UPDATE 결과 검증
+    public void validateInboundConfirmUpdateCount(
+            int updatedCount
+    ) {
+        if (updatedCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "이미 확정되었거나 확정할 수 없는 입고서입니다."
+            );
+        }
+    }
+
+    // LOT 제조일과 유통기한 순서 검증
     private void validateLotDates(
             LocalDate manufactureDate,
             LocalDate expiryDate
@@ -523,11 +616,12 @@ public class InboundValidator {
         }
     }
 
-    // LOT 목록의 DTO 기본값을 한번 더 방어
+    // LOT 요청의 기본값 검증
     private void validateLotRequestBasics(
             List<InboundItemLotRequest> lots
     ) {
-        if (lots == null) {
+        if (lots == null
+                || lots.isEmpty()) {
             return;
         }
 
@@ -536,7 +630,7 @@ public class InboundValidator {
             if (lot == null) {
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
-                        "LOT 정보가 올바르지 않습니다."
+                        "LOT 정보를 확인해 주십시오."
                 );
             }
 
@@ -544,7 +638,7 @@ public class InboundValidator {
                     lot.getLotNo();
 
             if (lotNo == null
-                    || lotNo.isBlank()) {
+                    || lotNo.trim().isEmpty()) {
 
                 throw new BusinessException(
                         ErrorCode.INVALID_REQUEST,
@@ -552,16 +646,8 @@ public class InboundValidator {
                 );
             }
 
-            if (lotNo.trim().length() > 50) {
-                throw new BusinessException(
-                        ErrorCode.INVALID_REQUEST,
-                        "LOT 번호는 50자 이하여야 합니다."
-                );
-            }
-
             validateDatabaseQuantity(
-                    lot.getBaseLotQty(),
-                    "LOT 기준수량"
+                    lot.getBaseLotQty()
             );
 
             validateLotDates(
@@ -571,51 +657,40 @@ public class InboundValidator {
         }
     }
 
-    // Oracle NUMBER(19,3)에 저장할 수량을 Backend에서 먼저 정확하게 검증
+    // Oracle NUMBER(19,3)에 정확히 저장할 수 있는 양수인지 검증
     private void validateDatabaseQuantity(
-            BigDecimal quantity,
-            String fieldName
+            BigDecimal quantity
     ) {
-        if (quantity == null) {
-            throw new BusinessException(
-                    ErrorCode.INVALID_REQUEST,
-                    fieldName + "을(를) 입력해 주십시오."
-            );
-        }
-
-        if (quantity.compareTo(
+        if (quantity == null
+                || quantity.compareTo(
                 BigDecimal.ZERO
         ) <= 0) {
 
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    fieldName + "은(는) 0보다 커야 합니다."
+                    "수량은 0보다 커야 합니다."
             );
         }
 
         BigDecimal scaledQuantity;
 
         try {
-            // 반올림하지 않고 정확히 소수 3자리로 표현 가능한지 확인
             scaledQuantity =
                     quantity.setScale(
                             3,
                             RoundingMode.UNNECESSARY
                     );
         } catch (ArithmeticException e) {
-
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    fieldName + "은(는) 소수 3자리까지만 입력할 수 있습니다."
+                    "수량은 소수점 셋째 자리까지만 입력할 수 있습니다."
             );
         }
 
-        // NUMBER(19,3)의 전체 유효숫자 19자리를 초과하지 않도록 방어
         if (scaledQuantity.precision() > 19) {
-
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    fieldName + "의 숫자 자릿수가 너무 큽니다."
+                    "수량이 저장 가능한 범위를 초과했습니다."
             );
         }
     }
