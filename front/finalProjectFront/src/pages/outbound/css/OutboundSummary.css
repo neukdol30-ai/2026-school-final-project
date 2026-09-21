@@ -1,0 +1,86 @@
+.outbound-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.outbound-summary h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e2934;
+}
+
+.outbound-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.outbound-summary-grid > div {
+  position: relative;
+  min-width: 0;
+  padding: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fbfcfd 0%, #f4f7fa 100%);
+  border: 1px solid #e3e9ee;
+  border-radius: 8px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* 카드 맨 위의 파란 선: 정보 구역이라는 느낌을 준다. */
+.outbound-summary-grid > div::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  content: "";
+  background-color: #1769aa;
+}
+
+.outbound-summary-grid > div:nth-child(2)::before {
+  background-color: #d99400;
+}
+
+.outbound-summary-grid > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(32, 40, 48, 0.08);
+}
+
+.outbound-summary-grid > div > span:first-child {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #788591;
+}
+
+.outbound-summary-grid strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #25313c;
+  word-break: break-word;
+}
+
+.outbound-summary-grid .outbound-status-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0;
+  vertical-align: middle;
+}
+
+@media (max-width: 1100px) {
+  .outbound-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .outbound-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

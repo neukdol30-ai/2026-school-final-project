@@ -1,0 +1,284 @@
+package com.foodlogistics.erp.purchase.controller;
+
+import com.foodlogistics.erp.common.response.ApiResponse;
+import com.foodlogistics.erp.purchase.dto.*;
+import com.foodlogistics.erp.purchase.service.PurchaseOrderService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/purchase-orders")
+@RequiredArgsConstructor
+public class PurchaseOrderController {
+
+    // 발주 검증, 계산, 발주번호 생성, DB 저장 등 실제 업무는 Service가 담당
+    private final PurchaseOrderService purchaseOrderService;
+
+    // 발주 등록
+    // POST /api/purchase-orders
+    @PostMapping
+    public ResponseEntity<ApiResponse<PurchaseOrderCreateResponse>>
+    createPurchaseOrder(
+
+            // 로그인 성공 후 클라이언트가 Authorization 헤더로 보낸 JWT를
+            // Spring Security가 먼저 검증한 뒤 이 매개변수에 전달
+            @AuthenticationPrincipal Jwt jwt,
+
+            // React가 보낸 JSON을 PurchaseOrderCreateRequest로 변환하고
+            // @Valid가 DTO의 Validation 조건을 검사함
+            @Valid @RequestBody PurchaseOrderCreateRequest request
+    ) {
+
+        // JwtTokenProvider에서 JWT 생성 시 넣어 둔 appUserId Claim을 가져옴
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT 안에 저장된 현재 로그인 사용자의 회사 ID
+        // 멀티테넌트 구조에서 다른 회사의 데이터와 섞이지 않도록 사용
+        Number companyId = jwt.getClaim("companyId");
+
+        // JWT에서 가져온 회사 ID와 사용자 ID,
+        // React에서 받은 발주 요청 DTO를 Service에 전달
+        PurchaseOrderCreateResponse response =
+                purchaseOrderService.createPurchaseOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        request
+                );
+
+        // 발주 등록 결과를 프로젝트 공통 ApiResponse 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 목록 조회
+    // GET /api/purchase-orders
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PurchaseOrderListResponse>>>
+    getPurchaseOrders(
+
+            // 로그인 후 검증된 JWT를 Spring Security가 전달
+            @AuthenticationPrincipal Jwt jwt,
+
+            // 발주번호 검색
+            // 값이 없으면 전체 발주번호를 대상으로 조회
+            @RequestParam(required = false)
+            String orderNo,
+
+            // 공급업체명 검색
+            // 예: "테스트"를 입력하면 이름에 "테스트"가 포함된 공급업체의 발주를 검색
+            @RequestParam(required = false)
+            String supplierName,
+
+            // 발주일 조회 시작일
+            // 예: 2026-09-01
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate orderDateFrom,
+
+            // 발주일 조회 종료일
+            // 예: 2026-09-30
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate orderDateTo,
+
+            // DRAFT / PENDING / APPROVED / REJECTED
+            @RequestParam(required = false)
+            String approvalStatus,
+
+            // NOT_RECEIVED / PARTIAL / RECEIVED / CLOSED
+            @RequestParam(required = false)
+            String receiptStatus
+    ) {
+
+        // JWT 생성 시 JwtTokenProvider가 넣어 둔 로그인 사용자 ID
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        // JWT에 들어 있는 현재 로그인 회사 ID
+        // Frontend가 회사 ID를 직접 보내지 않음
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        // Service에서 검색조건 검증 후 Oracle 목록 조회
+        List<PurchaseOrderListResponse> response =
+                purchaseOrderService.getPurchaseOrders(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        orderNo,
+                        supplierName,
+                        orderDateFrom,
+                        orderDateTo,
+                        approvalStatus,
+                        receiptStatus
+                );
+
+        // 기존 프로젝트 공통 ApiResponse 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 상세조회
+    // GET /api/purchase-orders/{purchaseOrderId}
+    @GetMapping("/{purchaseOrderId}")
+    public ResponseEntity<ApiResponse<PurchaseOrderDetailResponse>>
+    getPurchaseOrderDetail(
+
+            // 로그인 후 Spring Security가 검증한 JWT를 전달
+            @AuthenticationPrincipal Jwt jwt,
+
+            // URL 경로에 들어온 발주 ID를 받음
+            // 예: /api/purchase-orders/1
+            // → purchaseOrderId에는 1이 들어옴
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        // JWT 생성 시 넣어 둔 현재 로그인 사용자 ID
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT 생성 시 넣어 둔 현재 로그인 회사 ID
+        Number companyId = jwt.getClaim("companyId");
+
+        // 회사 ID + 사용자 ID + URL에서 받은 발주 ID를 Service로 전달
+        // Service에서 인증정보 검증 → Header 조회 → Item 조회 순서로 처리
+        PurchaseOrderDetailResponse response =
+                purchaseOrderService.getPurchaseOrderDetail(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId
+                );
+
+        // 상세조회 결과를 프로젝트 공통 ApiResponse 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 수정
+    // PUT /api/purchase-orders/{purchaseOrderId}
+    @PutMapping("/{purchaseOrderId}")
+    public ResponseEntity<ApiResponse<PurchaseOrderDetailResponse>>
+    updatePurchaseOrder(
+
+            // 로그인 후 Spring Security가 검증한 JWT
+            @AuthenticationPrincipal Jwt jwt,
+
+            // URL 경로에서 수정할 발주 ID를 받음
+            @PathVariable Long purchaseOrderId,
+
+            // React가 보낸 발주 수정 JSON을 DTO로 변환하고 Validation 수행
+            @Valid @RequestBody PurchaseOrderUpdateRequest request
+    ) {
+
+        // JWT에 들어 있는 현재 로그인 사용자 ID
+        Number appUserId = jwt.getClaim("appUserId");
+
+        // JWT에 들어 있는 현재 로그인 회사 ID
+        Number companyId = jwt.getClaim("companyId");
+
+        // 발주 수정 Service 호출
+        PurchaseOrderDetailResponse response =
+                purchaseOrderService.updatePurchaseOrder(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        purchaseOrderId,
+                        request
+                );
+
+        // 수정된 발주 Header + Item 정보를 공통 응답 형식으로 반환
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // 발주 승인 요청
+    // POST /api/purchase-orders/{purchaseOrderId}/approval-request
+    @PostMapping("/{purchaseOrderId}/approval-request")
+    public ResponseEntity<ApiResponse<Void>>
+    requestPurchaseOrderApproval(
+
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        purchaseOrderService.requestPurchaseOrderApproval(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
+    // 실제 발주 승인
+    // POST /api/purchase-orders/{purchaseOrderId}/approve
+    @PostMapping("/{purchaseOrderId}/approve")
+    public ResponseEntity<ApiResponse<Void>>
+    approvePurchaseOrder(
+
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId
+    ) {
+
+        Number appUserId = jwt.getClaim("appUserId");
+
+        Number companyId = jwt.getClaim("companyId");
+
+        purchaseOrderService.approvePurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
+    // 실제 발주 반려
+    // POST /api/purchase-orders/{purchaseOrderId}/reject
+    @PostMapping("/{purchaseOrderId}/reject")
+    public ResponseEntity<ApiResponse<Void>>
+    rejectPurchaseOrder(
+
+            // Spring Security가 먼저 Bearer JWT를 검증한 후, 검증된 JWT 객체를 이 매개변수에 전달
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long purchaseOrderId,
+            @Valid @RequestBody PurchaseOrderRejectRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        purchaseOrderService.rejectPurchaseOrder(
+                companyId.longValue(),
+                appUserId.longValue(),
+                purchaseOrderId,
+                request
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok()
+        );
+    }
+
+}

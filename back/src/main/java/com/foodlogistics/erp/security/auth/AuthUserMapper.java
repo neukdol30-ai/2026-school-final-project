@@ -24,16 +24,16 @@ public interface AuthUserMapper {
           AND c.active_yn = 'Y'
         """)
     @Results(id = "authUserResult",
-    value =
+            value =
 
-    {
-        @Result(column = "app_user_id", property = "appUserId", id = true),
-        @Result(column = "company_id", property = "companyId"),
-        @Result(column = "login_id", property = "loginId"),
-        @Result(column = "password", property = "password"),
-        @Result(column = "user_name", property = "userName"),
-        @Result(column = "use_yn", property = "useYn")
-    }
+                    {
+                            @Result(column = "app_user_id", property = "appUserId", id = true),
+                            @Result(column = "company_id", property = "companyId"),
+                            @Result(column = "login_id", property = "loginId"),
+                            @Result(column = "password", property = "password"),
+                            @Result(column = "user_name", property = "userName"),
+                            @Result(column = "use_yn", property = "useYn")
+                    }
     )
 
     Optional<AuthUser> findByLoginId(@Param("loginId") String loginId);

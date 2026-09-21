@@ -1,0 +1,125 @@
+package com.foodlogistics.erp.purchase.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+// 한국 표준시간을 명시하기 위해 사용하는 클래스
+import java.time.ZoneId;
+
+// Oracle의 PURCHASE_ORDER 테이블 한 행을 Java 객체 하나로 연결하는 JPA entity.
+// 기존 발주 등록, 조회, 수정은 계속 MyBatis. 승인 요청에서 이 Entity를 JPA로 조회.
+@Entity
+@Table(name = "purchase_order")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PurchaseOrder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "purchase_order_id")
+    private Long purchaseOrderId;
+
+    @Column(name = "company_id", nullable = false)
+    private Long companyId;
+
+    @Column(name = "order_no", nullable = false, length = 50)
+    private String orderNo;
+
+    @Column(name = "supplier_id", nullable = false)
+    private Long supplierId;
+
+    @Column(name = "warehouse_id", nullable = false)
+    private Long warehouseId;
+
+    @Column(name = "order_date", nullable = false)
+    private LocalDate orderDate;
+
+    @Column(name = "expected_delivery_date")
+    private LocalDate expectedDeliveryDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", nullable = false, length = 20)
+    private PurchaseOrderApprovalStatus approvalStatus;
+
+    @Column(name = "receipt_status", nullable = false, length = 20)
+    private String receiptStatus;
+
+    @Column(name = "request_note", length = 500)
+    private String requestNote;
+
+    @Column(name = "internal_memo", length = 500)
+    private String internalMemo;
+
+    @Column(name = "total_supply_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalSupplyAmount;
+
+    @Column(name = "total_tax_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalTaxAmount;
+
+    @Column(name = "total_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(name = "created_by", nullable = false)
+    private Long createdBy;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_by")
+    private Long updatedBy;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "approved_by")
+    private Long approvedBy;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
+
+    @Column(name = "rejected_by")
+    private Long rejectedBy;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
+    // 승인 요청 처리
+    public void requestApproval(Long appUserId) {
+        this.approvalStatus = PurchaseOrderApprovalStatus.PENDING;
+        this.updatedBy = appUserId;
+        this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
+    // 실제 발주 승인 처리
+    public void approve(Long appUserId) {
+        // 승인시간과 수정시간에 동일한 한국시간을 사용
+        LocalDateTime now =
+                LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        this.approvalStatus = PurchaseOrderApprovalStatus.APPROVED;
+        this.approvedBy = appUserId;
+        this.approvedAt = now;
+        this.updatedBy = appUserId;
+        this.updatedAt = now;
+    }
+
+    public void reject(Long appUserId, String rejectionReason) {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        this.approvalStatus = PurchaseOrderApprovalStatus.REJECTED;
+        this.rejectionReason = rejectionReason;
+        this.rejectedBy = appUserId;
+        this.rejectedAt = now;
+        this.updatedBy = appUserId;
+        this.updatedAt = now;
+    }
+
+}

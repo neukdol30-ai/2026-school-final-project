@@ -1,0 +1,94 @@
+import { getAccessToken } from "../../../storage/authStorage";
+const SALES_ORDER_API_URL = "http://localhost:8080/api/sales-orders";
+
+async function requestApi(url, options = {}, defaultErrorMessage) {
+  const accessToken = getAccessToken(); // 로그인 후 저장된 JWT 토큰
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(accessToken
+        ? { Authorization: `Bearer ${accessToken}` } // 토큰이 있으면 요청에 포함
+        : {}),
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    const error = new Error(result.error?.message || defaultErrorMessage);
+
+    error.validationErrors = result.error?.fields || [];
+
+    throw error;
+  }
+
+  return result.data;
+}
+// 판매주문 목록 조회
+export async function getSalesOrders() {
+  return requestApi(
+    SALES_ORDER_API_URL,
+    {},
+    "판매주문 목록을 불러오지 못했습니다.",
+  );
+}
+//판매주문 한 건의 헤더와 주문 품목 목록 함께 조회
+export async function getSalesOrderDetail(salesOrderId) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}`,
+    {},
+    "판매주문 상세 정보를 불러오지 못했습니다.",
+  );
+}
+//판매주문 등록
+export async function createSalesOrder(requestData) {
+  return requestApi(
+    SALES_ORDER_API_URL,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    },
+    "판매주문 등록에 실패했습니다.",
+  );
+}
+
+// 작성중 판매주문 수정
+export async function updateSalesOrder(salesOrderId, requestData) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    },
+    "판매주문 수정에 실패했습니다.",
+  );
+}
+//판매주문 확정
+export async function confirmSalesOrder(salesOrderId) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}/confirm`,
+    {
+      method: "POST",
+    },
+    "판매주문 확정에 실패했습니다.",
+  );
+}
+
+// 미출고 판매주문 취소
+export async function cancelSalesOrder(salesOrderId) {
+  return requestApi(
+    `${SALES_ORDER_API_URL}/${salesOrderId}/cancel`,
+    {
+      method: "POST",
+    },
+    "판매주문 취소에 실패했습니다.",
+  );
+}

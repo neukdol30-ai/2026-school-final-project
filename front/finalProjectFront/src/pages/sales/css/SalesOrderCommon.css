@@ -1,0 +1,123 @@
+/* 판매주문 화면 전체에서 함께 쓰는 기본 스타일 */
+
+.sales-order-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sales-order-page .content-panel {
+  box-sizing: border-box;
+}
+
+.sales-order-page label {
+  color: #4e5965;
+  font-size: 13px;
+}
+
+.sales-order-page input,
+.sales-order-page select {
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid #cfd6dd;
+  border-radius: 5px;
+}
+
+.sales-order-page button {
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 5px;
+  background-color: #1769aa;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.sales-order-page button:disabled {
+  cursor: not-allowed;
+  background-color: #aab4bd;
+}
+
+.sales-order-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-order-page th,
+.sales-order-page td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e4e8ec;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sales-order-page th {
+  background-color: #f8fafc;
+  color: #4e5965;
+}
+
+.field-error {
+  margin: 4px 0 0;
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+.success-message {
+  margin: 0;
+  color: #197a3a;
+  font-size: 13px;
+}
+
+.sales-order-api-error,
+.sales-order-form-error {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 목록 · 등록 화면 상단 이동 영역 */
+
+.sales-order-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sales-order-create-link,
+.sales-order-list-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  box-sizing: border-box;
+  padding: 0 15px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sales-order-create-link {
+  background: #1769aa;
+  color: #ffffff;
+}
+
+.sales-order-list-link {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+@media (max-width: 900px) {
+  .sales-order-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -122,7 +122,6 @@ public enum ErrorCode {
             "PARTNER_ROLE_REQUIRED",
             "공급업체 또는 판매처 중 하나 이상을 선택해야 합니다."
     ),
-
     RESOURCE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "RESOURCE_NOT_FOUND",

@@ -1,0 +1,222 @@
+/* 상세 페이지 안의 각 영역 사이에 세로 간격을 준다. */
+.purchase-order-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 화면 맨 위의 제목과 목록 버튼을 한 줄에 배치한다. */
+.purchase-order-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* 발주 상세 제목의 기본 여백과 글자 스타일이다. */
+.purchase-order-detail-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #202830;
+}
+
+/* 제목 아래 발주 ID 보조 문구 스타일이다. */
+.purchase-order-detail-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+/* 발주 목록으로 돌아가는 버튼이다. */
+.purchase-order-back-button {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 목록 버튼에 마우스를 올렸을 때 배경을 살짝 바꾼다. */
+.purchase-order-back-button:hover {
+  background-color: #f4f6f8;
+}
+
+/* 각 상세정보 section의 제목과 내용 사이의 간격을 정한다. */
+.purchase-order-detail-section h2 {
+  margin: 0 0 16px;
+}
+
+/* 기본정보를 한 줄에 3칸씩 배치한다. */
+.purchase-order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+/* 기본정보의 한 항목을 카드처럼 구분한다. */
+.purchase-order-detail-grid > div {
+  min-width: 0;
+  padding: 14px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+/* 각 항목의 이름 부분이다. */
+.purchase-order-detail-grid span,
+.purchase-order-note-grid span,
+.purchase-order-amount-grid span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  color: #7b8792;
+}
+
+/* 기본정보의 실제 값을 강조한다. */
+.purchase-order-detail-grid strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #27313a;
+  word-break: break-word;
+}
+
+/* 요청사항과 내부메모를 두 칸으로 나란히 배치한다. */
+.purchase-order-note-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* 각각의 메모를 연한 배경의 박스로 표시한다. */
+.purchase-order-note-grid > div {
+  padding: 14px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+/* 실제 메모 문장의 스타일이다. */
+.purchase-order-note-grid p {
+  min-height: 38px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #323b45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 공급가액, 세액, 총액을 3개의 금액 영역으로 나눈다. */
+.purchase-order-amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* 금액 하나를 별도 카드처럼 표시한다. */
+.purchase-order-amount-grid > div {
+  padding: 16px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+/* 금액 숫자를 일반 정보보다 크게 강조한다. */
+.purchase-order-amount-grid strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #27313a;
+}
+
+/* 품목 열이 많아 화면보다 넓어질 경우 가로 스크롤을 사용한다. */
+.purchase-order-detail-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 발주 품목 상세 테이블이다. */
+.purchase-order-detail-table {
+  width: 100%;
+  min-width: 1180px;
+  font-size: 13px;
+  background-color: #ffffff;
+  border-collapse: collapse;
+}
+
+/* Header와 데이터 Cell의 공통 스타일이다. */
+.purchase-order-detail-table th,
+.purchase-order-detail-table td {
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-bottom: 1px solid #e7eaed;
+}
+
+/* 테이블 Header 행 스타일이다. */
+.purchase-order-detail-table th {
+  font-weight: 600;
+  color: #4e5965;
+  background-color: #f7f8fa;
+  border-top: 1px solid #e4e8ec;
+}
+
+/* 실제 품목 값의 글자색이다. */
+.purchase-order-detail-table td {
+  color: #323b45;
+}
+
+/* 마우스를 품목 행에 올리면 현재 행을 알아보기 쉽게 표시한다. */
+.purchase-order-detail-table tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+/* 품목이 한 건도 없을 때 표시하는 메시지 Cell이다. */
+.purchase-order-empty-items {
+  padding: 20px !important;
+  text-align: center !important;
+  color: #78838e !important;
+}
+
+/* API 로딩과 오류 메시지 공통 스타일이다. */
+.purchase-order-detail-message {
+  font-size: 13px;
+  color: #78838e;
+}
+
+/* 상세조회 실패 메시지는 빨간 계열로 구분한다. */
+.purchase-order-detail-message.error {
+  color: #c62828;
+  background-color: #fff3f3;
+  border-color: #f2caca;
+}
+
+/* 화면 폭이 900px 이하가 되면 기본정보를 2열로 줄인다. */
+@media (max-width: 900px) {
+  .purchase-order-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .purchase-order-amount-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 휴대폰처럼 화면 폭이 650px 이하이면 한 열 중심으로 바꾼다. */
+@media (max-width: 650px) {
+  .purchase-order-detail-header {
+    flex-direction: column;
+  }
+
+  .purchase-order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-order-note-grid {
+    grid-template-columns: 1fr;
+  }
+}
