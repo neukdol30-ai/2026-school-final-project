@@ -1,9 +1,12 @@
 package com.foodlogistics.erp.inbound.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
+import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
+import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
 import com.foodlogistics.erp.inbound.service.InboundService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,8 +27,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InboundController {
 
-    // 입고 대상 발주와 품목의 실제 조회 업무는 Service가 담당
+    // 입고 조회 및 생성 실제 업무는 Service가 담당
     private final InboundService inboundService;
+
+    // INBOUND DRAFT 생성
+    // POST /api/inbounds
+    @PostMapping
+    public ResponseEntity<
+            ApiResponse<InboundCreateResponse>
+            >
+    createInbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody InboundCreateRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        log.info(
+                "POST /api/inbounds: "
+                        + "companyId={}, appUserId={}, purchaseOrderId={}",
+                companyId.longValue(),
+                appUserId.longValue(),
+                request.getPurchaseOrderId()
+        );
+
+        InboundCreateResponse response =
+                inboundService.createInbound(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        request
+                );
+
+        log.info(
+                "POST /api/inbounds completed: "
+                        + "companyId={}, inboundId={}, inboundNo={}",
+                companyId.longValue(),
+                response.getInboundId(),
+                response.getInboundNo()
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
 
     // 입고 대상 발주 목록 조회
     // GET /api/inbounds/purchase-orders

@@ -84,6 +84,30 @@
 
     </resultMap>
 
+    <!-- 입고 DRAFT 생성용 발주 Header 잠금 조회 결과 -->
+    <resultMap id="inboundPurchaseOrderLockInfoMap"
+               type="com.foodlogistics.erp.inbound.mapper.InboundPurchaseOrderLockInfo">
+
+        <id column="purchase_order_id"
+            property="purchaseOrderId"/>
+
+        <result column="company_id"
+                property="companyId"/>
+
+        <result column="warehouse_id"
+                property="warehouseId"/>
+
+        <result column="order_date"
+                property="orderDate"/>
+
+        <result column="approval_status"
+                property="approvalStatus"/>
+
+        <result column="receipt_status"
+                property="receiptStatus"/>
+
+    </resultMap>
+
     <!-- 현재 회사의 입고 대상 발주 목록 조회 -->
     <select id="findInboundTargetPurchaseOrders"
             resultMap="inboundPurchaseOrderResponseMap">
@@ -173,5 +197,107 @@
         ORDER BY poi.purchase_order_item_id
 
     </select>
+
+    <!-- 입고 DRAFT 생성 전 PURCHASE_ORDER Header 잠금 -->
+    <select id="findPurchaseOrderForUpdate"
+            resultMap="inboundPurchaseOrderLockInfoMap">
+
+        SELECT
+        po.purchase_order_id,
+        po.company_id,
+        po.warehouse_id,
+        po.order_date,
+        po.approval_status,
+        po.receipt_status
+
+        FROM purchase_order po
+
+        WHERE po.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+
+        FOR UPDATE
+
+    </select>
+
+    <!-- 아직 입고할 잔량이 남은 발주품목 개수 -->
+    <select id="countRemainingPurchaseOrderItems"
+            resultType="int">
+
+        SELECT COUNT(*)
+
+        FROM purchase_order_item poi
+
+        WHERE poi.purchase_order_id = #{purchaseOrderId}
+        AND poi.received_qty &lt; poi.base_ordered_qty
+
+    </select>
+
+    <!-- 같은 발주의 가장 최근 CONFIRMED 입고일 -->
+    <select id="findLatestConfirmedInboundDate"
+            resultType="java.time.LocalDate">
+
+        SELECT MAX(inbound_date)
+
+        FROM inbound
+
+        WHERE company_id = #{companyId}
+        AND purchase_order_id = #{purchaseOrderId}
+        AND status = 'CONFIRMED'
+
+    </select>
+
+    <!-- 같은 발주의 기존 DRAFT 입고서 개수 -->
+    <select id="countDraftInbounds"
+            resultType="int">
+
+        SELECT COUNT(*)
+
+        FROM inbound
+
+        WHERE company_id = #{companyId}
+        AND purchase_order_id = #{purchaseOrderId}
+        AND status = 'DRAFT'
+
+    </select>
+
+    <!-- 입고번호에 사용할 다음 Sequence -->
+    <select id="nextInboundNoSequence"
+            resultType="java.lang.Long">
+
+        SELECT seq_inbound_no.NEXTVAL
+
+        FROM dual
+
+    </select>
+
+    <!-- INBOUND Header 저장 -->
+    <insert id="insertInbound"
+            parameterType="com.foodlogistics.erp.inbound.mapper.InboundInsertParam"
+            useGeneratedKeys="true"
+            keyProperty="inboundId"
+            keyColumn="INBOUND_ID">
+
+        INSERT INTO inbound
+        (
+        company_id,
+        inbound_no,
+        purchase_order_id,
+        warehouse_id,
+        inbound_date,
+        memo,
+        created_by
+        )
+        VALUES
+        (
+        #{companyId},
+        #{inboundNo},
+        #{purchaseOrderId},
+        #{warehouseId},
+        #{inboundDate, jdbcType=DATE},
+        #{memo, jdbcType=VARCHAR},
+        #{createdBy}
+        )
+
+    </insert>
 
 </mapper>
