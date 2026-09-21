@@ -1,0 +1,247 @@
+.stocktake-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stocktake-create-page-header,
+.stocktake-item-section-header,
+.stocktake-item-card-header,
+.stocktake-create-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stocktake-create-page-header h1,
+.stocktake-create-section h2 {
+  margin: 0;
+  color: #202830;
+}
+
+.stocktake-create-page-header h1 {
+  font-size: 24px;
+}
+
+.stocktake-create-page-header p,
+.stocktake-create-section > p,
+.stocktake-item-section-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.stocktake-list-link,
+.stocktake-cancel-link {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  text-decoration: none;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+}
+
+.stocktake-create-form,
+.stocktake-create-message {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stocktake-create-section {
+  padding: 22px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.stocktake-create-section h2 {
+  font-size: 17px;
+}
+
+.stocktake-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+.stocktake-warehouse-field {
+  width: min(100%, 360px);
+  margin-top: 18px;
+}
+
+.stocktake-create-section > .stocktake-field:not(.stocktake-warehouse-field) {
+  margin-top: 16px;
+}
+
+.stocktake-field input,
+.stocktake-field textarea,
+.stocktake-field select {
+  width: 100%;
+  padding: 10px;
+  font: inherit;
+  font-weight: 400;
+  color: #202830;
+  background-color: #ffffff;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.stocktake-field input {
+  height: 38px;
+}
+
+.stocktake-field select {
+  height: 38px;
+}
+
+.stocktake-field textarea {
+  resize: vertical;
+}
+
+.stocktake-field input:focus,
+.stocktake-field textarea:focus,
+.stocktake-field select:focus {
+  border-color: #1769aa;
+  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.stocktake-id-guide {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #8a6817;
+}
+
+.stocktake-lot-guide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-height: 58px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+.stocktake-lot-guide p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #78838e;
+}
+
+.stocktake-add-item-button,
+.stocktake-create-actions button {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
+  border-radius: 6px;
+}
+
+.stocktake-add-item-button:hover,
+.stocktake-create-actions button:hover:not(:disabled) {
+  background-color: #12578e;
+  border-color: #12578e;
+}
+
+.stocktake-add-item-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stocktake-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stocktake-item-card {
+  padding: 16px;
+  background-color: #f8fbfd;
+  border: 1px solid #dce7ef;
+  border-radius: 7px;
+}
+
+.stocktake-item-card-header {
+  align-items: center;
+}
+
+.stocktake-remove-item-button {
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c62828;
+  cursor: pointer;
+  background-color: #fff4f4;
+  border: 1px solid #f2d1d1;
+  border-radius: 5px;
+}
+
+.stocktake-item-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.stocktake-reason-field {
+  grid-column: span 2;
+}
+
+.stocktake-create-actions {
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.stocktake-create-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stocktake-create-message.error {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #c62828;
+  background-color: #fff3f3;
+  border: 1px solid #f2caca;
+  border-radius: 7px;
+}
+
+@media (max-width: 1000px) {
+  .stocktake-item-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .stocktake-create-page-header,
+  .stocktake-item-section-header {
+    flex-direction: column;
+  }
+
+  .stocktake-item-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .stocktake-reason-field {
+    grid-column: auto;
+  }
+}
