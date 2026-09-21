@@ -5,6 +5,7 @@ import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,10 +25,25 @@ public interface InboundMapper {
             @Param("purchaseOrderId") Long purchaseOrderId
     );
 
-    // 입고 DRAFT 생성 전 발주 Header 잠금
+    // 입고품목 수정 전 INBOUND 기본정보 조회
+    InboundItemUpdateTargetInfo
+    findInboundItemUpdateTarget(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 입고 처리 전 PURCHASE_ORDER Header 잠금
     InboundPurchaseOrderLockInfo
     findPurchaseOrderForUpdate(
             @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
+    // 입고품목 수정 전 INBOUND Header 잠금
+    InboundItemUpdateTargetInfo
+    findInboundForUpdate(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId,
             @Param("purchaseOrderId") Long purchaseOrderId
     );
 
@@ -36,16 +52,61 @@ public interface InboundMapper {
             @Param("purchaseOrderId") Long purchaseOrderId
     );
 
-    // 같은 발주의 가장 최근 CONFIRMED 입고일 조회
+    // 같은 발주의 가장 최근 CONFIRMED(입고확정) 입고일 조회
     LocalDate findLatestConfirmedInboundDate(
             @Param("companyId") Long companyId,
             @Param("purchaseOrderId") Long purchaseOrderId
     );
 
-    // 같은 발주에 존재하는 DRAFT 입고서 개수 조회
+    // 같은 발주에 존재하는 DRAFT(작성중) 입고서 개수 조회
     int countDraftInbounds(
             @Param("companyId") Long companyId,
             @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
+    // DRAFT에 저장할 발주품목의 서버 기준정보 조회
+    InboundPurchaseOrderItemResponse
+    findInboundPurchaseOrderItem(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("purchaseOrderItemId") Long purchaseOrderItemId
+    );
+
+    // 기존 LOT 조회
+    LotInfo
+    findLot(
+            @Param("companyId") Long companyId,
+            @Param("productId") Long productId,
+            @Param("lotNo") String lotNo
+    );
+
+    // 신규 LOT 저장
+    int insertLot(
+            LotInsertParam param
+    );
+
+    // 기존 DRAFT의 LOT 연결 전체 삭제
+    int deleteInboundItemLots(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 기존 DRAFT의 입고품목 전체 삭제
+    int deleteInboundItems(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 새 입고품목 저장
+    int insertInboundItem(
+            InboundItemInsertParam param
+    );
+
+    // 새 입고품목과 LOT 연결 저장
+    int insertInboundItemLot(
+            @Param("inboundItemId") Long inboundItemId,
+            @Param("lotId") Long lotId,
+            @Param("baseLotQty") BigDecimal baseLotQty
     );
 
     // 입고번호용 Oracle Sequence 다음 값 조회

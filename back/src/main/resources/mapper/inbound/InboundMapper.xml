@@ -108,6 +108,48 @@
 
     </resultMap>
 
+    <!-- 입고품목 수정 대상 INBOUND 조회 결과 -->
+    <resultMap id="inboundItemUpdateTargetInfoMap"
+               type="com.foodlogistics.erp.inbound.mapper.InboundItemUpdateTargetInfo">
+
+        <id column="inbound_id"
+            property="inboundId"/>
+
+        <result column="company_id"
+                property="companyId"/>
+
+        <result column="purchase_order_id"
+                property="purchaseOrderId"/>
+
+        <result column="status"
+                property="status"/>
+
+    </resultMap>
+
+    <!-- 기존 LOT 조회 결과 -->
+    <resultMap id="lotInfoMap"
+               type="com.foodlogistics.erp.inbound.mapper.LotInfo">
+
+        <id column="lot_id"
+            property="lotId"/>
+
+        <result column="company_id"
+                property="companyId"/>
+
+        <result column="product_id"
+                property="productId"/>
+
+        <result column="lot_no"
+                property="lotNo"/>
+
+        <result column="manufacture_date"
+                property="manufactureDate"/>
+
+        <result column="expiry_date"
+                property="expiryDate"/>
+
+    </resultMap>
+
     <!-- 현재 회사의 입고 대상 발주 목록 조회 -->
     <select id="findInboundTargetPurchaseOrders"
             resultMap="inboundPurchaseOrderResponseMap">
@@ -198,7 +240,24 @@
 
     </select>
 
-    <!-- 입고 DRAFT 생성 전 PURCHASE_ORDER Header 잠금 -->
+    <!-- 입고품목 수정 전 INBOUND 기본정보 조회 -->
+    <select id="findInboundItemUpdateTarget"
+            resultMap="inboundItemUpdateTargetInfoMap">
+
+        SELECT
+        i.inbound_id,
+        i.company_id,
+        i.purchase_order_id,
+        i.status
+
+        FROM inbound i
+
+        WHERE i.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+
+    </select>
+
+    <!-- 입고 처리 전 PURCHASE_ORDER Header 잠금 -->
     <select id="findPurchaseOrderForUpdate"
             resultMap="inboundPurchaseOrderLockInfoMap">
 
@@ -214,6 +273,26 @@
 
         WHERE po.purchase_order_id = #{purchaseOrderId}
         AND po.company_id = #{companyId}
+
+        FOR UPDATE
+
+    </select>
+
+    <!-- 입고품목 수정 전 INBOUND Header 잠금 -->
+    <select id="findInboundForUpdate"
+            resultMap="inboundItemUpdateTargetInfoMap">
+
+        SELECT
+        i.inbound_id,
+        i.company_id,
+        i.purchase_order_id,
+        i.status
+
+        FROM inbound i
+
+        WHERE i.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+        AND i.purchase_order_id = #{purchaseOrderId}
 
         FOR UPDATE
 
@@ -260,6 +339,73 @@
 
     </select>
 
+    <!-- DRAFT에 저장할 발주품목의 서버 기준정보 조회 -->
+    <select id="findInboundPurchaseOrderItem"
+            resultMap="inboundPurchaseOrderItemResponseMap">
+
+        SELECT
+        poi.purchase_order_item_id,
+        poi.product_id,
+        p.product_code,
+        p.product_name,
+        p.lot_managed_yn,
+        poi.product_unit_id,
+        u.unit_code,
+        u.unit_name,
+        poi.ordered_qty,
+        poi.conversion_qty,
+        poi.base_ordered_qty,
+        poi.received_qty,
+        (
+        poi.base_ordered_qty
+        - poi.received_qty
+        ) AS remaining_base_qty
+
+        FROM purchase_order_item poi
+
+        INNER JOIN purchase_order po
+        ON po.purchase_order_id = poi.purchase_order_id
+
+        INNER JOIN product p
+        ON p.product_id = poi.product_id
+        AND p.company_id = po.company_id
+
+        INNER JOIN product_unit pu
+        ON pu.product_unit_id = poi.product_unit_id
+        AND pu.product_id = poi.product_id
+
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+
+        WHERE poi.purchase_order_item_id = #{purchaseOrderItemId}
+        AND poi.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+        AND po.approval_status = 'APPROVED'
+        AND po.receipt_status IN ('NOT_RECEIVED', 'PARTIAL')
+        AND poi.received_qty &lt; poi.base_ordered_qty
+
+    </select>
+
+    <!-- 기존 LOT 조회 -->
+    <select id="findLot"
+            resultMap="lotInfoMap">
+
+        SELECT
+        l.lot_id,
+        l.company_id,
+        l.product_id,
+        l.lot_no,
+        l.manufacture_date,
+        l.expiry_date
+
+        FROM lot l
+
+        WHERE l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+        AND l.lot_no = #{lotNo}
+
+    </select>
+
     <!-- 입고번호에 사용할 다음 Sequence -->
     <select id="nextInboundNoSequence"
             resultType="java.lang.Long">
@@ -296,6 +442,119 @@
         #{inboundDate, jdbcType=DATE},
         #{memo, jdbcType=VARCHAR},
         #{createdBy}
+        )
+
+    </insert>
+
+    <!-- 신규 LOT 저장 -->
+    <insert id="insertLot"
+            parameterType="com.foodlogistics.erp.inbound.mapper.LotInsertParam"
+            useGeneratedKeys="true"
+            keyProperty="lotId"
+            keyColumn="LOT_ID">
+
+        INSERT INTO lot
+        (
+        company_id,
+        product_id,
+        lot_no,
+        manufacture_date,
+        expiry_date
+        )
+        VALUES
+        (
+        #{companyId},
+        #{productId},
+        #{lotNo},
+        #{manufactureDate, jdbcType=DATE},
+        #{expiryDate, jdbcType=DATE}
+        )
+
+    </insert>
+
+    <!-- 기존 DRAFT의 LOT 연결 전체 삭제 -->
+    <delete id="deleteInboundItemLots">
+
+        DELETE FROM inbound_item_lot
+
+        WHERE inbound_item_id IN
+        (
+        SELECT ii.inbound_item_id
+
+        FROM inbound_item ii
+
+        INNER JOIN inbound i
+        ON i.inbound_id = ii.inbound_id
+
+        WHERE i.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+        AND i.status = 'DRAFT'
+        )
+
+    </delete>
+
+    <!-- 기존 DRAFT의 입고품목 전체 삭제 -->
+    <delete id="deleteInboundItems">
+
+        DELETE FROM inbound_item
+
+        WHERE inbound_id = #{inboundId}
+
+        AND EXISTS
+        (
+        SELECT 1
+
+        FROM inbound i
+
+        WHERE i.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+        AND i.status = 'DRAFT'
+        )
+
+    </delete>
+
+    <!-- 새 입고품목 저장 -->
+    <insert id="insertInboundItem"
+            parameterType="com.foodlogistics.erp.inbound.mapper.InboundItemInsertParam"
+            useGeneratedKeys="true"
+            keyProperty="inboundItemId"
+            keyColumn="INBOUND_ITEM_ID">
+
+        INSERT INTO inbound_item
+        (
+        inbound_id,
+        purchase_order_item_id,
+        product_unit_id,
+        received_qty,
+        conversion_qty,
+        base_received_qty
+        )
+        VALUES
+        (
+        #{inboundId},
+        #{purchaseOrderItemId},
+        #{productUnitId},
+        #{receivedQty},
+        #{conversionQty},
+        #{baseReceivedQty}
+        )
+
+    </insert>
+
+    <!-- 새 입고품목과 LOT 연결 저장 -->
+    <insert id="insertInboundItemLot">
+
+        INSERT INTO inbound_item_lot
+        (
+        inbound_item_id,
+        lot_id,
+        base_lot_qty
+        )
+        VALUES
+        (
+        #{inboundItemId},
+        #{lotId},
+        #{baseLotQty}
         )
 
     </insert>

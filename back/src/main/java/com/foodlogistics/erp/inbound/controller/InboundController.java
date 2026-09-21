@@ -3,6 +3,8 @@ package com.foodlogistics.erp.inbound.controller;
 import com.foodlogistics.erp.common.response.ApiResponse;
 import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateRequest;
+import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
 import com.foodlogistics.erp.inbound.service.InboundService;
@@ -15,6 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InboundController {
 
-    // 입고 조회 및 생성 실제 업무는 Service가 담당
+    // 입고 조회, 생성, 품목 저장 실제 업무는 Service가 담당
     private final InboundService inboundService;
 
     // INBOUND DRAFT 생성
@@ -67,6 +70,54 @@ public class InboundController {
                 companyId.longValue(),
                 response.getInboundId(),
                 response.getInboundNo()
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    // DRAFT 입고서의 품목 전체 교체 저장
+    // PUT /api/inbounds/{inboundId}/items
+    @PutMapping("/{inboundId}/items")
+    public ResponseEntity<
+            ApiResponse<InboundItemsUpdateResponse>
+            >
+    updateInboundItems(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long inboundId,
+            @Valid @RequestBody InboundItemsUpdateRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        log.info(
+                "PUT /api/inbounds/{}/items: "
+                        + "companyId={}, appUserId={}, itemCount={}",
+                inboundId,
+                companyId.longValue(),
+                appUserId.longValue(),
+                request.getItems().size()
+        );
+
+        InboundItemsUpdateResponse response =
+                inboundService.updateInboundItems(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        inboundId,
+                        request
+                );
+
+        log.info(
+                "PUT /api/inbounds/{}/items completed: "
+                        + "companyId={}, savedItemCount={}, savedLotCount={}",
+                inboundId,
+                companyId.longValue(),
+                response.getSavedItemCount(),
+                response.getSavedLotCount()
         );
 
         return ResponseEntity.ok(
