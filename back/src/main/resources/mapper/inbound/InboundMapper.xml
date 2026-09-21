@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.inbound.mapper.InboundMapper">
+
+    <!-- 입고 대상 발주 Header 조회 결과 -->
+    <resultMap id="inboundPurchaseOrderResponseMap"
+               type="com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse">
+
+        <id column="purchase_order_id"
+            property="purchaseOrderId"/>
+
+        <result column="order_no"
+                property="orderNo"/>
+
+        <result column="supplier_id"
+                property="supplierId"/>
+
+        <result column="supplier_name"
+                property="supplierName"/>
+
+        <result column="warehouse_id"
+                property="warehouseId"/>
+
+        <result column="warehouse_name"
+                property="warehouseName"/>
+
+        <result column="order_date"
+                property="orderDate"/>
+
+        <result column="expected_delivery_date"
+                property="expectedDeliveryDate"/>
+
+        <result column="receipt_status"
+                property="receiptStatus"/>
+
+    </resultMap>
+
+    <!-- 입고 대상 발주품목 조회 결과 -->
+    <resultMap id="inboundPurchaseOrderItemResponseMap"
+               type="com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse">
+
+        <id column="purchase_order_item_id"
+            property="purchaseOrderItemId"/>
+
+        <result column="product_id"
+                property="productId"/>
+
+        <result column="product_code"
+                property="productCode"/>
+
+        <result column="product_name"
+                property="productName"/>
+
+        <result column="lot_managed_yn"
+                property="lotManagedYn"/>
+
+        <result column="product_unit_id"
+                property="productUnitId"/>
+
+        <result column="unit_code"
+                property="unitCode"/>
+
+        <result column="unit_name"
+                property="unitName"/>
+
+        <result column="ordered_qty"
+                property="orderedQty"/>
+
+        <result column="conversion_qty"
+                property="conversionQty"/>
+
+        <result column="base_ordered_qty"
+                property="baseOrderedQty"/>
+
+        <result column="received_qty"
+                property="receivedQty"/>
+
+        <result column="remaining_base_qty"
+                property="remainingBaseQty"/>
+
+    </resultMap>
+
+    <!-- 현재 회사의 입고 대상 발주 목록 조회 -->
+    <select id="findInboundTargetPurchaseOrders"
+            resultMap="inboundPurchaseOrderResponseMap">
+
+        SELECT
+        po.purchase_order_id,
+        po.order_no,
+        po.supplier_id,
+        bp.partner_name AS supplier_name,
+        po.warehouse_id,
+        w.warehouse_name AS warehouse_name,
+        po.order_date,
+        po.expected_delivery_date,
+        po.receipt_status
+
+        FROM purchase_order po
+
+        INNER JOIN business_partner bp
+        ON bp.partner_id = po.supplier_id
+        AND bp.company_id = po.company_id
+
+        INNER JOIN warehouse w
+        ON w.warehouse_id = po.warehouse_id
+        AND w.company_id = po.company_id
+
+        WHERE po.company_id = #{companyId}
+        AND po.approval_status = 'APPROVED'
+        AND po.receipt_status IN ('NOT_RECEIVED', 'PARTIAL')
+        AND EXISTS
+        (
+        SELECT 1
+        FROM purchase_order_item poi
+        WHERE poi.purchase_order_id = po.purchase_order_id
+        AND poi.received_qty &lt; poi.base_ordered_qty
+        )
+
+        ORDER BY
+        po.order_date DESC,
+        po.purchase_order_id DESC
+
+    </select>
+
+    <!-- 선택한 발주의 아직 입고 가능한 품목 조회 -->
+    <select id="findInboundTargetPurchaseOrderItems"
+            resultMap="inboundPurchaseOrderItemResponseMap">
+
+        SELECT
+        poi.purchase_order_item_id,
+        poi.product_id,
+        p.product_code,
+        p.product_name,
+        p.lot_managed_yn,
+        poi.product_unit_id,
+        u.unit_code,
+        u.unit_name,
+        poi.ordered_qty,
+        poi.conversion_qty,
+        poi.base_ordered_qty,
+        poi.received_qty,
+        (
+        poi.base_ordered_qty
+        - poi.received_qty
+        ) AS remaining_base_qty
+
+        FROM purchase_order_item poi
+
+        INNER JOIN purchase_order po
+        ON po.purchase_order_id = poi.purchase_order_id
+
+        INNER JOIN product p
+        ON p.product_id = poi.product_id
+        AND p.company_id = po.company_id
+
+        INNER JOIN product_unit pu
+        ON pu.product_unit_id = poi.product_unit_id
+        AND pu.product_id = poi.product_id
+
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+
+        WHERE poi.purchase_order_id = #{purchaseOrderId}
+        AND po.company_id = #{companyId}
+        AND po.approval_status = 'APPROVED'
+        AND po.receipt_status IN ('NOT_RECEIVED', 'PARTIAL')
+        AND poi.received_qty &lt; poi.base_ordered_qty
+
+        ORDER BY poi.purchase_order_item_id
+
+    </select>
+
+</mapper>
