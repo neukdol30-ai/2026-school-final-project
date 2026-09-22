@@ -134,15 +134,16 @@
   font-size: 13px;
   font-weight: 600;
   color: #ffffff;
-  background-color: #27313a;
-  border: 1px solid #27313a;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
   border-radius: 6px;
   cursor: pointer;
 }
 
 /* 품목 추가 버튼에 마우스를 올렸을 때 배경을 약간 바꾼다. */
 .purchase-order-create-item-header button:hover {
-  background-color: #3c4853;
+  background-color: #12578e;
+  border-color: #12578e;
 }
 
 /* 품목 테이블이 화면보다 넓어지면 가로 스크롤이 생기게 한다. */
@@ -248,13 +249,14 @@
 /* 마지막 버튼은 실제 발주 등록 버튼이므로 진한 색으로 강조한다. */
 .purchase-order-create-actions button:last-child {
   color: #ffffff;
-  background-color: #27313a;
-  border: 1px solid #27313a;
+  background-color: #1769aa;
+  border: 1px solid #1769aa;
 }
 
 /* 등록 버튼에 마우스를 올렸을 때의 스타일이다. */
 .purchase-order-create-actions button:last-child:hover:not(:disabled) {
-  background-color: #3c4853;
+  background-color: #12578e;
+  border-color: #12578e;
 }
 
 /* 등록 처리 중 비활성화된 버튼임을 시각적으로 보여준다. */

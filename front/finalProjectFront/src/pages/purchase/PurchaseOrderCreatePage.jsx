@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import {
   requestProductUnits,
@@ -7,7 +7,11 @@ import {
   requestSuppliers,
   requestWarehouses,
 } from "../../api/masterDataApi.js";
-import { requestCreatePurchaseOrder } from "../../api/purchaseOrderApi.js";
+import {
+  requestCreatePurchaseOrder,
+  requestPurchaseOrderDetail,
+  requestUpdatePurchaseOrder,
+} from "../../api/purchaseOrderApi.js";
 import "./PurchaseOrderCreatePage.css";
 
 const KOREA_TIME_ZONE = "Asia/Seoul";
@@ -61,9 +65,11 @@ function createEmptyItem() {
   };
 }
 
-export default function PurchaseOrderCreatePage() {
+export default function PurchaseOrderCreatePage({ mode = "create" }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { purchaseOrderId } = useParams();
+  const isEdit = mode === "edit";
 
   const [suppliers, setSuppliers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -71,6 +77,7 @@ export default function PurchaseOrderCreatePage() {
   const [loadingMasterData, setLoadingMasterData] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [editOrder, setEditOrder] = useState(null);
 
   const [form, setForm] = useState({
     supplierId: "",
@@ -97,12 +104,60 @@ export default function PurchaseOrderCreatePage() {
       try {
         setLoadingMasterData(true);
         setErrorMessage("");
+        if (isEdit) {
+          setEditOrder(null);
+        }
 
-        const [supplierData, warehouseData, productData] = await Promise.all([
+        const [supplierData, warehouseData, productData, detailData] = await Promise.all([
           requestSuppliers(),
           requestWarehouses(),
           requestProducts(),
+          isEdit ? requestPurchaseOrderDetail(purchaseOrderId) : Promise.resolve(null),
         ]);
+
+        if (isEdit && !detailData) {
+          throw new Error("발주 상세정보를 불러오지 못했습니다.");
+        }
+
+        if (detailData) {
+          const editableStatus = ["DRAFT", "REJECTED"].includes(
+            detailData.approvalStatus,
+          );
+          const hasReceivedItem = detailData.items?.some(
+            (item) => item.receivedQty != null && Number(item.receivedQty) > 0,
+          );
+
+          if (!editableStatus || detailData.receiptStatus !== "NOT_RECEIVED" || hasReceivedItem) {
+            throw new Error("현재 상태의 발주는 수정할 수 없습니다.");
+          }
+
+          const editItems = await Promise.all(
+            (detailData.items ?? []).map(async (item) => ({
+              rowId: crypto.randomUUID(),
+              productId: String(item.productId),
+              productUnitId: String(item.productUnitId),
+              orderedQty: String(item.orderedQty),
+              unitPrice: String(item.unitPrice),
+              productName: item.productName,
+              unitName: item.unitName,
+              units: await requestProductUnits(item.productId),
+              loadingUnits: false,
+            })),
+          );
+
+          if (!cancelled) {
+            setEditOrder(detailData);
+            setForm({
+              supplierId: String(detailData.supplierId),
+              warehouseId: String(detailData.warehouseId),
+              orderDate: detailData.orderDate,
+              expectedDeliveryDate: detailData.expectedDeliveryDate ?? "",
+              requestNote: detailData.requestNote ?? "",
+              internalMemo: detailData.internalMemo ?? "",
+              items: editItems,
+            });
+          }
+        }
 
         if (!cancelled) {
           setSuppliers(supplierData);
@@ -125,7 +180,7 @@ export default function PurchaseOrderCreatePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isEdit, purchaseOrderId]);
 
   function handleHeaderChange(event) {
     setErrorMessage("");
@@ -238,6 +293,10 @@ export default function PurchaseOrderCreatePage() {
   }
 
   function validateForm() {
+    if (form.items.length === 0) {
+      return "발주 품목을 1개 이상 추가해 주세요.";
+    }
+
     if (!form.supplierId) {
       return "공급업체를 선택해 주세요.";
     }
@@ -250,11 +309,11 @@ export default function PurchaseOrderCreatePage() {
       return "발주일을 입력해 주세요.";
     }
 
-    if (form.orderDate < minimumOrderDate) {
+    if (!isEdit && form.orderDate < minimumOrderDate) {
       return "발주일은 한국시간 기준 최근 1개월 이내의 날짜만 입력할 수 있습니다.";
     }
 
-    if (form.orderDate > kstToday) {
+    if (!isEdit && form.orderDate > kstToday) {
       return "발주일은 한국시간 기준 오늘보다 미래로 지정할 수 없습니다.";
     }
 
@@ -293,6 +352,9 @@ export default function PurchaseOrderCreatePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting || (isEdit && !editOrder)) {
+      return;
+    }
     setErrorMessage("");
 
     const validationMessage = validateForm();
@@ -320,10 +382,13 @@ export default function PurchaseOrderCreatePage() {
     try {
       setSubmitting(true);
 
-      const createdPurchaseOrder =
-        await requestCreatePurchaseOrder(requestData);
-
-      navigate(`/purchase-orders/${createdPurchaseOrder.purchaseOrderId}`);
+      if (isEdit) {
+        await requestUpdatePurchaseOrder(purchaseOrderId, requestData);
+        navigate(`/purchase-orders/${purchaseOrderId}${location.search}`);
+      } else {
+        const createdPurchaseOrder = await requestCreatePurchaseOrder(requestData);
+        navigate(`/purchase-orders/${createdPurchaseOrder.purchaseOrderId}`);
+      }
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -332,15 +397,23 @@ export default function PurchaseOrderCreatePage() {
   }
 
   function handleCancel() {
-    navigate(`/purchase-orders${location.search}`);
+    navigate(
+      isEdit
+        ? `/purchase-orders/${purchaseOrderId}${location.search}`
+        : `/purchase-orders${location.search}`,
+    );
   }
 
   return (
     <section className="page purchase-order-create-page">
       <div className="purchase-order-create-header">
         <div>
-          <h1>발주 등록</h1>
-          <p>공급업체와 발주 품목을 입력해 새 발주서를 등록합니다.</p>
+          <h1>{isEdit ? "발주 수정" : "발주 등록"}</h1>
+          <p>
+            {isEdit
+              ? "기존 발주일은 유지하고 발주 정보와 품목을 수정합니다."
+              : "공급업체와 발주 품목을 입력해 새 발주서를 등록합니다."}
+          </p>
         </div>
       </div>
 
@@ -350,7 +423,7 @@ export default function PurchaseOrderCreatePage() {
 
       {loadingMasterData ? (
         <p>기준정보를 불러오는 중입니다.</p>
-      ) : (
+      ) : (!isEdit || editOrder) ? (
         <form onSubmit={handleSubmit} noValidate>
           <section className="purchase-order-create-section">
             <h2>발주 기본정보</h2>
@@ -364,6 +437,13 @@ export default function PurchaseOrderCreatePage() {
                   onChange={handleHeaderChange}
                 >
                   <option value="">공급업체를 선택하세요.</option>
+                  {isEdit && editOrder && !suppliers.some(
+                    (supplier) => String(supplier.supplierId) === form.supplierId,
+                  ) && (
+                    <option value={form.supplierId}>
+                      {editOrder.supplierName} (현재 선택, 사용 불가)
+                    </option>
+                  )}
                   {suppliers.map((supplier) => (
                     <option
                       key={supplier.supplierId}
@@ -383,6 +463,13 @@ export default function PurchaseOrderCreatePage() {
                   onChange={handleHeaderChange}
                 >
                   <option value="">창고를 선택하세요.</option>
+                  {isEdit && editOrder && !warehouses.some(
+                    (warehouse) => String(warehouse.warehouseId) === form.warehouseId,
+                  ) && (
+                    <option value={form.warehouseId}>
+                      {editOrder.warehouseName} (현재 선택, 사용 불가)
+                    </option>
+                  )}
                   {warehouses.map((warehouse) => (
                     <option
                       key={warehouse.warehouseId}
@@ -403,6 +490,7 @@ export default function PurchaseOrderCreatePage() {
                   min={minimumOrderDate}
                   max={kstToday}
                   onChange={handleHeaderChange}
+                  readOnly={isEdit}
                 />
               </label>
 
@@ -474,6 +562,13 @@ export default function PurchaseOrderCreatePage() {
                           }
                         >
                           <option value="">상품을 선택하세요.</option>
+                          {isEdit && item.productId && !products.some(
+                            (product) => String(product.productId) === item.productId,
+                          ) && (
+                            <option value={item.productId}>
+                              {item.productName} (현재 선택, 사용 불가)
+                            </option>
+                          )}
                           {products.map((product) => (
                             <option
                               key={product.productId}
@@ -502,6 +597,13 @@ export default function PurchaseOrderCreatePage() {
                               ? "단위 조회 중..."
                               : "단위를 선택하세요."}
                           </option>
+                          {isEdit && item.productUnitId && !item.units.some(
+                            (unit) => String(unit.productUnitId) === item.productUnitId,
+                          ) && (
+                            <option value={item.productUnitId}>
+                              {item.unitName} (현재 선택, 사용 불가)
+                            </option>
+                          )}
                           {item.units.map((unit) => (
                             <option
                               key={unit.productUnitId}
@@ -567,11 +669,13 @@ export default function PurchaseOrderCreatePage() {
             </button>
 
             <button type="submit" disabled={submitting}>
-              {submitting ? "등록 중..." : "발주 등록"}
+              {submitting
+                ? isEdit ? "수정 중..." : "등록 중..."
+                : isEdit ? "발주 수정" : "발주 등록"}
             </button>
           </div>
         </form>
-      )}
+      ) : null}
     </section>
   );
 }

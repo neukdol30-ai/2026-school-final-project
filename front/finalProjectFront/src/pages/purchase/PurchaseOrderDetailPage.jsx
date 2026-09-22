@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { requestPurchaseOrderDetail } from "../../api/purchaseOrderApi.js";
+import {
+  requestApprovePurchaseOrder,
+  requestPurchaseOrderApproval,
+  requestPurchaseOrderDetail,
+  requestRejectPurchaseOrder,
+} from "../../api/purchaseOrderApi.js";
 import "./PurchaseOrderDetailPage.css";
 
 const APPROVAL_STATUS_LABELS = {
@@ -70,6 +75,12 @@ function PurchaseOrderDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [busyAction, setBusyAction] = useState("");
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const actionInProgress = useRef(false);
 
   useEffect(() => {
     async function loadPurchaseOrderDetail() {
@@ -99,7 +110,81 @@ function PurchaseOrderDetailPage() {
     navigate(`/purchase-orders${location.search}`);
   }
 
+  async function refreshDetail() {
+    const data = await requestPurchaseOrderDetail(purchaseOrderId);
+    setPurchaseOrder(data);
+    setNeedsRefresh(false);
+    setActionError("");
+  }
+
+  async function handleAction(action, request) {
+    if (actionInProgress.current || needsRefresh) {
+      return;
+    }
+
+    actionInProgress.current = true;
+    setBusyAction(action);
+    setActionError("");
+
+    try {
+      await request();
+      setRejectOpen(false);
+      setRejectionReason("");
+
+      try {
+        await refreshDetail();
+      } catch (refreshError) {
+        setNeedsRefresh(true);
+        setActionError(
+          `처리 후 상세정보를 다시 조회하지 못했습니다. 다시 조회해 주세요. ${refreshError.message}`,
+        );
+      }
+    } catch (requestError) {
+      setActionError(requestError.message);
+    } finally {
+      actionInProgress.current = false;
+      setBusyAction("");
+    }
+  }
+
+  async function handleRetryRefresh() {
+    if (actionInProgress.current) {
+      return;
+    }
+
+    actionInProgress.current = true;
+    setBusyAction("refresh");
+
+    try {
+      await refreshDetail();
+    } catch (refreshError) {
+      setActionError(refreshError.message);
+    } finally {
+      actionInProgress.current = false;
+      setBusyAction("");
+    }
+  }
+
+  function handleReject(event) {
+    event.preventDefault();
+    const trimmedReason = rejectionReason.trim();
+
+    if (!trimmedReason || trimmedReason.length > 500) {
+      setActionError("반려사유는 공백을 제외하고 1자 이상, 500자 이하로 입력해 주세요.");
+      return;
+    }
+
+    handleAction("reject", () =>
+      requestRejectPurchaseOrder(purchaseOrderId, trimmedReason),
+    );
+  }
+
   const items = purchaseOrder?.items ?? [];
+  const approvalStatus = purchaseOrder?.approvalStatus;
+  const canEdit = ["DRAFT", "REJECTED"].includes(approvalStatus)
+    && purchaseOrder?.receiptStatus === "NOT_RECEIVED"
+    && !items.some((item) => item.receivedQty != null && Number(item.receivedQty) > 0);
+  const actionsDisabled = Boolean(busyAction) || needsRefresh;
 
   return (
     <div className="page purchase-order-detail-page">
@@ -134,8 +219,78 @@ function PurchaseOrderDetailPage() {
         </div>
       )}
 
+      {actionError && (
+        <div className="content-panel purchase-order-detail-message error" role="alert">
+          {actionError}
+          {needsRefresh && (
+            <button type="button" onClick={handleRetryRefresh} disabled={Boolean(busyAction)}>
+              {busyAction === "refresh" ? "조회 중..." : "다시 조회"}
+            </button>
+          )}
+        </div>
+      )}
+
       {!loading && !error && purchaseOrder && (
         <>
+          <div className="purchase-order-detail-actions">
+            {canEdit && (
+              <button
+                type="button"
+                disabled={actionsDisabled}
+                onClick={() => navigate(`/purchase-orders/${purchaseOrderId}/edit${location.search}`)}
+              >
+                발주 수정
+              </button>
+            )}
+            {approvalStatus === "DRAFT" && (
+              <button
+                type="button"
+                disabled={actionsDisabled}
+                onClick={() => handleAction("request", () => requestPurchaseOrderApproval(purchaseOrderId))}
+              >
+                {busyAction === "request" ? "요청 중..." : "승인 요청"}
+              </button>
+            )}
+            {approvalStatus === "PENDING" && (
+              <>
+                <button
+                  type="button"
+                  disabled={actionsDisabled}
+                  onClick={() => handleAction("approve", () => requestApprovePurchaseOrder(purchaseOrderId))}
+                >
+                  {busyAction === "approve" ? "승인 중..." : "승인"}
+                </button>
+                <button
+                  type="button"
+                  className="purchase-order-reject-button"
+                  disabled={actionsDisabled}
+                  onClick={() => {
+                    setActionError("");
+                    setRejectOpen(true);
+                  }}
+                >
+                  반려
+                </button>
+              </>
+            )}
+          </div>
+
+          {approvalStatus === "REJECTED" && (
+            <section className="content-panel purchase-order-detail-section">
+              <h2>반려 정보</h2>
+              <div className="purchase-order-note-grid">
+                <div>
+                  <span>반려사유</span>
+                  <p>{purchaseOrder.rejectionReason || "-"}</p>
+                </div>
+                <div>
+                  <span>반려일시</span>
+                  <p>{formatDateTime(purchaseOrder.rejectedAt)}</p>
+                </div>
+              </div>
+            </section>
+          )}
+
           <section className="content-panel purchase-order-detail-section">
             <h2>기본 정보</h2>
 
@@ -294,6 +449,50 @@ function PurchaseOrderDetailPage() {
               </div>
             </div>
           </section>
+
+          {rejectOpen && approvalStatus === "PENDING" && (
+            <div className="purchase-order-reject-overlay">
+              <form
+                className="purchase-order-reject-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-label="발주 반려"
+                onSubmit={handleReject}
+              >
+                <h2>발주 반려</h2>
+                <label htmlFor="purchase-rejection-reason">반려사유</label>
+                <textarea
+                  id="purchase-rejection-reason"
+                  autoFocus
+                  maxLength={500}
+                  value={rejectionReason}
+                  onChange={(event) => {
+                    setRejectionReason(event.target.value);
+                    setActionError("");
+                  }}
+                  rows={5}
+                />
+                <p>{rejectionReason.length}/500자</p>
+                {actionError && <p role="alert" className="purchase-order-reject-error">{actionError}</p>}
+                <div>
+                  <button
+                    type="button"
+                    disabled={Boolean(busyAction)}
+                    onClick={() => {
+                      setRejectOpen(false);
+                      setRejectionReason("");
+                      setActionError("");
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button type="submit" disabled={Boolean(busyAction)}>
+                    {busyAction === "reject" ? "반려 중..." : "반려 확정"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </>
       )}
     </div>

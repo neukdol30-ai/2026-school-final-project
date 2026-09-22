@@ -52,6 +52,10 @@ function App() {
             element={<PurchaseOrderCreatePage />}
           />
           <Route
+            path="/purchase-orders/:purchaseOrderId/edit"
+            element={<PurchaseOrderCreatePage mode="edit" />}
+          />
+          <Route
             path="/purchase-orders/:purchaseOrderId"
             element={<PurchaseOrderDetailPage />}
           />

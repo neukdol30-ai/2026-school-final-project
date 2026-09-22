@@ -129,3 +129,55 @@ export async function requestCreatePurchaseOrder(purchaseOrderData) {
 
   return body.data;
 }
+
+async function requestPurchaseOrderAction(purchaseOrderId, method, action, data) {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    throw new Error("로그인 정보가 없습니다. 다시 로그인해주세요.");
+  }
+
+  const numericPurchaseOrderId = Number(purchaseOrderId);
+
+  if (!Number.isInteger(numericPurchaseOrderId) || numericPurchaseOrderId <= 0) {
+    throw new Error("올바르지 않은 발주 ID입니다.");
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/purchase-orders/${numericPurchaseOrderId}${action}`,
+    {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(data === undefined ? {} : { "Content-Type": "application/json" }),
+      },
+      ...(data === undefined ? {} : { body: JSON.stringify(data) }),
+    },
+  );
+
+  const body = await response.json();
+
+  if (!response.ok || !body.success) {
+    throw new Error(body.error?.message ?? "발주 처리에 실패했습니다.");
+  }
+
+  return body.data;
+}
+
+export function requestUpdatePurchaseOrder(purchaseOrderId, purchaseOrderData) {
+  return requestPurchaseOrderAction(purchaseOrderId, "PUT", "", purchaseOrderData);
+}
+
+export function requestPurchaseOrderApproval(purchaseOrderId) {
+  return requestPurchaseOrderAction(purchaseOrderId, "POST", "/approval-request");
+}
+
+export function requestApprovePurchaseOrder(purchaseOrderId) {
+  return requestPurchaseOrderAction(purchaseOrderId, "POST", "/approve");
+}
+
+export function requestRejectPurchaseOrder(purchaseOrderId, rejectionReason) {
+  return requestPurchaseOrderAction(purchaseOrderId, "POST", "/reject", {
+    rejectionReason,
+  });
+}
