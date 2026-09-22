@@ -141,6 +141,13 @@
   color: #78838e;
 }
 
+.stocktake-system-quantity {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #1769aa;
+}
+
 .stocktake-add-item-button,
 .stocktake-create-actions button {
   height: 38px;

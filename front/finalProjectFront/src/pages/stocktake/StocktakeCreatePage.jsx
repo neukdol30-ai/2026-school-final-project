@@ -5,6 +5,7 @@ import {
   getStocktakeDetail,
   getStocktakeLots,
   getStocktakeProducts,
+  getStocktakeStockQuantity,
   getStocktakeWarehouses,
   updateStocktake,
 } from "./js/stocktakeApi";
@@ -25,6 +26,10 @@ function formatQuantity(value) {
   });
 }
 
+function createStockQuantityKey(warehouseId, productId) {
+  return `${warehouseId}:${productId}`;
+}
+
 function StocktakeCreatePage() {
   const navigate = useNavigate();
   const { stocktakeId } = useParams();
@@ -36,6 +41,8 @@ function StocktakeCreatePage() {
   const [productOptions, setProductOptions] = useState([]);
   const [lotOptionsByProduct, setLotOptionsByProduct] = useState({});
   const [lotLoadingByProduct, setLotLoadingByProduct] = useState({});
+  const [nonLotStockQtyByKey, setNonLotStockQtyByKey] = useState({});
+  const [nonLotStockLoadingByKey, setNonLotStockLoadingByKey] = useState({});
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -96,6 +103,25 @@ function StocktakeCreatePage() {
         );
 
         setLotOptionsByProduct(Object.fromEntries(lotEntries));
+
+        const nonLotProductIds = [
+          ...new Set(
+            detail.items
+              .filter(
+                (item) =>
+                  productById.get(String(item.productId))?.lotManagedYn !== "Y",
+              )
+              .map((item) => String(item.productId)),
+          ),
+        ];
+        const stockEntries = await Promise.all(
+          nonLotProductIds.map(async (productId) => [
+            createStockQuantityKey(detail.warehouseId, productId),
+            await getStocktakeStockQuantity(detail.warehouseId, productId),
+          ]),
+        );
+
+        setNonLotStockQtyByKey(Object.fromEntries(stockEntries));
       }
     } catch (requestError) {
       setError(requestError.message);
@@ -114,6 +140,8 @@ function StocktakeCreatePage() {
     setWarehouseId(event.target.value);
     setLotOptionsByProduct({});
     setLotLoadingByProduct({});
+    setNonLotStockQtyByKey({});
+    setNonLotStockLoadingByKey({});
 
     // 창고가 바뀌면 기존 LOT는 다른 창고 소속일 수 있어 초기화한다.
     setItems((currentItems) =>
@@ -131,6 +159,49 @@ function StocktakeCreatePage() {
     );
   }
 
+  async function loadNonLotStockQuantity(
+    targetWarehouseId,
+    targetProductId,
+  ) {
+    const stockQuantityKey = createStockQuantityKey(
+      targetWarehouseId,
+      targetProductId,
+    );
+
+    if (
+      Object.prototype.hasOwnProperty.call(
+        nonLotStockQtyByKey,
+        stockQuantityKey,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setNonLotStockLoadingByKey((currentState) => ({
+        ...currentState,
+        [stockQuantityKey]: true,
+      }));
+
+      const quantity = await getStocktakeStockQuantity(
+        targetWarehouseId,
+        targetProductId,
+      );
+
+      setNonLotStockQtyByKey((currentState) => ({
+        ...currentState,
+        [stockQuantityKey]: quantity,
+      }));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setNonLotStockLoadingByKey((currentState) => ({
+        ...currentState,
+        [stockQuantityKey]: false,
+      }));
+    }
+  }
+
   async function handleProductChange(index, event) {
     const productId = event.target.value;
 
@@ -142,7 +213,12 @@ function StocktakeCreatePage() {
 
     const selectedProduct = findProductOption(productId);
 
-    if (!warehouseId || !productId || selectedProduct?.lotManagedYn !== "Y") {
+    if (!warehouseId || !productId) {
+      return;
+    }
+
+    if (selectedProduct?.lotManagedYn !== "Y") {
+      await loadNonLotStockQuantity(warehouseId, productId);
       return;
     }
 
@@ -330,6 +406,20 @@ function StocktakeCreatePage() {
               const isLotManaged = selectedProduct?.lotManagedYn === "Y";
               const lotOptions = lotOptionsByProduct[item.productId] ?? [];
               const isLotLoading = lotLoadingByProduct[item.productId];
+              const selectedLot = lotOptions.find(
+                (lot) => String(lot.lotId) === String(item.lotId),
+              );
+              const stockQuantityKey = createStockQuantityKey(
+                warehouseId,
+                item.productId,
+              );
+              const hasNonLotStockQty = Object.prototype.hasOwnProperty.call(
+                nonLotStockQtyByKey,
+                stockQuantityKey,
+              );
+              const nonLotStockQty = nonLotStockQtyByKey[stockQuantityKey];
+              const isNonLotStockLoading =
+                nonLotStockLoadingByKey[stockQuantityKey];
 
               return (
                 <section className="stocktake-item-card" key={index}>
@@ -388,13 +478,22 @@ function StocktakeCreatePage() {
                             </option>
                           ))}
                         </select>
+                        {item.lotId && selectedLot && (
+                          <p className="stocktake-system-quantity">
+                            선택 LOT 전산 재고: {formatQuantity(selectedLot.quantity)}
+                          </p>
+                        )}
                       </label>
                     ) : (
                       <div className="stocktake-lot-guide">
                         <span>LOT</span>
                         <p>
                           {item.productId
-                            ? "LOT 비관리 상품입니다."
+                            ? hasNonLotStockQty
+                              ? `LOT 비관리 상품입니다. 전산 재고: ${formatQuantity(nonLotStockQty)}`
+                              : isNonLotStockLoading
+                                ? "전산 재고를 불러오는 중입니다."
+                                : "전산 재고를 조회할 수 없습니다."
                             : "상품 선택 후 표시됩니다."}
                         </p>
                       </div>

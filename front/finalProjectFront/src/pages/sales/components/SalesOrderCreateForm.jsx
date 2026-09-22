@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import { requestBusinessPartners } from "../../../api/businessPartnerManagementApi.js";
+import {
+  requestManagementProducts,
+  requestManagementProductUnits,
+} from "../../../api/productManagementApi.js";
 
 function createEmptyItem() {
   return {
@@ -22,6 +27,11 @@ function SalesOrderCreateForm({
   const [items, setItems] = useState(initialData?.items ?? [createEmptyItem()]);
 
   const [formError, setFormError] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [customerKeyword, setCustomerKeyword] = useState("");
+  const [productUnits, setProductUnits] = useState([]);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [optionsError, setOptionsError] = useState("");
 
   useEffect(() => {
     if (!initialData) {
@@ -31,6 +41,62 @@ function SalesOrderCreateForm({
     setCustomerId(initialData.customerId ?? "");
     setItems(initialData.items?.length ? initialData.items : [createEmptyItem()]);
   }, [initialData]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOrderOptions() {
+      try {
+        setOptionsLoading(true);
+        setOptionsError("");
+
+        const [customerData, productData] = await Promise.all([
+          requestBusinessPartners({
+            partnerType: "CUSTOMER",
+            useYn: "Y",
+          }),
+          requestManagementProducts({ useYn: "Y" }),
+        ]);
+
+        const productUnitGroups = await Promise.all(
+          productData.map(async (product) => {
+            const units = await requestManagementProductUnits(
+              product.productId,
+              "Y",
+            );
+
+            return units.map((unit) => ({
+              ...unit,
+              productCode: product.productCode,
+              productName: product.productName,
+            }));
+          }),
+        );
+
+        if (!cancelled) {
+          setCustomers(customerData);
+          setProductUnits(productUnitGroups.flat());
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setOptionsError(
+            error.message ??
+              "거래처와 상품 단위 목록을 불러오지 못했습니다.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setOptionsLoading(false);
+        }
+      }
+    }
+
+    loadOrderOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function getValidationErrorMessage(fieldName) {
     const validationError = validationErrors.find(
@@ -92,6 +158,20 @@ function SalesOrderCreateForm({
   }
 
   const customerIdError = getValidationErrorMessage("customerId");
+  const filteredCustomers = customers.filter((customer) => {
+    const keyword = customerKeyword.trim().toLowerCase();
+
+    if (!keyword) {
+      return true;
+    }
+
+    return [customer.partnerName, customer.partnerCode].some((value) =>
+      String(value ?? "").toLowerCase().includes(keyword),
+    );
+  });
+  const selectedCustomerIsVisible = filteredCustomers.some(
+    (customer) => String(customer.partnerId) === String(customerId),
+  );
 
   return (
     <div className="content-panel sales-order-entry-panel">
@@ -101,22 +181,57 @@ function SalesOrderCreateForm({
       </div>
 
       <form onSubmit={handleSubmit}>
+        {optionsError && (
+          <p className="sales-order-form-error" role="alert">
+            {optionsError}
+          </p>
+        )}
+
         {/* 주문 전체에 공통으로 적용되는 정보 */}
         <section className="sales-order-basic-section">
           <h3>기본 정보</h3>
 
           <div className="sales-order-basic-grid">
             <div className="sales-order-field">
-              <label htmlFor="customerId">고객 거래처 ID</label>
+              <label htmlFor="customerKeyword">거래처명 검색</label>
               <input
+                id="customerKeyword"
+                type="search"
+                placeholder="거래처명 또는 거래처코드 입력"
+                value={customerKeyword}
+                disabled={optionsLoading}
+                onChange={(event) => setCustomerKeyword(event.target.value)}
+              />
+            </div>
+
+            <div className="sales-order-field">
+              <label htmlFor="customerId">고객 거래처</label>
+              <select
                 id="customerId"
-                type="number"
-                min="1"
-                placeholder="예: 1"
                 required
                 value={customerId}
+                disabled={optionsLoading}
                 onChange={(event) => setCustomerId(event.target.value)}
-              />
+              >
+                <option value="">
+                  {optionsLoading
+                    ? "거래처 목록을 불러오는 중..."
+                    : "고객 거래처를 선택하세요."}
+                </option>
+                {customerId && !selectedCustomerIsVisible && (
+                  <option value={customerId}>
+                    현재 선택된 거래처 (ID: {customerId})
+                  </option>
+                )}
+                {filteredCustomers.map((customer) => (
+                  <option
+                    key={customer.partnerId}
+                    value={customer.partnerId}
+                  >
+                    {customer.partnerName} ({customer.partnerCode})
+                  </option>
+                ))}
+              </select>
               {customerIdError && (
                 <p className="field-error">{customerIdError}</p>
               )}
@@ -152,7 +267,7 @@ function SalesOrderCreateForm({
               <thead>
                 <tr>
                   <th>번호</th>
-                  <th>상품 단위 ID</th>
+                  <th>상품 · 단위</th>
                   <th>주문 수량</th>
                   <th>판매 단가</th>
                   <th>관리</th>
@@ -170,19 +285,22 @@ function SalesOrderCreateForm({
                   const unitPriceError = getValidationErrorMessage(
                     `items[${index}].unitPrice`,
                   );
+                  const selectedProductUnitExists = productUnits.some(
+                    (productUnit) =>
+                      String(productUnit.productUnitId) ===
+                      String(item.productUnitId),
+                  );
 
                   return (
                     <tr key={index}>
                       <td className="sales-order-row-number">{index + 1}</td>
 
                       <td>
-                        <input
-                          aria-label={`품목 ${index + 1} 상품 단위 ID`}
-                          type="number"
-                          min="1"
-                          placeholder="예: 2"
+                        <select
+                          aria-label={`품목 ${index + 1} 상품 단위`}
                           required
                           value={item.productUnitId}
+                          disabled={optionsLoading}
                           onChange={(event) =>
                             handleItemChange(
                               index,
@@ -190,7 +308,29 @@ function SalesOrderCreateForm({
                               event.target.value,
                             )
                           }
-                        />
+                        >
+                          <option value="">
+                            {optionsLoading
+                              ? "상품 단위를 불러오는 중..."
+                              : "상품과 단위를 선택하세요."}
+                          </option>
+                          {item.productUnitId &&
+                            !selectedProductUnitExists && (
+                              <option value={item.productUnitId}>
+                                현재 선택된 상품 단위 (ID: {item.productUnitId})
+                              </option>
+                            )}
+                          {productUnits.map((productUnit) => (
+                            <option
+                              key={productUnit.productUnitId}
+                              value={productUnit.productUnitId}
+                            >
+                              {productUnit.productCode} ·{" "}
+                              {productUnit.productName} /{" "}
+                              {productUnit.unitName} ({productUnit.unitCode})
+                            </option>
+                          ))}
+                        </select>
                         {productUnitIdError && (
                           <p className="field-error">{productUnitIdError}</p>
                         )}
@@ -267,9 +407,13 @@ function SalesOrderCreateForm({
           <button
             className="sales-order-submit-button"
             type="submit"
-            disabled={createLoading}
+            disabled={createLoading || optionsLoading}
           >
-            {createLoading ? "저장 중..." : submitLabel}
+            {createLoading
+              ? "저장 중..."
+              : optionsLoading
+                ? "기준정보 조회 중..."
+                : submitLabel}
           </button>
         </div>
       </form>

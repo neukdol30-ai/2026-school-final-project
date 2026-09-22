@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -68,6 +69,24 @@ public class StocktakeController {
 
         return ApiResponse.ok(
                 stocktakeService.getLotOptions(
+                        companyId.longValue(),
+                        warehouseId,
+                        productId
+                )
+        );
+    }
+
+    // LOT 비관리 상품의 창고별 현재 전산 재고를 조회한다.
+    @GetMapping("/options/stock-quantity")
+    public ApiResponse<BigDecimal> getStockQuantity(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam Long warehouseId,
+            @RequestParam Long productId
+    ) {
+        Number companyId = jwt.getClaim("companyId");
+
+        return ApiResponse.ok(
+                stocktakeService.getStockQuantity(
                         companyId.longValue(),
                         warehouseId,
                         productId

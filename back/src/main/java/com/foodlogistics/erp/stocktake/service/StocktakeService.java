@@ -152,6 +152,25 @@ public class StocktakeService {
         );
     }
 
+    // LOT 비관리 상품도 실사 전에 현재 전산 재고를 화면에서 확인할 수 있게 한다.
+    @Transactional(readOnly = true)
+    public BigDecimal getStockQuantity(
+            Long companyId,
+            Long warehouseId,
+            Long productId
+    ) {
+        stocktakeValidator.validateUsableWarehouse(companyId, warehouseId);
+        stocktakeValidator.validateUsableProduct(companyId, productId);
+
+        BigDecimal quantity = stocktakeMapper.findStockQty(
+                companyId,
+                warehouseId,
+                productId
+        );
+
+        return quantity == null ? BigDecimal.ZERO : quantity;
+    }
+
     // 재고실사 헤더와 품목 목록을 합쳐 상세 정보를 반환한다.
     @Transactional(readOnly = true)
     public StocktakeDetailResponseDto getStocktakeDetail(

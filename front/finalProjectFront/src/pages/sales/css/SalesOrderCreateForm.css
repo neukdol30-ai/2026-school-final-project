@@ -60,7 +60,9 @@
 }
 
 .sales-order-field input,
-.sales-order-entry-table input {
+.sales-order-field select,
+.sales-order-entry-table input,
+.sales-order-entry-table select {
   width: 100%;
   height: 38px;
   padding: 0 10px;
@@ -73,7 +75,9 @@
 }
 
 .sales-order-field input:focus,
-.sales-order-entry-table input:focus {
+.sales-order-field select:focus,
+.sales-order-entry-table input:focus,
+.sales-order-entry-table select:focus {
   border-color: #1769aa;
   box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
 }

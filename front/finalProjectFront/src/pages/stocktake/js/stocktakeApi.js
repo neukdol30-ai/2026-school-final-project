@@ -63,6 +63,19 @@ export async function getStocktakeLots(warehouseId, productId) {
   );
 }
 
+export async function getStocktakeStockQuantity(warehouseId, productId) {
+  const searchParams = new URLSearchParams({
+    warehouseId: String(warehouseId),
+    productId: String(productId),
+  });
+
+  return requestApi(
+    `${STOCKTAKE_API_URL}/options/stock-quantity?${searchParams}`,
+    {},
+    "전산 재고를 불러오지 못했습니다.",
+  );
+}
+
 export async function getStocktakeDetail(stocktakeId) {
   return requestApi(
     `${STOCKTAKE_API_URL}/${stocktakeId}`,
