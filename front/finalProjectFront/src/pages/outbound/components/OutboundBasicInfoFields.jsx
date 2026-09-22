@@ -1,3 +1,7 @@
+function getShipmentStatusLabel(shipmentStatus) {
+  return shipmentStatus === "PARTIAL" ? "부분출고" : "미출고";
+}
+
 function OutboundBasicInfoFields({
   salesOrderId,
   warehouseId,
@@ -36,6 +40,7 @@ function OutboundBasicInfoFields({
                   key={salesOrder.salesOrderId}
                   value={salesOrder.salesOrderId}
                 >
+                  [{getShipmentStatusLabel(salesOrder.shipmentStatus)}]{" "}
                   {salesOrder.orderNo} · {salesOrder.customerName}
                 </option>
               ))}

@@ -123,7 +123,7 @@
         #{stocktakeNo},
         #{warehouseId},
         'DRAFT',
-        #{memo},
+        #{memo,jdbcType=VARCHAR},
         #{createdBy}
         )
     </insert>
@@ -145,11 +145,11 @@
         #{stocktakeId},
         #{lineNo},
         #{item.productId},
-        #{item.lotId},
+        #{item.lotId,jdbcType=NUMERIC},
         #{item.systemQty},
         #{item.actualQty},
         #{item.differenceQty},
-        #{item.reason},
+        #{item.reason,jdbcType=VARCHAR},
         #{createdBy}
         )
     </insert>
@@ -300,7 +300,7 @@
         #{companyId},
         #{warehouseId},
         #{productId},
-        #{lotId},
+        #{lotId,jdbcType=NUMERIC},
         'ADJUSTMENT',
         #{differenceQty},
         'STOCKTAKE',
@@ -318,7 +318,7 @@
         UPDATE stocktake
         SET
             warehouse_id = #{warehouseId},
-            memo = #{memo},
+            memo = #{memo,jdbcType=VARCHAR},
             updated_at = CAST(
                 SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
                 AS TIMESTAMP

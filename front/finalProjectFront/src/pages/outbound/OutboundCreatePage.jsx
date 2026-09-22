@@ -47,11 +47,15 @@ function OutboundCreatePage() {
           getOutboundWarehouses(),
         ]);
 
-        const confirmedOrders = salesOrders.filter(
-          (salesOrder) => salesOrder.orderStatus === "CONFIRMED",
+        // 출고가 완료된 주문은 새 출고서를 만들 수 없으므로 목록에서 제외한다.
+        // 부분 출고 건은 남은 수량을 출고할 수 있어 계속 표시한다.
+        const availableOrders = salesOrders.filter(
+          (salesOrder) =>
+            salesOrder.orderStatus === "CONFIRMED" &&
+            salesOrder.shipmentStatus !== "SHIPPED",
         );
 
-        setSalesOrderOptions(confirmedOrders);
+        setSalesOrderOptions(availableOrders);
         setWarehouseOptions(warehouses);
 
         if (isEditMode) {
@@ -66,7 +70,7 @@ function OutboundCreatePage() {
           setWarehouseId(String(detail.outbound.warehouseId));
           await loadSalesOrder(detail.outbound.salesOrderId, detail);
         } else if (initialSalesOrderId) {
-          const hasSelectedOrder = confirmedOrders.some(
+          const hasSelectedOrder = availableOrders.some(
             (salesOrder) =>
               String(salesOrder.salesOrderId) === initialSalesOrderId,
           );
