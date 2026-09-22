@@ -34,7 +34,7 @@ function LoginPage(){
             saveAuthSession(loginData);
 
             navigate(
-                "/dashboard",
+                "/purchase-orders",
                 { replace: true }
             );
         } catch (error) {

@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
-import DashboardPage from "./pages/dashboard/DashboardPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 
@@ -38,8 +37,7 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/" element={<Navigate to="/purchase-orders" replace />} />
 
           <Route path="/products" element={<ProductManagementPage />} />
           <Route path="/partners" element={<BusinessPartnerManagementPage />} />

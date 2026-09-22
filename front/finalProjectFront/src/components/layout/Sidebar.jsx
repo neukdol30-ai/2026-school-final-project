@@ -3,7 +3,6 @@ import {
   FiBox,
   FiClipboard,
   FiDatabase,
-  FiHome,
   FiLogIn,
   FiLogOut,
   FiPackage,
@@ -21,14 +20,6 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <NavLink to="/dashboard" className={({isActive}) => 
-        isActive ? "sidebar-link active" : "sidebar-link"
-      }
-      >
-        <FiHome />
-        <span>Dashboard</span>
-      </NavLink>
-
       <p className="sidebar-group-title">기준정보</p>
 
        <NavLink
