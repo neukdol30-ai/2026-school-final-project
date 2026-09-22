@@ -158,6 +158,15 @@ public interface InboundMapper {
             @Param("updatedBy") Long updatedBy
     );
 
+    // INBOUND DRAFT 취소 처리
+    int cancelInbound(
+            @Param("companyId") Long companyId,
+            @Param("purchaseOrderId") Long purchaseOrderId,
+            @Param("inboundId") Long inboundId,
+            @Param("cancelledBy") Long cancelledBy,
+            @Param("cancelReason") String cancelReason
+    );
+
     // INBOUND 확정 처리
     int confirmInbound(
             @Param("companyId") Long companyId,

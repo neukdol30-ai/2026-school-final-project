@@ -2,6 +2,7 @@ package com.foodlogistics.erp.inbound.service;
 
 import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
+import com.foodlogistics.erp.inbound.dto.InboundCancelRequest;
 import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
 import com.foodlogistics.erp.inbound.dto.InboundDetailResponse;
@@ -739,6 +740,86 @@ public class InboundService {
                 savedItemCount,
                 savedLotCount
         );
+    }
+
+    @Transactional
+    public Long cancelInbound(
+            Long companyId,
+            Long appUserId,
+            Long inboundId,
+            InboundCancelRequest request
+    ) {
+        inboundValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        inboundValidator.validateInboundId(
+                inboundId
+        );
+
+        String cancelReason =
+                request.getCancelReason().trim();
+
+        log.info(
+                "Inbound cancellation started: "
+                        + "companyId={}, appUserId={}, inboundId={}",
+                companyId,
+                appUserId,
+                inboundId
+        );
+
+        InboundItemUpdateTargetInfo inboundTarget =
+                inboundMapper.findInboundItemUpdateTarget(
+                        companyId,
+                        inboundId
+                );
+
+        inboundValidator.validateInboundExists(
+                inboundTarget
+        );
+
+        Long purchaseOrderId =
+                inboundTarget.getPurchaseOrderId();
+
+        inboundValidator.validatePurchaseOrderId(
+                purchaseOrderId
+        );
+
+        InboundItemUpdateTargetInfo lockedInbound =
+                inboundMapper.findInboundForUpdate(
+                        companyId,
+                        inboundId,
+                        purchaseOrderId
+                );
+
+        inboundValidator.validateInboundCancellable(
+                lockedInbound
+        );
+
+        int updatedCount =
+                inboundMapper.cancelInbound(
+                        companyId,
+                        purchaseOrderId,
+                        inboundId,
+                        appUserId,
+                        cancelReason
+                );
+
+        inboundValidator.validateInboundCancelUpdateCount(
+                updatedCount
+        );
+
+        log.info(
+                "Inbound cancellation completed: "
+                        + "companyId={}, appUserId={}, inboundId={}, purchaseOrderId={}",
+                companyId,
+                appUserId,
+                inboundId,
+                purchaseOrderId
+        );
+
+        return inboundId;
     }
 
     @Transactional

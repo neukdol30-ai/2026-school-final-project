@@ -1,7 +1,14 @@
 package com.foodlogistics.erp.inbound.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
-import com.foodlogistics.erp.inbound.dto.*;
+import com.foodlogistics.erp.inbound.dto.InboundCancelRequest;
+import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
+import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
+import com.foodlogistics.erp.inbound.dto.InboundDetailResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateRequest;
+import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateResponse;
+import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
+import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
 import com.foodlogistics.erp.inbound.service.InboundService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -146,6 +153,34 @@ public class InboundController {
 
         InboundItemsUpdateResponse response =
                 inboundService.updateInboundItems(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        inboundId,
+                        request
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    @PostMapping("/{inboundId}/cancel")
+    public ResponseEntity<
+            ApiResponse<Long>
+            >
+    cancelInbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long inboundId,
+            @Valid @RequestBody InboundCancelRequest request
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        Long response =
+                inboundService.cancelInbound(
                         companyId.longValue(),
                         appUserId.longValue(),
                         inboundId,

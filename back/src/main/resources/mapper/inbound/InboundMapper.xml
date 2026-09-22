@@ -926,6 +926,27 @@
 
     </update>
 
+    <!-- INBOUND DRAFT 취소 -->
+    <update id="cancelInbound">
+
+        UPDATE inbound
+
+        SET status = 'CANCELLED',
+        cancelled_by = #{cancelledBy},
+        cancelled_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        cancel_reason = #{cancelReason}
+
+        WHERE inbound_id = #{inboundId}
+        AND company_id = #{companyId}
+        AND purchase_order_id = #{purchaseOrderId}
+        AND status = 'DRAFT'
+
+    </update>
+
     <!-- INBOUND 최종 확정 -->
     <update id="confirmInbound">
 

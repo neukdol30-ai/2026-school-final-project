@@ -200,7 +200,26 @@ public class InboundValidator {
         if (!"DRAFT".equals(inbound.getStatus())) {
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
-                    "DRAFT(작성중) 상태의 입고서만 수정할 수 있습니다."
+                    "DRAFT(작성중) 상태의 입고서만 처리할 수 있습니다."
+            );
+        }
+    }
+
+    // 입고서가 DRAFT 상태이고 취소 가능한지 검증
+    public void validateInboundCancellable(
+            InboundItemUpdateTargetInfo inbound
+    ) {
+        if (inbound == null) {
+            throw new BusinessException(
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    "입고서를 찾을 수 없습니다."
+            );
+        }
+
+        if (!"DRAFT".equals(inbound.getStatus())) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "DRAFT(작성중) 상태의 입고서만 취소할 수 있습니다."
             );
         }
     }
@@ -594,6 +613,18 @@ public class InboundValidator {
             throw new BusinessException(
                     ErrorCode.INVALID_REQUEST,
                     "이미 확정되었거나 확정할 수 없는 입고서입니다."
+            );
+        }
+    }
+
+    // INBOUND 취소 UPDATE 결과 검증
+    public void validateInboundCancelUpdateCount(
+            int updatedCount
+    ) {
+        if (updatedCount != 1) {
+            throw new BusinessException(
+                    ErrorCode.INVALID_REQUEST,
+                    "이미 처리되었거나 취소할 수 없는 입고서입니다."
             );
         }
     }
