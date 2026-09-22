@@ -1,12 +1,7 @@
 package com.foodlogistics.erp.inbound.controller;
 
 import com.foodlogistics.erp.common.response.ApiResponse;
-import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
-import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
-import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateRequest;
-import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateResponse;
-import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
-import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
+import com.foodlogistics.erp.inbound.dto.*;
 import com.foodlogistics.erp.inbound.service.InboundService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +96,32 @@ public class InboundController {
                         companyId.longValue(),
                         appUserId.longValue(),
                         purchaseOrderId
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(response)
+        );
+    }
+
+    @GetMapping("/{inboundId}")
+    public ResponseEntity<
+            ApiResponse<InboundDetailResponse>
+            >
+    getInboundDetail(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long inboundId
+    ) {
+        Number appUserId =
+                jwt.getClaim("appUserId");
+
+        Number companyId =
+                jwt.getClaim("companyId");
+
+        InboundDetailResponse response =
+                inboundService.getInboundDetail(
+                        companyId.longValue(),
+                        appUserId.longValue(),
+                        inboundId
                 );
 
         return ResponseEntity.ok(

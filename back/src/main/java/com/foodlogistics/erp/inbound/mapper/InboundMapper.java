@@ -1,5 +1,8 @@
 package com.foodlogistics.erp.inbound.mapper;
 
+import com.foodlogistics.erp.inbound.dto.InboundDetailResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemDetailResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemLotDetailResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderItemResponse;
 import com.foodlogistics.erp.inbound.dto.InboundPurchaseOrderResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -8,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface InboundMapper {
@@ -23,6 +27,27 @@ public interface InboundMapper {
     findInboundTargetPurchaseOrderItems(
             @Param("companyId") Long companyId,
             @Param("purchaseOrderId") Long purchaseOrderId
+    );
+
+    // 입고 한 건의 Header 상세조회
+    Optional<InboundDetailResponse>
+    findInboundDetail(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 입고 한 건에 저장된 품목 목록 조회
+    List<InboundItemDetailResponse>
+    findInboundDetailItems(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
+    );
+
+    // 입고 한 건에 저장된 LOT 목록 조회
+    List<InboundItemLotDetailResponse>
+    findInboundDetailLots(
+            @Param("companyId") Long companyId,
+            @Param("inboundId") Long inboundId
     );
 
     // 입고품목 수정 전 INBOUND 기본정보 조회

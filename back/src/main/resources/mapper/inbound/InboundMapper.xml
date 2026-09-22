@@ -37,6 +37,9 @@
         <result column="receipt_status"
                 property="receiptStatus"/>
 
+        <result column="draft_inbound_id"
+                property="draftInboundId"/>
+
     </resultMap>
 
     <!-- 입고 대상 발주품목 조회 결과 -->
@@ -81,6 +84,123 @@
 
         <result column="remaining_base_qty"
                 property="remainingBaseQty"/>
+
+    </resultMap>
+
+    <!-- 입고 상세조회 Header 결과 -->
+    <resultMap id="inboundDetailResponseMap"
+               type="com.foodlogistics.erp.inbound.dto.InboundDetailResponse">
+
+        <id column="inbound_id"
+            property="inboundId"/>
+
+        <result column="inbound_no"
+                property="inboundNo"/>
+
+        <result column="purchase_order_id"
+                property="purchaseOrderId"/>
+
+        <result column="order_no"
+                property="orderNo"/>
+
+        <result column="supplier_id"
+                property="supplierId"/>
+
+        <result column="supplier_name"
+                property="supplierName"/>
+
+        <result column="warehouse_id"
+                property="warehouseId"/>
+
+        <result column="warehouse_name"
+                property="warehouseName"/>
+
+        <result column="inbound_date"
+                property="inboundDate"/>
+
+        <result column="status"
+                property="status"/>
+
+        <result column="memo"
+                property="memo"/>
+
+        <result column="created_by"
+                property="createdBy"/>
+
+        <result column="created_at"
+                property="createdAt"/>
+
+    </resultMap>
+
+    <!-- 입고 상세조회 품목 결과 -->
+    <resultMap id="inboundItemDetailResponseMap"
+               type="com.foodlogistics.erp.inbound.dto.InboundItemDetailResponse">
+
+        <id column="inbound_item_id"
+            property="inboundItemId"/>
+
+        <result column="purchase_order_item_id"
+                property="purchaseOrderItemId"/>
+
+        <result column="product_id"
+                property="productId"/>
+
+        <result column="product_code"
+                property="productCode"/>
+
+        <result column="product_name"
+                property="productName"/>
+
+        <result column="lot_managed_yn"
+                property="lotManagedYn"/>
+
+        <result column="product_unit_id"
+                property="productUnitId"/>
+
+        <result column="unit_code"
+                property="unitCode"/>
+
+        <result column="unit_name"
+                property="unitName"/>
+
+        <result column="received_qty"
+                property="receivedQty"/>
+
+        <result column="conversion_qty"
+                property="conversionQty"/>
+
+        <result column="base_received_qty"
+                property="baseReceivedQty"/>
+
+        <result column="remaining_base_qty"
+                property="remainingBaseQty"/>
+
+    </resultMap>
+
+    <!-- 입고 상세조회 LOT 결과 -->
+    <resultMap id="inboundItemLotDetailResponseMap"
+               type="com.foodlogistics.erp.inbound.dto.InboundItemLotDetailResponse">
+
+        <id column="inbound_item_lot_id"
+            property="inboundItemLotId"/>
+
+        <result column="inbound_item_id"
+                property="inboundItemId"/>
+
+        <result column="lot_id"
+                property="lotId"/>
+
+        <result column="lot_no"
+                property="lotNo"/>
+
+        <result column="manufacture_date"
+                property="manufactureDate"/>
+
+        <result column="expiry_date"
+                property="expiryDate"/>
+
+        <result column="base_lot_qty"
+                property="baseLotQty"/>
 
     </resultMap>
 
@@ -190,7 +310,14 @@
         w.warehouse_name AS warehouse_name,
         po.order_date,
         po.expected_delivery_date,
-        po.receipt_status
+        po.receipt_status,
+        (
+        SELECT MAX(i.inbound_id)
+        FROM inbound i
+        WHERE i.company_id = po.company_id
+        AND i.purchase_order_id = po.purchase_order_id
+        AND i.status = 'DRAFT'
+        ) AS draft_inbound_id
 
         FROM purchase_order po
 
@@ -264,6 +391,127 @@
         AND poi.received_qty &lt; poi.base_ordered_qty
 
         ORDER BY poi.purchase_order_item_id
+
+    </select>
+
+    <!-- 입고 Header 상세조회 -->
+    <select id="findInboundDetail"
+            resultMap="inboundDetailResponseMap">
+
+        SELECT
+        i.inbound_id,
+        i.inbound_no,
+        i.purchase_order_id,
+        po.order_no,
+        po.supplier_id,
+        bp.partner_name AS supplier_name,
+        i.warehouse_id,
+        w.warehouse_name AS warehouse_name,
+        i.inbound_date,
+        i.status,
+        i.memo,
+        i.created_by,
+        i.created_at
+
+        FROM inbound i
+
+        INNER JOIN purchase_order po
+        ON po.purchase_order_id = i.purchase_order_id
+        AND po.company_id = i.company_id
+
+        INNER JOIN business_partner bp
+        ON bp.partner_id = po.supplier_id
+        AND bp.company_id = i.company_id
+
+        INNER JOIN warehouse w
+        ON w.warehouse_id = i.warehouse_id
+        AND w.company_id = i.company_id
+
+        WHERE i.inbound_id = #{inboundId}
+        AND i.company_id = #{companyId}
+
+    </select>
+
+    <!-- 입고 상세조회 품목 목록 -->
+    <select id="findInboundDetailItems"
+            resultMap="inboundItemDetailResponseMap">
+
+        SELECT
+        ii.inbound_item_id,
+        ii.purchase_order_item_id,
+        poi.product_id,
+        p.product_code,
+        p.product_name,
+        p.lot_managed_yn,
+        ii.product_unit_id,
+        u.unit_code,
+        u.unit_name,
+        ii.received_qty,
+        ii.conversion_qty,
+        ii.base_received_qty,
+        (
+        poi.base_ordered_qty
+        - poi.received_qty
+        ) AS remaining_base_qty
+
+        FROM inbound_item ii
+
+        INNER JOIN inbound i
+        ON i.inbound_id = ii.inbound_id
+        AND i.company_id = #{companyId}
+
+        INNER JOIN purchase_order_item poi
+        ON poi.purchase_order_item_id = ii.purchase_order_item_id
+        AND poi.purchase_order_id = i.purchase_order_id
+
+        INNER JOIN product p
+        ON p.product_id = poi.product_id
+        AND p.company_id = i.company_id
+
+        INNER JOIN product_unit pu
+        ON pu.product_unit_id = ii.product_unit_id
+        AND pu.product_id = poi.product_id
+
+        INNER JOIN unit u
+        ON u.unit_id = pu.unit_id
+
+        WHERE ii.inbound_id = #{inboundId}
+
+        ORDER BY ii.inbound_item_id
+
+    </select>
+
+    <!-- 입고 상세조회 LOT 목록 -->
+    <select id="findInboundDetailLots"
+            resultMap="inboundItemLotDetailResponseMap">
+
+        SELECT
+        iil.inbound_item_lot_id,
+        iil.inbound_item_id,
+        iil.lot_id,
+        l.lot_no,
+        l.manufacture_date,
+        l.expiry_date,
+        iil.base_lot_qty
+
+        FROM inbound_item_lot iil
+
+        INNER JOIN inbound_item ii
+        ON ii.inbound_item_id = iil.inbound_item_id
+
+        INNER JOIN inbound i
+        ON i.inbound_id = ii.inbound_id
+        AND i.company_id = #{companyId}
+
+        INNER JOIN lot l
+        ON l.lot_id = iil.lot_id
+        AND l.company_id = i.company_id
+
+        WHERE i.inbound_id = #{inboundId}
+
+        ORDER BY
+        iil.inbound_item_id,
+        iil.inbound_item_lot_id
 
     </select>
 

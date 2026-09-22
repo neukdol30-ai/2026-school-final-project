@@ -4,6 +4,9 @@ import com.foodlogistics.erp.common.exception.BusinessException;
 import com.foodlogistics.erp.common.exception.ErrorCode;
 import com.foodlogistics.erp.inbound.dto.InboundCreateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundCreateResponse;
+import com.foodlogistics.erp.inbound.dto.InboundDetailResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemDetailResponse;
+import com.foodlogistics.erp.inbound.dto.InboundItemLotDetailResponse;
 import com.foodlogistics.erp.inbound.dto.InboundItemLotRequest;
 import com.foodlogistics.erp.inbound.dto.InboundItemUpdateRequest;
 import com.foodlogistics.erp.inbound.dto.InboundItemsUpdateRequest;
@@ -115,6 +118,73 @@ public class InboundService {
         }
 
         return items;
+    }
+
+    @Transactional(readOnly = true)
+    public InboundDetailResponse getInboundDetail(
+            Long companyId,
+            Long appUserId,
+            Long inboundId
+    ) {
+        inboundValidator.validateAuthenticatedUser(
+                companyId,
+                appUserId
+        );
+
+        inboundValidator.validateInboundId(
+                inboundId
+        );
+
+        InboundDetailResponse response =
+                inboundMapper.findInboundDetail(
+                                companyId,
+                                inboundId
+                        )
+                        .orElseThrow(
+                                () -> new BusinessException(
+                                        ErrorCode.RESOURCE_NOT_FOUND,
+                                        "입고서를 찾을 수 없습니다."
+                                )
+                        );
+
+        List<InboundItemDetailResponse> items =
+                inboundMapper.findInboundDetailItems(
+                        companyId,
+                        inboundId
+                );
+
+        List<InboundItemLotDetailResponse> lots =
+                inboundMapper.findInboundDetailLots(
+                        companyId,
+                        inboundId
+                );
+
+        Map<Long, List<InboundItemLotDetailResponse>> lotsByInboundItemId =
+                new HashMap<>();
+
+        for (InboundItemLotDetailResponse lot : lots) {
+            lotsByInboundItemId
+                    .computeIfAbsent(
+                            lot.getInboundItemId(),
+                            key -> new ArrayList<>()
+                    )
+                    .add(lot);
+        }
+
+        for (InboundItemDetailResponse item : items) {
+            item.setLots(
+                    lotsByInboundItemId.getOrDefault(
+                            item.getInboundItemId(),
+                            new ArrayList<>()
+                    )
+            );
+        }
+
+        response.setItems(
+                items
+        );
+
+        return response;
     }
 
     @Transactional

@@ -30,4 +30,7 @@ public class InboundPurchaseOrderResponse {
 
     // NOT_RECEIVED(미입고) / PARTIAL(부분입고)
     private String receiptStatus;
+
+    // 같은 발주에 작성중 DRAFT 입고서가 없으면 null, 있으면 해당 INBOUND_ID
+    private Long draftInboundId;
 }
