@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.stocktake.mapper.StocktakeMapper">
+
+    <!-- 재고실사 등록 시 선택할 사용 중인 창고 목록 -->
+    <select id="findWarehouseOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeWarehouseOptionDto">
+        SELECT
+        warehouse_id AS "warehouseId",
+        warehouse_name AS "warehouseName"
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND use_yn = 'Y'
+        ORDER BY warehouse_name, warehouse_id
+    </select>
+
+    <!-- 재고실사 등록 시 선택할 사용 중인 상품 목록 -->
+    <select id="findProductOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeProductOptionDto">
+        SELECT
+        product_id AS "productId",
+        product_name AS "productName",
+        lot_managed_yn AS "lotManagedYn"
+        FROM product
+        WHERE company_id = #{companyId}
+        AND use_yn = 'Y'
+        ORDER BY product_name, product_id
+    </select>
+
+    <!-- 선택한 창고에 보관된 상품 LOT 목록 -->
+    <select id="findLotOptions"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeLotOptionDto">
+        SELECT
+        l.lot_id AS "lotId",
+        l.lot_no AS "lotNo",
+        ls.quantity AS "quantity"
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND l.product_id = #{productId}
+        ORDER BY l.lot_id
+    </select>
+
+    <!-- 회사에 속한 창고인지 확인 -->
+    <select id="countUsableWarehouse" resultType="int">
+        SELECT COUNT(*)
+        FROM warehouse
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+    </select>
+
+    <!-- 회사에 속하고 사용 중인 상품인지 확인 -->
+    <select id="countUsableProduct" resultType="int">
+        SELECT COUNT(*)
+        FROM product
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 상품의 LOT 관리 여부 조회 -->
+    <select id="findLotManagedYn" resultType="string">
+        SELECT lot_managed_yn
+        FROM product
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 선택한 LOT가 해당 회사·상품의 LOT인지 확인 -->
+    <select id="countLotForProduct" resultType="int">
+        SELECT COUNT(*)
+        FROM lot
+        WHERE company_id = #{companyId}
+        AND product_id = #{productId}
+        AND lot_id = #{lotId}
+    </select>
+
+    <!-- LOT 비관리 상품의 창고별 전산 재고 -->
+    <select id="findStockQty" resultType="java.math.BigDecimal">
+        SELECT quantity
+        FROM stock
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+    </select>
+
+    <!-- LOT 관리 상품의 LOT별 전산 재고 -->
+    <select id="findLotStockQty" resultType="java.math.BigDecimal">
+        SELECT ls.quantity
+        FROM lot_stock ls
+        JOIN lot l
+        ON l.lot_id = ls.lot_id
+        WHERE ls.company_id = #{companyId}
+        AND ls.warehouse_id = #{warehouseId}
+        AND l.product_id = #{productId}
+        AND ls.lot_id = #{lotId}
+    </select>
+
+    <!-- 재고실사 헤더 저장 -->
+    <insert id="insertStocktake"
+            parameterType="com.foodlogistics.erp.stocktake.dto.StocktakeSaveDto"
+            useGeneratedKeys="true"
+            keyProperty="stocktakeId"
+            keyColumn="STOCKTAKE_ID">
+
+        INSERT INTO stocktake (
+        company_id,
+        stocktake_no,
+        warehouse_id,
+        status,
+        memo,
+        created_by
+        )
+        VALUES (
+        #{companyId},
+        #{stocktakeNo},
+        #{warehouseId},
+        'DRAFT',
+        #{memo},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- 재고실사 품목 한 줄 저장 -->
+    <insert id="insertStocktakeItem">
+        INSERT INTO stocktake_item (
+        stocktake_id,
+        line_no,
+        product_id,
+        lot_id,
+        system_qty,
+        actual_qty,
+        difference_qty,
+        reason,
+        created_by
+        )
+        VALUES (
+        #{stocktakeId},
+        #{lineNo},
+        #{item.productId},
+        #{item.lotId},
+        #{item.systemQty},
+        #{item.actualQty},
+        #{item.differenceQty},
+        #{item.reason},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- 최근 등록한 재고실사부터 목록 조회 -->
+    <select id="findAllByCompanyId"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeResponseDto">
+
+        SELECT
+        st.stocktake_id AS "stocktakeId",
+        st.stocktake_no AS "stocktakeNo",
+        w.warehouse_name AS "warehouseName",
+        st.stocktake_date AS "stocktakeDate",
+        st.status AS "status"
+        FROM stocktake st
+        JOIN warehouse w
+        ON w.warehouse_id = st.warehouse_id
+        WHERE st.company_id = #{companyId}
+        ORDER BY st.stocktake_id DESC
+
+    </select>
+
+
+    <!-- 회사에 속한 재고실사 헤더 정보 한 건을 조회 -->
+    <select
+            id="findDetailById"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeDetailHeaderDto"
+    >
+        SELECT
+        st.stocktake_id AS "stocktakeId",
+        st.stocktake_no AS "stocktakeNo",
+        st.warehouse_id AS "warehouseId",
+        w.warehouse_name AS "warehouseName",
+        st.stocktake_date AS "stocktakeDate",
+        st.status AS "status",
+        st.memo AS "memo"
+        FROM stocktake st
+        JOIN warehouse w
+        ON w.warehouse_id = st.warehouse_id
+        AND w.company_id = st.company_id
+        WHERE st.company_id = #{companyId}
+        AND st.stocktake_id = #{stocktakeId}
+    </select>
+
+    <!-- 선택한 재고실사에 포함된 품목 목록을 조회 -->
+    <select
+            id="findItemsByStocktakeId"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeItemResponseDto"
+    >
+        SELECT
+        sti.stocktake_item_id AS "stocktakeItemId",
+        sti.line_no AS "lineNo",
+        sti.product_id AS "productId",
+        p.product_name AS "productName",
+        sti.lot_id AS "lotId",
+        l.lot_no AS "lotNo",
+        sti.system_qty AS "systemQty",
+        sti.actual_qty AS "actualQty",
+        sti.difference_qty AS "differenceQty",
+        sti.reason AS "reason"
+        FROM stocktake_item sti
+        JOIN product p
+        ON p.product_id = sti.product_id
+        LEFT JOIN lot l
+        ON l.lot_id = sti.lot_id
+        WHERE sti.stocktake_id = #{stocktakeId}
+        ORDER BY sti.line_no
+    </select>
+
+    <!-- 확정 시 재고에 반영할 재고실사 품목의 차이 수량 -->
+    <select
+            id="findConfirmItemsByStocktakeId"
+            resultType="com.foodlogistics.erp.stocktake.dto.StocktakeConfirmItemDto"
+    >
+        SELECT
+        product_id AS "productId",
+        lot_id AS "lotId",
+        difference_qty AS "differenceQty"
+        FROM stocktake_item
+        WHERE stocktake_id = #{stocktakeId}
+        ORDER BY line_no
+    </select>
+
+    <!-- 한 번 확정된 문서는 다시 확정할 수 없도록 상태를 조건부 변경한다. -->
+    <update id="confirmStocktake">
+        UPDATE stocktake
+        SET
+        status = 'CONFIRMED',
+        confirmed_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        confirmed_by = #{confirmedBy},
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{confirmedBy}
+        WHERE company_id = #{companyId}
+        AND stocktake_id = #{stocktakeId}
+        AND status = 'DRAFT'
+    </update>
+
+    <!-- LOT 관리 상품은 해당 LOT 재고부터 차이 수량만큼 조건부 조정한다. -->
+    <update id="adjustLotStockQuantity">
+        UPDATE lot_stock
+        SET quantity = quantity + #{differenceQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND lot_id = #{lotId}
+        AND quantity + #{differenceQty} >= 0
+        AND EXISTS (
+        SELECT 1
+        FROM lot l
+        WHERE l.lot_id = lot_stock.lot_id
+        AND l.company_id = #{companyId}
+        AND l.product_id = #{productId}
+        )
+    </update>
+
+    <!-- LOT 여부와 관계없이 창고·상품별 전체 재고를 같은 차이 수량만큼 조정한다. -->
+    <update id="adjustStockQuantity">
+        UPDATE stock
+        SET quantity = quantity + #{differenceQty}
+        WHERE company_id = #{companyId}
+        AND warehouse_id = #{warehouseId}
+        AND product_id = #{productId}
+        AND quantity + #{differenceQty} >= 0
+    </update>
+
+    <!-- 재고실사 확정으로 생긴 증감만 재고 이력에 남긴다. -->
+    <insert id="insertStocktakeAdjustmentHistory">
+        INSERT INTO stock_history (
+        company_id,
+        warehouse_id,
+        product_id,
+        lot_id,
+        movement_type,
+        change_qty,
+        source_type,
+        source_id,
+        created_by,
+        created_at
+        )
+        VALUES (
+        #{companyId},
+        #{warehouseId},
+        #{productId},
+        #{lotId},
+        'ADJUSTMENT',
+        #{differenceQty},
+        'STOCKTAKE',
+        #{stocktakeId},
+        #{createdBy},
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        )
+        )
+    </insert>
+
+    <!-- 작성중 재고실사의 창고와 메모를 변경한다. -->
+    <update id="updateStocktakeHeader">
+        UPDATE stocktake
+        SET
+            warehouse_id = #{warehouseId},
+            memo = #{memo},
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE company_id = #{companyId}
+        AND stocktake_id = #{stocktakeId}
+        AND status = 'DRAFT'
+    </update>
+
+    <!-- 작성중 재고실사의 기존 품목을 삭제한다. -->
+    <delete id="deleteStocktakeItems">
+        DELETE FROM stocktake_item
+        WHERE stocktake_id = #{stocktakeId}
+        AND EXISTS (
+            SELECT 1
+            FROM stocktake st
+            WHERE st.stocktake_id = stocktake_item.stocktake_id
+            AND st.company_id = #{companyId}
+            AND st.status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- 재고 반영 전인 작성중 실사 문서만 삭제한다. -->
+    <delete id="deleteStocktake">
+        DELETE FROM stocktake
+        WHERE company_id = #{companyId}
+        AND stocktake_id = #{stocktakeId}
+        AND status = 'DRAFT'
+    </delete>
+
+</mapper>

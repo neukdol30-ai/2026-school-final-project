@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.salesorder.mapper.SalesOrderMapper">
+
+    <select id="findAllByCompanyId"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto">
+
+        SELECT
+        so.sales_order_id AS "salesOrderId",
+        so.order_no AS "orderNo",
+        so.customer_id AS "customerId",
+        bp.partner_name AS "customerName",
+        so.order_status AS "orderStatus",
+        so.shipment_status AS "shipmentStatus"
+        FROM sales_order so
+        JOIN business_partner bp
+        ON bp.partner_id = so.customer_id
+        WHERE so.company_id = #{companyId}
+        ORDER BY so.sales_order_id DESC
+    </select>
+
+
+    <select id="findById"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderResponseDto">
+
+        SELECT
+        so.sales_order_id AS "salesOrderId",
+        so.order_no AS "orderNo",
+        so.customer_id AS "customerId",
+        bp.partner_name AS "customerName",
+        so.order_status AS "orderStatus",
+        so.shipment_status AS "shipmentStatus"
+        FROM sales_order so
+        JOIN business_partner bp
+        ON bp.partner_id = so.customer_id
+        WHERE so.company_id = #{companyId}
+        AND so.sales_order_id = #{salesOrderId}
+
+    </select>
+
+
+    <select id="findItemsBySalesOrderId"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderItemResponseDto">
+
+        SELECT
+        soi.sales_order_item_id AS "salesOrderItemId",
+        soi.product_unit_id AS "productUnitId",
+        p.product_id AS "productId",
+        p.product_name AS "productName",
+        p.lot_managed_yn AS "lotManagedYn",
+        soi.conversion_qty AS "conversionQty",
+        soi.ordered_qty AS "orderedQty",
+        soi.unit_price AS "unitPrice",
+        soi.shipped_qty / soi.conversion_qty AS "shippedQty",
+        (soi.base_ordered_qty - soi.shipped_qty)
+            / soi.conversion_qty AS "remainingQty"
+        FROM sales_order_item soi
+        JOIN sales_order so
+        ON so.sales_order_id = soi.sales_order_id
+        JOIN product p
+        ON p.product_id = soi.product_id
+        WHERE so.company_id = #{companyId}
+        AND soi.sales_order_id = #{salesOrderId}
+        ORDER BY soi.line_no
+
+    </select>
+
+    <!-- 상품 단위 ID로 상품·환산수량·과세유형을 조회 -->
+    <select id="findOrderItemInfoByProductUnitId"
+            resultType="com.foodlogistics.erp.salesorder.dto.SalesOrderItemOrderInfoDto">
+
+        SELECT
+        p.company_id AS "companyId",
+        p.product_id AS "productId",
+        pu.conversion_qty AS "conversionQty",
+        p.tax_type AS "taxType"
+        FROM product_unit pu
+        JOIN product p
+        ON p.product_id = pu.product_id
+        WHERE pu.product_unit_id = #{productUnitId}
+        AND pu.use_yn = 'Y'
+        AND p.use_yn = 'Y'
+
+    </select>
+
+    <select id="countUsableCustomer" resultType="int">
+
+        SELECT COUNT(*)
+        FROM business_partner bp
+        WHERE bp.partner_id = #{customerId}
+            AND bp.company_id = #{companyId}
+            AND bp.customer_yn = 'Y'
+            AND bp.use_yn = 'Y'
+
+    </select>
+
+
+    <insert id="insertSalesOrder"
+            parameterType="com.foodlogistics.erp.salesorder.dto.SalesOrderSaveDto"
+            useGeneratedKeys="true"
+            keyProperty="salesOrderId"
+            keyColumn="SALES_ORDER_ID">
+
+        INSERT INTO sales_order (
+            company_id,
+            order_no,
+            customer_id,
+            order_status,
+            shipment_status,
+            total_supply_amount,
+            total_tax_amount,
+            total_amount,
+            created_by
+        )
+        VALUES (
+            #{companyId},
+            #{orderNo},
+            #{customerId},
+            'DRAFT',
+            'NOT_SHIPPED',
+            #{totalSupplyAmount},
+            #{totalTaxAmount},
+            #{totalAmount},
+            #{createdBy}
+        )
+
+    </insert>
+
+    <insert id="insertSalesOrderItem">
+
+            INSERT INTO sales_order_item (
+                sales_order_id,
+                line_no,
+                product_id,
+                product_unit_id,
+                ordered_qty,
+                conversion_qty,
+                base_ordered_qty,
+                shipped_qty,
+                unit_price,
+                tax_type,
+                supply_amount,
+                tax_amount,
+                total_amount,
+                version,
+                created_by
+            )
+            VALUES (
+                #{salesOrderId},
+                #{lineNo},
+                #{item.productId},
+                #{item.productUnitId},
+                #{item.orderedQty},
+                #{item.conversionQty},
+                #{item.baseOrderedQty},
+                0,
+                #{item.unitPrice},
+                #{item.taxType},
+                #{item.supplyAmount},
+                #{item.taxAmount},
+                #{item.totalAmount},
+                0,
+                #{createdBy}
+            )
+    </insert>
+
+    <update id="confirmSalesOrder">
+
+        UPDATE sales_order
+        SET
+        order_status = 'CONFIRMED',
+        confirmed_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        confirmed_by = #{confirmedBy},
+        updated_at =
+        CAST(
+        SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+        AS TIMESTAMP
+        ),
+        updated_by = #{confirmedBy}
+        WHERE sales_order_id = #{salesOrderId}
+        AND company_id = #{companyId}
+        AND order_status = 'DRAFT'
+    </update>
+
+    <!-- 초안 판매주문의 거래처와 금액 요약을 수정한다. -->
+    <update id="updateSalesOrder">
+        UPDATE sales_order
+        SET
+            customer_id = #{salesOrder.customerId},
+            total_supply_amount = #{salesOrder.totalSupplyAmount},
+            total_tax_amount = #{salesOrder.totalTaxAmount},
+            total_amount = #{salesOrder.totalAmount},
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{updatedBy}
+        WHERE sales_order_id = #{salesOrder.salesOrderId}
+        AND company_id = #{salesOrder.companyId}
+        AND order_status = 'DRAFT'
+    </update>
+
+    <!-- 초안 판매주문의 기존 품목을 지운 뒤 새 품목으로 다시 저장한다. -->
+    <delete id="deleteSalesOrderItems">
+        DELETE FROM sales_order_item
+        WHERE sales_order_id = #{salesOrderId}
+        AND EXISTS (
+            SELECT 1
+            FROM sales_order so
+            WHERE so.sales_order_id = sales_order_item.sales_order_id
+            AND so.company_id = #{companyId}
+            AND so.order_status = 'DRAFT'
+        )
+    </delete>
+
+    <!-- 출고된 수량이나 진행 중인 출고서가 없는 주문만 취소한다. -->
+    <update id="cancelSalesOrder">
+        UPDATE sales_order so
+        SET
+            order_status = 'CANCELLED',
+            updated_at = CAST(
+                SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+                AS TIMESTAMP
+            ),
+            updated_by = #{cancelledBy}
+        WHERE so.sales_order_id = #{salesOrderId}
+        AND so.company_id = #{companyId}
+        AND so.order_status IN ('DRAFT', 'CONFIRMED')
+        AND so.shipment_status = 'NOT_SHIPPED'
+        AND NOT EXISTS (
+            SELECT 1
+            FROM outbound ob
+            WHERE ob.sales_order_id = so.sales_order_id
+            AND ob.company_id = so.company_id
+            AND ob.status IN ('DRAFT', 'CONFIRMED')
+        )
+    </update>
+</mapper>

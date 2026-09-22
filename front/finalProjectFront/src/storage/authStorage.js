@@ -33,6 +33,52 @@ export function getAccessToken() {
     );
 }
 
+function getTokenPayload() {
+    const accessToken = getAccessToken();
+
+    if (!accessToken) {
+        return null;
+    }
+
+    try {
+        const encodedPayload = accessToken.split(".")[1];
+
+        if (!encodedPayload) {
+            return null;
+        }
+
+        const normalizedPayload = encodedPayload
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
+            .padEnd(
+                Math.ceil(encodedPayload.length / 4) * 4,
+                "=",
+            );
+        const decodedBytes = Uint8Array.from(
+            atob(normalizedPayload),
+            (character) => character.charCodeAt(0),
+        );
+
+        return JSON.parse(
+            new TextDecoder().decode(decodedBytes),
+        );
+    } catch {
+        return null;
+    }
+}
+
+export function getAuthorities() {
+    const authorities = getTokenPayload()?.authorities;
+
+    return Array.isArray(authorities)
+        ? authorities
+        : [];
+}
+
+export function hasAuthority(authority) {
+    return getAuthorities().includes(authority);
+}
+
 export function getUserSession() {
     const savedSession =
         localStorage.getItem(USER_SESSION_KEY);

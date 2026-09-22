@@ -1,0 +1,248 @@
+.stocktake-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stocktake-detail-page-header,
+.stocktake-detail-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stocktake-detail-page-header h1,
+.stocktake-detail-panel h2 {
+  margin: 0;
+  color: #202830;
+}
+
+.stocktake-detail-page-header h1 {
+  font-size: 24px;
+}
+
+.stocktake-detail-page-header p,
+.stocktake-item-title p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.stocktake-new-link,
+.stocktake-list-link,
+.stocktake-confirm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stocktake-delete-button {
+  height: 38px;
+  padding: 0 14px;
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #f0c8c8;
+  border-radius: 6px;
+}
+
+.stocktake-delete-button:hover:not(:disabled) {
+  background-color: #fff4f4;
+}
+
+.stocktake-delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.stocktake-new-link {
+  color: #ffffff;
+  background-color: #1769aa;
+}
+
+.stocktake-list-link {
+  color: #4e5965;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+}
+
+.stocktake-confirm-button {
+  color: #ffffff;
+  background-color: #16804b;
+  border: 1px solid #16804b;
+}
+
+.stocktake-confirm-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.stocktake-detail-panel {
+  padding: 22px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.stocktake-detail-panel h2 {
+  font-size: 17px;
+}
+
+.stocktake-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stocktake-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 66px;
+  padding: 14px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+.stocktake-summary-item > span,
+.stocktake-memo-box > span {
+  font-size: 12px;
+  color: #78838e;
+}
+
+.stocktake-summary-item strong {
+  font-size: 14px;
+  color: #28323c;
+}
+
+.stocktake-memo-box {
+  margin-top: 16px;
+  padding: 14px;
+  background-color: #f7f8fa;
+  border-radius: 6px;
+}
+
+.stocktake-memo-box p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #4e5965;
+  white-space: pre-wrap;
+}
+
+.stocktake-item-title {
+  margin-bottom: 16px;
+}
+
+.stocktake-detail-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.stocktake-detail-table {
+  width: 100%;
+  min-width: 920px;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.stocktake-detail-table th,
+.stocktake-detail-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e7eaed;
+}
+
+.stocktake-detail-table th {
+  color: #4e5965;
+  background-color: #f7f8fa;
+}
+
+.stocktake-detail-table tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+.stocktake-detail-empty-row {
+  padding: 24px !important;
+  text-align: center !important;
+  color: #78838e;
+}
+
+.stocktake-detail-message {
+  margin: 0;
+  font-size: 13px;
+  color: #65717c;
+}
+
+.stocktake-detail-message.error {
+  padding: 14px 16px;
+  color: #c62828;
+  background-color: #fff3f3;
+  border: 1px solid #f2caca;
+  border-radius: 7px;
+}
+
+.stocktake-status-badge {
+  display: inline-flex;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.stocktake-status-badge.draft {
+  color: #9a6a00;
+  background-color: #fff1c7;
+}
+
+.stocktake-status-badge.confirmed {
+  color: #20834a;
+  background-color: #dff5e7;
+}
+
+.stocktake-status-badge.cancelled {
+  color: #687482;
+  background-color: #edf0f3;
+}
+
+.difference-quantity {
+  font-weight: 700;
+}
+
+.difference-quantity.positive {
+  color: #20834a;
+}
+
+.difference-quantity.negative {
+  color: #c62828;
+}
+
+.difference-quantity.same {
+  color: #65717c;
+}
+
+@media (max-width: 1000px) {
+  .stocktake-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .stocktake-detail-page-header {
+    flex-direction: column;
+  }
+
+  .stocktake-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

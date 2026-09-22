@@ -1,0 +1,231 @@
+.stocktake-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stocktake-list-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stocktake-list-page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #202830;
+}
+
+.stocktake-list-page-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #818b95;
+}
+
+.stocktake-create-link {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #1769aa;
+  border-radius: 6px;
+}
+
+.stocktake-create-link:hover {
+  background-color: #12578e;
+}
+
+.stocktake-search-form,
+.stocktake-list-result {
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.stocktake-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stocktake-search-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stocktake-search-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+.stocktake-search-fields input,
+.stocktake-search-fields select {
+  height: 38px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #202830;
+  background-color: #ffffff;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+  outline: none;
+}
+
+.stocktake-search-fields input:focus,
+.stocktake-search-fields select:focus {
+  border-color: #1769aa;
+  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.stocktake-search-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.stocktake-search-actions button {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+}
+
+.stocktake-search-actions button[type="submit"] {
+  color: #ffffff;
+  background-color: #1769aa;
+  border-color: #1769aa;
+}
+
+.stocktake-search-actions button:hover:not(:disabled) {
+  background-color: #f4f6f8;
+}
+
+.stocktake-search-actions button[type="submit"]:hover:not(:disabled) {
+  background-color: #12578e;
+  border-color: #12578e;
+}
+
+.stocktake-search-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stocktake-result-summary {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #65717c;
+}
+
+.stocktake-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.stocktake-table {
+  width: 100%;
+  min-width: 650px;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.stocktake-table th,
+.stocktake-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e7eaed;
+}
+
+.stocktake-table th {
+  color: #4e5965;
+  background-color: #f7f8fa;
+}
+
+.stocktake-table tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+.stocktake-detail-link {
+  font-weight: 600;
+  color: #1769aa;
+  text-decoration: none;
+}
+
+.stocktake-detail-link:hover {
+  text-decoration: underline;
+}
+
+.stocktake-empty-row {
+  padding: 24px !important;
+  text-align: center !important;
+  color: #78838e;
+}
+
+.stocktake-list-message {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #65717c;
+  background-color: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.stocktake-list-message.error {
+  color: #c62828;
+  background-color: #fff3f3;
+  border-color: #f2caca;
+}
+
+.stocktake-status-badge {
+  display: inline-flex;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.stocktake-status-badge.draft {
+  color: #9a6a00;
+  background-color: #fff1c7;
+}
+
+.stocktake-status-badge.confirmed {
+  color: #20834a;
+  background-color: #dff5e7;
+}
+
+.stocktake-status-badge.cancelled {
+  color: #687482;
+  background-color: #edf0f3;
+}
+
+@media (max-width: 800px) {
+  .stocktake-list-page-header {
+    flex-direction: column;
+  }
+
+  .stocktake-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .stocktake-search-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

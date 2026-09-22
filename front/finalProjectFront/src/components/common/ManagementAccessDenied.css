@@ -1,0 +1,49 @@
+.management-access-denied {
+    display: flex;
+    min-width: 720px;
+    min-height: 360px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px;
+    text-align: center;
+    background-color: #ffffff;
+    border: 1px solid #e1e6ea;
+    border-radius: 9px;
+}
+
+.management-access-denied-icon {
+    display: flex;
+    width: 46px;
+    height: 46px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #c62828;
+    background-color: #fff0f0;
+    border-radius: 50%;
+}
+
+.management-access-denied h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #252d36;
+}
+
+.management-access-denied p {
+    margin: 10px 0 0;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #707b85;
+}
+
+button.permission-disabled,
+button.permission-disabled:hover {
+    color: #8a949e !important;
+    background-color: #e8ebee !important;
+    border-color: #d4d9dd !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
