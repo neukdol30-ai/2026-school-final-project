@@ -1,0 +1,277 @@
+/* 기존 공통 page/content-panel과 발주 화면의 색상·간격을 사용한다. 공통 CSS는 수정하지 않는다. */
+.inventory-page,
+.inventory-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.inventory-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #202830;
+}
+
+.inventory-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #78838e;
+}
+
+/* 탭과 입력·버튼 스타일을 inventory 범위로 제한하여 기존 업무 화면에 영향을 주지 않는다. */
+.inventory-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #d7dce1;
+}
+
+.inventory-tabs button {
+  padding: 12px 20px;
+  color: #65717c;
+  font-size: 14px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+
+.inventory-tabs button[aria-selected="true"] {
+  color: #1769aa;
+  border-bottom-color: #1769aa;
+}
+
+.inventory-page button:focus-visible,
+.inventory-panel:focus-visible {
+  outline: 3px solid #9fc1dd;
+  outline-offset: 2px;
+}
+
+.inventory-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventory-search-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.inventory-search-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b45;
+}
+
+.inventory-search-fields input,
+.inventory-search-fields select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  color: #202830;
+  font-size: 13px;
+  background: #ffffff;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+}
+
+.inventory-search-fields input:focus,
+.inventory-search-fields select:focus {
+  outline: none;
+  border-color: #1769aa;
+  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+}
+
+.inventory-search-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.inventory-search-footer p {
+  margin: 0;
+  font-size: 12px;
+  color: #78838e;
+}
+
+.inventory-zero-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #323b45;
+  cursor: pointer;
+}
+
+.inventory-zero-filter input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1769aa;
+}
+
+.inventory-search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.inventory-search-actions button {
+  height: 38px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5965;
+  background: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.inventory-search-actions button[type="submit"] {
+  color: #ffffff;
+  background: #1769aa;
+  border-color: #1769aa;
+}
+
+.inventory-search-actions button:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.inventory-search-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inventory-message {
+  margin: 0;
+  padding: 18px 20px;
+  font-size: 13px;
+  color: #78838e;
+  background: #ffffff;
+  border: 1px solid #e4e8ec;
+  border-radius: 7px;
+}
+
+.inventory-message.error {
+  color: #c62828;
+  background: #fff3f3;
+  border-color: #f2caca;
+}
+
+.inventory-results {
+  padding: 0;
+  overflow: hidden;
+}
+
+.inventory-result-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  font-size: 13px;
+  color: #65717c;
+}
+
+.inventory-empty {
+  margin: 0;
+  padding: 26px 18px;
+  text-align: center;
+  font-size: 13px;
+  color: #78838e;
+}
+
+/* 작은 화면에서도 열을 생략하지 않고 가로 스크롤로 모든 정보를 확인한다. */
+.inventory-table-wrap {
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-top: 1px solid #e7eaed;
+}
+
+.inventory-table th {
+  color: #4e5965;
+  background: #f7f8fa;
+}
+
+.inventory-table td {
+  color: #323b45;
+}
+
+.inventory-table td small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #78838e;
+}
+
+.inventory-table tbody tr:hover {
+  background: #f5f9fc;
+}
+
+.inventory-table .inventory-quantity {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-table .increase {
+  color: #176b3a;
+}
+
+.inventory-table .decrease {
+  color: #b3261e;
+}
+
+/* 표 제목은 화면 읽기 도구에 제공하되 시각적으로는 중복 표시하지 않는다. */
+.inventory-screen-reader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .inventory-search-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .inventory-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-tabs button {
+    flex: 1;
+    padding: 12px 8px;
+  }
+
+  .inventory-search-footer,
+  .inventory-result-summary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-search-actions {
+    justify-content: flex-end;
+  }
+}

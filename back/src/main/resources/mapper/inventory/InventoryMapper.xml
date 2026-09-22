@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodlogistics.erp.inventory.mapper.InventoryMapper">
+
+    <!-- 컬럼과 DTO 필드를 명시적으로 연결하여 실행환경의 자동 이름 변환 설정에 의존하지 않는다. -->
+    <resultMap id="stockResultMap" type="com.foodlogistics.erp.inventory.dto.InventoryStockResponse">
+        <id column="stock_id" property="stockId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="base_unit_code" property="baseUnitCode"/>
+        <result column="base_unit_name" property="baseUnitName"/>
+        <result column="quantity" property="quantity"/>
+    </resultMap>
+
+    <resultMap id="lotResultMap" type="com.foodlogistics.erp.inventory.dto.InventoryLotResponse">
+        <id column="lot_stock_id" property="lotStockId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="base_unit_code" property="baseUnitCode"/>
+        <result column="base_unit_name" property="baseUnitName"/>
+        <result column="lot_id" property="lotId"/>
+        <result column="lot_no" property="lotNo"/>
+        <result column="manufacture_date" property="manufactureDate"/>
+        <result column="expiry_date" property="expiryDate"/>
+        <result column="quantity" property="quantity"/>
+    </resultMap>
+
+    <resultMap id="historyResultMap" type="com.foodlogistics.erp.inventory.dto.InventoryHistoryResponse">
+        <id column="stock_history_id" property="stockHistoryId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="base_unit_code" property="baseUnitCode"/>
+        <result column="base_unit_name" property="baseUnitName"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="lot_id" property="lotId"/>
+        <result column="lot_no" property="lotNo"/>
+        <result column="movement_type" property="movementType"/>
+        <result column="change_qty" property="changeQty"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="source_no" property="sourceNo"/>
+    </resultMap>
+
+    <!-- 세 조회에서 동일하게 사용하는 창고·상품·실제 기준 단위 정보다. -->
+    <sql id="displayColumns">
+        w.warehouse_id,
+        w.warehouse_code,
+        w.warehouse_name,
+        p.product_id,
+        p.product_code,
+        p.product_name,
+        u.unit_code AS base_unit_code,
+        u.unit_name AS base_unit_name
+    </sql>
+
+    <!--
+        PRODUCT_UNIT은 상품별 단위와 환산값을 가진다. is_base_yn='Y'인 단위만 연결한다.
+        V12의 고유 인덱스가 상품당 기준 단위를 최대 한 건으로 제한하여 재고 행이 중복되지 않는다.
+        UNIT은 회사 공통 단위표이며 company_id가 없다. 회사가 검증된 PRODUCT를 통해 연결한다.
+        LEFT JOIN은 기준 단위가 없는 상품도 재고를 표시하기 위해 사용한다.
+        사용 중지된 상품·창고·단위도 실제 재고 및 과거 이력 확인에서 제외하지 않는다.
+    -->
+    <sql id="baseUnitJoin">
+        LEFT JOIN product_unit bu
+            ON bu.product_id = p.product_id
+            AND bu.is_base_yn = 'Y'
+        LEFT JOIN unit u
+            ON u.unit_id = bu.unit_id
+    </sql>
+
+    <!--
+        입력된 검색조건만 붙이는 동적 SQL이다.
+        모든 검색값은 #{...}로 바인딩한다. 입력값으로 SQL 문장 자체를 만들지 않는다.
+        INSTR는 부분 문자열 검색이며 %, _도 와일드카드가 아닌 실제 문자로 검색한다.
+    -->
+    <sql id="warehouseProductFilters">
+        <if test="warehouseKeyword != null">
+            AND (
+                INSTR(LOWER(w.warehouse_code), LOWER(#{warehouseKeyword})) > 0
+                OR INSTR(LOWER(w.warehouse_name), LOWER(#{warehouseKeyword})) > 0
+            )
+        </if>
+        <if test="productKeyword != null">
+            AND (
+                INSTR(LOWER(p.product_code), LOWER(#{productKeyword})) > 0
+                OR INSTR(LOWER(p.product_name), LOWER(#{productKeyword})) > 0
+            )
+        </if>
+    </sql>
+
+    <!-- STOCK은 창고·상품별 전체 현재고다. LOT_STOCK 합계를 다시 더하지 않는다. -->
+    <select id="findStocks" resultMap="stockResultMap">
+        SELECT
+            s.stock_id,
+            <include refid="displayColumns"/>,
+            s.quantity
+        FROM stock s
+        INNER JOIN warehouse w
+            ON w.warehouse_id = s.warehouse_id
+            AND w.company_id = s.company_id
+        INNER JOIN product p
+            ON p.product_id = s.product_id
+            AND p.company_id = s.company_id
+        <include refid="baseUnitJoin"/>
+        <!-- 회사 조건은 선택사항이 아니다. 로그인 회사의 재고만 조회한다. -->
+        WHERE s.company_id = #{companyId}
+        <!-- 체크 시 기존 0 재고 행도 포함한다. 존재하지 않는 재고 행을 새로 만들지는 않는다. -->
+        <if test="!includeZero">
+            AND s.quantity > 0
+        </if>
+        <include refid="warehouseProductFilters"/>
+        ORDER BY w.warehouse_name, p.product_code, s.stock_id
+    </select>
+
+    <!-- LOT은 생산정보, LOT_STOCK은 해당 LOT의 창고별 수량이다. 상품은 LOT을 통해 찾는다. -->
+    <select id="findLots" resultMap="lotResultMap">
+        SELECT
+            ls.lot_stock_id,
+            l.lot_id,
+            l.lot_no,
+            <include refid="displayColumns"/>,
+            l.manufacture_date,
+            l.expiry_date,
+            ls.quantity
+        FROM lot_stock ls
+        INNER JOIN lot l
+            ON l.lot_id = ls.lot_id
+            AND l.company_id = ls.company_id
+        INNER JOIN warehouse w
+            ON w.warehouse_id = ls.warehouse_id
+            AND w.company_id = ls.company_id
+        INNER JOIN product p
+            ON p.product_id = l.product_id
+            AND p.company_id = ls.company_id
+        <include refid="baseUnitJoin"/>
+        WHERE ls.company_id = #{companyId}
+        <if test="!includeZero">
+            AND ls.quantity > 0
+        </if>
+        <include refid="warehouseProductFilters"/>
+        <if test="lotNo != null">
+            AND INSTR(LOWER(l.lot_no), LOWER(#{lotNo})) > 0
+        </if>
+        <!-- 소비기한이 없는 LOT은 마지막으로 보내고, 같은 날짜는 PK로 순서를 고정한다. -->
+        ORDER BY l.expiry_date ASC NULLS LAST, l.lot_id ASC, ls.lot_stock_id ASC
+    </select>
+
+    <!--
+        STOCK_HISTORY는 기존 증감 원인 기록이다. 원본 movement_type/source_type은 그대로 반환한다.
+        일반 상품은 LOT가 없으므로 LEFT JOIN하여 이력이 사라지지 않도록 한다.
+        업무 문서도 LEFT JOIN한다. 문서가 없으면 source_no만 null이고 이력은 남는다.
+    -->
+    <select id="findHistory" resultMap="historyResultMap">
+        SELECT
+            h.stock_history_id,
+            h.created_at,
+            <include refid="displayColumns"/>,
+            h.lot_id,
+            l.lot_no,
+            h.movement_type,
+            h.change_qty,
+            h.source_type,
+            h.source_id,
+            CASE
+                WHEN h.source_type IN ('INBOUND', 'INBOUND_CANCEL') THEN i.inbound_no
+                WHEN h.source_type IN ('OUTBOUND', 'OUTBOUND_CANCEL') THEN o.outbound_no
+                WHEN h.source_type = 'STOCKTAKE' THEN st.stocktake_no
+            END AS source_no
+        FROM stock_history h
+        INNER JOIN warehouse w
+            ON w.warehouse_id = h.warehouse_id
+            AND w.company_id = h.company_id
+        INNER JOIN product p
+            ON p.product_id = h.product_id
+            AND p.company_id = h.company_id
+        LEFT JOIN lot l
+            ON l.lot_id = h.lot_id
+            AND l.company_id = h.company_id
+            AND l.product_id = h.product_id
+        <include refid="baseUnitJoin"/>
+        <!-- 취소 출처도 원래 업무 ID로 문서번호를 연결한다. 회사 조건으로 타사 문서 연결을 막는다. -->
+        LEFT JOIN inbound i
+            ON h.source_type IN ('INBOUND', 'INBOUND_CANCEL')
+            AND i.inbound_id = h.source_id
+            AND i.company_id = h.company_id
+        LEFT JOIN outbound o
+            ON h.source_type IN ('OUTBOUND', 'OUTBOUND_CANCEL')
+            AND o.outbound_id = h.source_id
+            AND o.company_id = h.company_id
+        <!-- 실사의 변동유형은 ADJUSTMENT이지만 출처는 STOCKTAKE다. 출처 값으로 연결한다. -->
+        LEFT JOIN stocktake st
+            ON h.source_type = 'STOCKTAKE'
+            AND st.stocktake_id = h.source_id
+            AND st.company_id = h.company_id
+        WHERE h.company_id = #{companyId}
+        <!-- Service가 만든 한국시간 시작일 0시 이상, 종료일 다음 날 0시 미만을 조회한다. -->
+        AND h.created_at >= #{startAt, jdbcType=TIMESTAMP}
+        AND h.created_at &lt; #{endBefore, jdbcType=TIMESTAMP}
+        <include refid="warehouseProductFilters"/>
+        <if test="lotNo != null">
+            AND INSTR(LOWER(l.lot_no), LOWER(#{lotNo})) > 0
+        </if>
+        <if test="movementType != null">
+            AND h.movement_type = #{movementType}
+        </if>
+        <!-- 발생일시가 같은 이력도 PK를 함께 정렬하여 순서가 바뀌지 않도록 한다. -->
+        ORDER BY h.created_at DESC, h.stock_history_id DESC
+    </select>
+
+</mapper>

@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
-import EmptyPage from "./pages/EmptyPage";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 
@@ -30,6 +29,8 @@ import StocktakeDetailPage from "./pages/stocktake/StocktakeDetailPage";
 import InboundListPage from "./pages/inbound/InboundListPage.jsx";
 import InboundEditPage from "./pages/inbound/InboundEditPage.jsx";
 
+import InventoryPage from "./pages/inventory/InventoryPage.jsx";
+
 function App() {
   return (
     <Routes>
@@ -46,7 +47,10 @@ function App() {
           <Route path="/units" element={<UnitManagementPage />} />
 
           <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
-          <Route path="/purchase-orders/new" element={<PurchaseOrderCreatePage />} />
+          <Route
+            path="/purchase-orders/new"
+            element={<PurchaseOrderCreatePage />}
+          />
           <Route
             path="/purchase-orders/:purchaseOrderId"
             element={<PurchaseOrderDetailPage />}
@@ -55,7 +59,8 @@ function App() {
           <Route path="/inbounds" element={<InboundListPage />} />
           <Route path="/inbounds/new" element={<InboundEditPage />} />
           <Route path="/inbounds/:inboundId" element={<InboundEditPage />} />
-          <Route path="/inventory" element={<EmptyPage title="재고 / LOT" />} />
+
+          <Route path="/inventory" element={<InventoryPage />} />
 
           <Route path="/stocktakes" element={<StocktakeListPage />} />
           <Route path="/stocktakes/new" element={<StocktakeCreatePage />} />
