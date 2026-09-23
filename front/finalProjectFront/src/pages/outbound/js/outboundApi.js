@@ -1,5 +1,7 @@
 import { getAccessToken } from "../../../storage/authStorage";
-const OUTBOUND_API_URL = "http://localhost:8080/api/outbounds";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const OUTBOUND_API_URL = `${API_BASE_URL}/api/outbounds`;
 
 async function requestApi(url, options = {}, defaultErrorMessage) {
   const accessToken = getAccessToken(); // 로그인 후 저장된 JWT 토큰

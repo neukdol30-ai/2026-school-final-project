@@ -1,5 +1,7 @@
 import { getAccessToken } from "../../../storage/authStorage";
-const SALES_ORDER_API_URL = "http://localhost:8080/api/sales-orders";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const SALES_ORDER_API_URL = `${API_BASE_URL}/api/sales-orders`;
 
 async function requestApi(url, options = {}, defaultErrorMessage) {
   const accessToken = getAccessToken(); // 로그인 후 저장된 JWT 토큰

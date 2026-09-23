@@ -1,6 +1,7 @@
 import { getAccessToken } from "../../../storage/authStorage";
-
-const STOCKTAKE_API_URL = "http://localhost:8080/api/stocktakes";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const STOCKTAKE_API_URL = `${API_BASE_URL}/api/stocktakes`;
 
 async function requestApi(url, options = {}, defaultErrorMessage) {
   const accessToken = getAccessToken();
